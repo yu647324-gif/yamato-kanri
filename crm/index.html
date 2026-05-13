@@ -1,0 +1,3119 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<meta name="theme-color" content="#06080d" />
+<title>YAMATO CRM — 顧客管理システム</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+:root {
+  --bg: #06080d;
+  --surface: #0d1017;
+  --surface2: #131820;
+  --surface3: #1a2030;
+  --border: #1e2535;
+  --border2: #252d40;
+  --accent: #00c8ff;
+  --accent-dim: rgba(0,200,255,0.12);
+  --accent-glow: 0 0 20px rgba(0,200,255,0.25);
+  --green: #00e676;
+  --green-dim: rgba(0,230,118,0.12);
+  --red: #ff3b3b;
+  --red-dim: rgba(255,59,59,0.12);
+  --orange: #ff7043;
+  --orange-dim: rgba(255,112,67,0.12);
+  --yellow: #ffc107;
+  --yellow-dim: rgba(255,193,7,0.12);
+  --purple: #b388ff;
+  --purple-dim: rgba(179,136,255,0.12);
+  --text: #dde4f0;
+  --text2: #8a94a8;
+  --text3: #4a5268;
+  --tap-min: 44px;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body {
+  font-family: 'Noto Sans JP', sans-serif; background: var(--bg); color: var(--text);
+  min-height: 100vh; min-height: 100dvh; overflow-x: hidden;
+  -webkit-font-smoothing: antialiased; -webkit-text-size-adjust: 100%;
+}
+input, select, textarea { font-size: 16px; font-family: inherit; color: inherit; }
+button { font-family: inherit; cursor: pointer; }
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text3); }
+
+/* ==================== SETUP / LOGIN SCREEN ==================== */
+.fullscreen { display: none; min-height: 100vh; min-height: 100dvh; align-items: center; justify-content: center; padding: 24px; position: relative; }
+.fullscreen.active { display: flex; }
+.fullscreen::before {
+  content: ''; position: absolute; inset: 0;
+  background: radial-gradient(ellipse 80% 60% at 20% 60%, #001a2e 0%, transparent 60%),
+              radial-gradient(ellipse 60% 40% at 80% 20%, #0d001f 0%, transparent 50%);
+  pointer-events: none;
+}
+.fullscreen::after {
+  content: ''; position: absolute; inset: 0;
+  background-image: linear-gradient(rgba(0,200,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,200,255,0.04) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
+  pointer-events: none;
+}
+.auth-card {
+  position: relative; z-index: 1; width: 100%; max-width: 460px;
+  background: var(--surface); border: 1px solid var(--border2);
+  padding: 40px 32px; box-shadow: 0 0 80px rgba(0,200,255,0.06), 0 24px 60px rgba(0,0,0,0.6);
+  border-radius: 4px;
+}
+.auth-card.wide { max-width: 620px; }
+.auth-card::before {
+  content: ''; position: absolute; top: 0; left: 20%; right: 20%; height: 2px;
+  background: linear-gradient(90deg, transparent, var(--accent), transparent);
+}
+.auth-eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 4px; color: var(--accent); text-transform: uppercase; margin-bottom: 6px; }
+.auth-title { font-size: 24px; font-weight: 900; color: var(--text); margin-bottom: 8px; letter-spacing: -0.5px; }
+.auth-sub { font-size: 12px; color: var(--text3); margin-bottom: 28px; line-height: 1.7; }
+.auth-label { display: block; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--text3); margin-bottom: 8px; }
+.auth-input { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 12px 14px; font-family: 'JetBrains Mono', monospace; font-size: 16px; outline: none; border-radius: 2px; transition: border-color 0.2s, box-shadow 0.2s; margin-bottom: 16px; min-height: var(--tap-min); }
+.auth-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
+.auth-textarea { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 12px 14px; font-family: 'JetBrains Mono', monospace; font-size: 16px; outline: none; border-radius: 2px; min-height: 160px; line-height: 1.6; resize: vertical; }
+.auth-textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
+.btn-primary { width: 100%; background: var(--accent); color: #000; border: none; padding: 14px; font-weight: 700; font-size: 14px; letter-spacing: 2px; border-radius: 2px; transition: all 0.2s; min-height: var(--tap-min); }
+.btn-primary:hover { background: #33d6ff; box-shadow: var(--accent-glow); }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+.auth-error { color: var(--red); font-size: 12px; margin-top: 12px; min-height: 16px; line-height: 1.5; }
+.auth-foot { margin-top: 24px; font-size: 11px; color: var(--text3); text-align: center; line-height: 1.7; }
+.auth-foot a, .auth-foot button.link { color: var(--accent); text-decoration: underline; background: none; border: none; cursor: pointer; font-size: inherit; padding: 0; }
+.setup-step { background: var(--surface2); border: 1px solid var(--border); border-radius: 3px; padding: 14px 16px; margin-bottom: 12px; font-size: 12px; line-height: 1.7; color: var(--text2); }
+.setup-step strong { color: var(--accent); font-weight: 700; }
+.setup-step a { color: var(--accent); }
+.setup-step code { background: var(--bg); padding: 2px 6px; border-radius: 2px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--accent); word-break: break-all; }
+.setup-step pre { background: var(--bg); color: var(--text); padding: 12px; border-radius: 3px; font-family: 'JetBrains Mono', monospace; font-size: 11px; overflow-x: auto; margin-top: 8px; line-height: 1.5; border: 1px solid var(--border); }
+.connection-pill { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; color: var(--text3); margin-top: 16px; }
+.connection-pill .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text3); }
+.connection-pill.online .dot { background: var(--green); animation: pulse 2s infinite; }
+.connection-pill.offline .dot { background: var(--red); }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+
+/* ==================== APP LAYOUT ==================== */
+.app { display: none; min-height: 100vh; min-height: 100dvh; flex-direction: column; }
+.app.active { display: flex; }
+
+/* HEADER */
+.header { background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 0; min-height: 52px; padding: 0 16px; position: sticky; top: 0; z-index: 200; flex-wrap: wrap; }
+.header-brand { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 3px; color: var(--accent); text-transform: uppercase; padding-right: 16px; border-right: 1px solid var(--border); white-space: nowrap; flex-shrink: 0; }
+.header-brand .sub { color: var(--text3); font-size: 9px; display: block; margin-top: 1px; }
+.nav-tabs { display: flex; align-items: stretch; min-height: 52px; margin-left: 8px; flex: 1; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.nav-tabs::-webkit-scrollbar { display: none; }
+.nav-tab { background: none; border: none; border-bottom: 2px solid transparent; color: var(--text2); padding: 0 14px; font-size: 13px; cursor: pointer; transition: all 0.2s; white-space: nowrap; display: flex; align-items: center; gap: 5px; min-height: var(--tap-min); }
+.nav-tab:hover { color: var(--text); }
+.nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.badge { background: var(--accent); color: #000; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 10px; font-family: 'JetBrains Mono', monospace; }
+.badge.red { background: var(--red); color: #fff; }
+.badge.orange { background: var(--orange); color: #000; }
+.header-right { display: flex; align-items: center; gap: 10px; margin-left: auto; flex-shrink: 0; }
+.sync-pill { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text3); letter-spacing: 1px; display: flex; align-items: center; gap: 6px; }
+.sync-pill .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
+.sync-pill.offline .dot { background: var(--red); animation: none; }
+.btn-icon { background: none; border: 1px solid var(--border2); color: var(--text3); padding: 6px 10px; font-size: 11px; border-radius: 2px; transition: all 0.2s; }
+.btn-icon:hover { border-color: var(--accent); color: var(--accent); }
+.btn-icon.logout:hover { border-color: var(--red); color: var(--red); }
+
+/* MAIN */
+.main { flex: 1; padding: 20px 20px 80px; max-width: 1600px; margin: 0 auto; width: 100%; }
+.view { display: none; }
+.view.active { display: block; }
+
+/* SECTION HEAD */
+.section-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 18px; gap: 12px; flex-wrap: wrap; }
+.section-title { font-size: 20px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 10px; }
+.section-title .eyebrow { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 3px; color: var(--accent); text-transform: uppercase; font-weight: 500; }
+.section-sub { font-size: 12px; color: var(--text3); margin-top: 4px; }
+.section-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.btn-action { background: var(--surface); border: 1px solid var(--border2); color: var(--text); padding: 9px 16px; font-size: 12px; font-weight: 500; border-radius: 2px; transition: all 0.2s; min-height: 36px; }
+.btn-action:hover { border-color: var(--accent); color: var(--accent); }
+.btn-action.primary { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
+.btn-action.primary:hover { background: #33d6ff; box-shadow: var(--accent-glow); }
+.btn-action.danger:hover { border-color: var(--red); color: var(--red); }
+
+/* STATS CARDS */
+.stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 14px; margin-bottom: 22px; }
+.stat-card { background: var(--surface); border: 1px solid var(--border2); border-left: 3px solid var(--accent); padding: 16px 18px; border-radius: 2px; position: relative; overflow: hidden; }
+.stat-card.green { border-left-color: var(--green); }
+.stat-card.red { border-left-color: var(--red); }
+.stat-card.orange { border-left-color: var(--orange); }
+.stat-card.purple { border-left-color: var(--purple); }
+.stat-card.yellow { border-left-color: var(--yellow); }
+.stat-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 2px; color: var(--text3); text-transform: uppercase; margin-bottom: 8px; }
+.stat-value { font-size: 28px; font-weight: 900; color: var(--text); letter-spacing: -0.5px; word-break: break-all; line-height: 1.1; }
+.stat-value .unit { font-size: 13px; font-weight: 500; color: var(--text3); margin-left: 4px; }
+.stat-meta { margin-top: 8px; font-size: 11px; color: var(--text3); font-family: 'JetBrains Mono', monospace; }
+.stat-card.clickable { cursor: pointer; transition: all 0.2s; }
+.stat-card.clickable:hover { background: var(--surface2); transform: translateY(-2px); }
+
+/* PANEL / TABLE */
+.panel { background: var(--surface); border: 1px solid var(--border2); border-radius: 3px; margin-bottom: 18px; overflow: hidden; }
+.panel-head { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+.panel-title { font-size: 13px; font-weight: 700; color: var(--text); display: flex; align-items: center; gap: 8px; }
+.panel-title .mono { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 2px; color: var(--accent); text-transform: uppercase; font-weight: 500; }
+.panel-meta { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text3); display: flex; gap: 12px; align-items: center; flex-wrap: wrap; }
+
+/* SEARCH BAR */
+.search-bar { padding: 12px 18px; background: var(--surface2); border-bottom: 1px solid var(--border); display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap: 10px; }
+.search-bar input, .search-bar select { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 9px 12px; font-size: 16px; outline: none; border-radius: 2px; min-height: var(--tap-min); font-family: 'JetBrains Mono', monospace; }
+.search-bar input:focus, .search-bar select:focus { border-color: var(--accent); }
+.search-bar .clear-btn { background: none; border: 1px solid var(--border2); color: var(--text3); padding: 8px 14px; font-size: 11px; text-transform: uppercase; letter-spacing: 1px; border-radius: 2px; transition: color 0.15s; }
+.search-bar .clear-btn:hover { color: var(--red); border-color: var(--red); }
+
+/* TABLE */
+.table-wrap { overflow-x: auto; -webkit-overflow-scrolling: touch; }
+table { width: 100%; border-collapse: collapse; min-width: 720px; }
+thead th { text-align: left; padding: 11px 18px; font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 2px; color: var(--text3); background: var(--surface2); border-bottom: 1px solid var(--border); cursor: pointer; user-select: none; white-space: nowrap; font-family: 'JetBrains Mono', monospace; }
+thead th.right { text-align: right; }
+thead th:hover { color: var(--accent); }
+thead th.sorted { color: var(--accent); }
+tbody td { padding: 13px 18px; border-bottom: 1px solid var(--border); font-size: 13px; vertical-align: middle; color: var(--text); }
+tbody td.right { text-align: right; }
+tbody td.mono { font-family: 'JetBrains Mono', monospace; font-size: 12px; }
+tbody tr { transition: background 0.15s; cursor: pointer; }
+tbody tr:hover { background: var(--surface2); }
+tbody tr:last-child td { border-bottom: none; }
+
+/* PAGINATION */
+.pagination { padding: 12px 18px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text3); }
+.page-ctrl { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
+.page-ctrl button { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 6px 10px; font-size: 11px; border-radius: 2px; min-height: 32px; min-width: 32px; font-family: 'JetBrains Mono', monospace; }
+.page-ctrl button:hover:not(:disabled) { background: var(--accent); color: #000; border-color: var(--accent); }
+.page-ctrl button:disabled { opacity: 0.3; cursor: not-allowed; }
+.page-ctrl .current { padding: 6px 12px; background: var(--surface2); border: 1px solid var(--border); color: var(--text); }
+
+/* STATUS BADGES */
+.status { display: inline-block; padding: 3px 9px; font-size: 10px; font-weight: 700; border-radius: 100px; letter-spacing: 1px; font-family: 'JetBrains Mono', monospace; }
+.status.lead { background: var(--accent-dim); color: var(--accent); }
+.status.appo { background: var(--purple-dim); color: var(--purple); }
+.status.order { background: var(--green-dim); color: var(--green); }
+.status.invoice { background: var(--yellow-dim); color: var(--yellow); }
+.status.waiting { background: var(--orange-dim); color: var(--orange); }
+.status.paid { background: var(--green-dim); color: var(--green); }
+.status.reject { background: var(--red-dim); color: var(--red); }
+.status.active { background: var(--green-dim); color: var(--green); }
+.status.cancelled { background: var(--text3); color: var(--bg); }
+
+.tag { display: inline-block; padding: 2px 8px; font-size: 10px; background: var(--surface3); color: var(--text2); border-radius: 100px; margin-right: 4px; }
+.tag.sub { background: var(--purple-dim); color: var(--purple); }
+.tag.one { background: var(--accent-dim); color: var(--accent); }
+
+/* EMPTY STATE */
+.empty { padding: 60px 20px; text-align: center; color: var(--text3); }
+.empty-icon { font-size: 40px; margin-bottom: 12px; opacity: 0.5; }
+.empty-text { font-size: 13px; line-height: 1.7; }
+
+/* DASHBOARD ACTIONS LIST */
+.action-list { padding: 0; }
+.action-item { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 14px; cursor: pointer; transition: background 0.15s; }
+.action-item:hover { background: var(--surface2); }
+.action-item:last-child { border-bottom: none; }
+.action-icon { width: 36px; height: 36px; display: grid; place-items: center; background: var(--accent-dim); color: var(--accent); border-radius: 50%; font-size: 16px; flex-shrink: 0; }
+.action-icon.red { background: var(--red-dim); color: var(--red); }
+.action-icon.orange { background: var(--orange-dim); color: var(--orange); }
+.action-icon.green { background: var(--green-dim); color: var(--green); }
+.action-icon.purple { background: var(--purple-dim); color: var(--purple); }
+.action-icon.yellow { background: var(--yellow-dim); color: var(--yellow); }
+.action-body { flex: 1; min-width: 0; }
+.action-title { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 3px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.action-sub { font-size: 11px; color: var(--text3); font-family: 'JetBrains Mono', monospace; }
+.action-time { font-size: 11px; color: var(--text3); font-family: 'JetBrains Mono', monospace; flex-shrink: 0; text-align: right; }
+
+/* CALENDAR */
+.calendar-wrap { background: var(--surface); border: 1px solid var(--border2); border-radius: 3px; padding: 16px; }
+.cal-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.cal-title { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 700; color: var(--accent); letter-spacing: 2px; }
+.cal-nav { display: flex; gap: 6px; }
+.cal-nav button { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 6px 12px; border-radius: 2px; font-size: 12px; min-height: 32px; min-width: 32px; }
+.cal-nav button:hover { background: var(--accent); color: #000; border-color: var(--accent); }
+.cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+.cal-day-head { background: var(--surface2); padding: 8px 4px; text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text3); letter-spacing: 2px; }
+.cal-day-head.sat { color: var(--accent); }
+.cal-day-head.sun { color: var(--red); }
+.cal-cell { background: var(--bg); padding: 6px; min-height: 70px; position: relative; }
+.cal-cell.today { background: var(--surface2); border: 2px solid var(--accent); padding: 4px; }
+.cal-cell.other-month { opacity: 0.3; }
+.cal-cell .day-num { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text3); margin-bottom: 3px; }
+.cal-cell.today .day-num { color: var(--accent); font-weight: 700; }
+.cal-event { background: var(--accent-dim); color: var(--accent); font-size: 10px; padding: 2px 4px; margin-bottom: 2px; border-radius: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
+.cal-event.invoice { background: var(--yellow-dim); color: var(--yellow); }
+.cal-event.sub { background: var(--purple-dim); color: var(--purple); }
+.cal-event.followup { background: var(--orange-dim); color: var(--orange); }
+
+/* MODAL */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 500; padding: 20px; }
+.modal-overlay.open { display: flex; }
+.modal { background: var(--surface); border: 1px solid var(--border2); border-radius: 4px; max-width: 720px; width: 100%; max-height: 92vh; overflow-y: auto; box-shadow: 0 24px 60px rgba(0,0,0,0.6); }
+.modal-head { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: var(--surface); z-index: 1; }
+.modal-title { font-size: 16px; font-weight: 700; color: var(--text); }
+.modal-close { background: none; border: none; color: var(--text3); font-size: 22px; cursor: pointer; padding: 4px 8px; }
+.modal-close:hover { color: var(--red); }
+.modal-body { padding: 20px; }
+.modal-foot { padding: 14px 20px; border-top: 1px solid var(--border); display: flex; gap: 10px; justify-content: flex-end; flex-wrap: wrap; position: sticky; bottom: 0; background: var(--surface); }
+
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-grid .full { grid-column: 1 / -1; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-group label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--text3); font-family: 'JetBrains Mono', monospace; }
+.form-group .required::after { content: ' *'; color: var(--red); }
+.form-group input, .form-group select, .form-group textarea { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 10px 12px; font-size: 16px; outline: none; border-radius: 2px; min-height: var(--tap-min); font-family: inherit; }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
+.form-group textarea { min-height: 80px; resize: vertical; line-height: 1.6; }
+.form-group .hint { font-size: 11px; color: var(--text3); font-family: 'JetBrains Mono', monospace; }
+.form-group.collapse { display: none; }
+.form-group.collapse.show { display: flex; }
+
+.checkbox-row { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 4px; }
+.checkbox-row label { display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 12px; color: var(--text); text-transform: none; letter-spacing: 0; font-family: inherit; }
+.checkbox-row input[type="checkbox"], .checkbox-row input[type="radio"] { width: 16px; height: 16px; accent-color: var(--accent); }
+
+.duplicate-warning { background: var(--orange-dim); border: 1px solid var(--orange); color: var(--orange); padding: 10px 14px; border-radius: 2px; font-size: 12px; margin-bottom: 14px; display: none; }
+.duplicate-warning.show { display: block; }
+
+/* DETAIL */
+.detail-section { margin-bottom: 18px; }
+.detail-section-title { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 3px; color: var(--accent); text-transform: uppercase; margin-bottom: 10px; padding-bottom: 6px; border-bottom: 1px solid var(--border); }
+.detail-row { display: grid; grid-template-columns: 100px 1fr; gap: 12px; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 13px; }
+.detail-row:last-child { border-bottom: none; }
+.detail-row .label { color: var(--text3); font-size: 11px; font-family: 'JetBrains Mono', monospace; }
+.detail-row .value { color: var(--text); word-break: break-all; }
+.detail-row .value a { color: var(--accent); }
+
+/* TIMELINE (activity log) */
+.timeline { padding: 0 20px 16px; }
+.timeline-item { display: flex; gap: 12px; padding: 8px 0; font-size: 12px; }
+.timeline-time { color: var(--text3); font-family: 'JetBrains Mono', monospace; font-size: 11px; min-width: 110px; flex-shrink: 0; }
+.timeline-body { color: var(--text); }
+
+/* TOAST */
+.toast {
+  position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(100px);
+  background: var(--surface); border: 1px solid var(--accent); color: var(--text);
+  padding: 12px 24px; border-radius: 2px; font-size: 13px; box-shadow: 0 12px 32px rgba(0,0,0,0.5), var(--accent-glow);
+  opacity: 0; transition: all 0.3s; z-index: 600; max-width: calc(100vw - 32px); text-align: center;
+}
+.toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+.toast.error { border-color: var(--red); box-shadow: 0 12px 32px rgba(0,0,0,0.5), 0 0 20px rgba(255,59,59,0.3); }
+
+/* LOADING */
+.global-loading { position: fixed; inset: 0; background: rgba(6,8,13,0.7); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); display: none; place-items: center; z-index: 550; }
+.global-loading.show { display: grid; }
+.spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.8s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* MOBILE */
+@media (max-width: 900px) {
+  .header { padding: 0 12px; }
+  .header-brand { font-size: 10px; padding-right: 12px; }
+  .nav-tabs { min-height: 44px; margin-left: 4px; }
+  .nav-tab { padding: 0 10px; font-size: 12px; min-height: 44px; }
+  .main { padding: 16px 12px 60px; }
+  .section-head { gap: 8px; }
+  .section-title { font-size: 18px; }
+  .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
+  .stat-card { padding: 14px; }
+  .stat-value { font-size: 24px; }
+  .search-bar { grid-template-columns: 1fr 1fr; padding: 10px 12px; }
+  .search-bar input:first-child { grid-column: 1 / -1; }
+  .search-bar .clear-btn { grid-column: 1 / -1; }
+  .panel-head { padding: 12px; }
+  .form-grid { grid-template-columns: 1fr; }
+  .modal { max-height: 100vh; max-height: 100dvh; border-radius: 0; }
+  .modal-head, .modal-body, .modal-foot { padding: 14px; }
+  .detail-row { grid-template-columns: 80px 1fr; gap: 8px; font-size: 12px; }
+  .cal-cell { min-height: 50px; padding: 4px; }
+  .cal-cell .day-num { font-size: 10px; }
+  .cal-event { font-size: 9px; padding: 1px 3px; }
+  .auth-card { padding: 28px 20px; }
+  thead th { padding: 10px 12px; }
+  tbody td { padding: 12px; font-size: 12px; }
+}
+@media (max-width: 480px) {
+  .stats-grid { grid-template-columns: 1fr; }
+  .header-brand .sub { display: none; }
+  .header-right .sync-pill { display: none; }
+  .section-title { font-size: 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+}
+</style>
+<style>
+/* === V2 ADDITIONS === */
+
+/* Phase badges (詳細フェーズ) */
+.phase { display: inline-flex; align-items: center; gap: 4px; padding: 3px 9px; font-size: 10px; font-weight: 700; border-radius: 100px; letter-spacing: 1px; font-family: 'JetBrains Mono', monospace; white-space: nowrap; }
+.phase.prospect { background: var(--accent-dim); color: var(--accent); }
+.phase.appo { background: var(--purple-dim); color: var(--purple); }
+.phase.closed_lost { background: var(--red-dim); color: var(--red); }
+.phase.init_unpaid { background: var(--yellow-dim); color: var(--yellow); }
+.phase.init_paid { background: var(--green-dim); color: var(--green); }
+.phase.m1_unpaid, .phase.m2_unpaid, .phase.m3_unpaid { background: var(--orange-dim); color: var(--orange); }
+.phase.m1_paid, .phase.m2_paid, .phase.m3_paid { background: var(--green-dim); color: var(--green); }
+.phase.continuing { background: var(--purple-dim); color: var(--purple); }
+.phase.cancelled { background: var(--text3); color: var(--bg); }
+
+/* Health score */
+.health { display: inline-flex; align-items: center; gap: 4px; font-family: 'JetBrains Mono', monospace; font-size: 11px; font-weight: 700; }
+.health-bar { width: 40px; height: 4px; background: var(--surface3); border-radius: 100px; overflow: hidden; }
+.health-bar .fill { height: 100%; transition: width 0.4s; }
+.health.good { color: var(--green); }
+.health.good .fill { background: var(--green); }
+.health.warn { color: var(--yellow); }
+.health.warn .fill { background: var(--yellow); }
+.health.bad { color: var(--red); }
+.health.bad .fill { background: var(--red); }
+
+/* Kanban board */
+.kanban { display: flex; gap: 12px; overflow-x: auto; padding: 4px 0 16px; -webkit-overflow-scrolling: touch; }
+.kanban::-webkit-scrollbar { height: 6px; }
+.kanban-col { background: var(--surface); border: 1px solid var(--border); border-radius: 3px; min-width: 260px; max-width: 280px; flex-shrink: 0; display: flex; flex-direction: column; max-height: 70vh; }
+.kanban-head { padding: 10px 14px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: var(--surface2); position: sticky; top: 0; z-index: 1; }
+.kanban-title { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 2px; color: var(--text2); text-transform: uppercase; font-weight: 700; }
+.kanban-count { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text3); background: var(--bg); padding: 2px 8px; border-radius: 100px; }
+.kanban-body { padding: 8px; overflow-y: auto; flex: 1; }
+.kanban-card { background: var(--surface2); border: 1px solid var(--border); border-left: 3px solid var(--accent); border-radius: 2px; padding: 10px 12px; margin-bottom: 6px; cursor: pointer; transition: all 0.15s; }
+.kanban-card:hover { border-color: var(--accent); background: var(--surface3); }
+.kanban-card.warn { border-left-color: var(--yellow); }
+.kanban-card.danger { border-left-color: var(--red); }
+.kanban-card.success { border-left-color: var(--green); }
+.kanban-card .name { font-weight: 700; font-size: 12px; color: var(--text); margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.kanban-card .meta { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text3); display: flex; justify-content: space-between; gap: 6px; }
+
+/* Timeline (activity log) */
+.timeline-list { padding: 4px 0; }
+.timeline-entry { display: flex; gap: 14px; padding: 12px 18px; border-bottom: 1px solid var(--border); }
+.timeline-entry:last-child { border-bottom: none; }
+.timeline-dot-wrap { position: relative; flex-shrink: 0; padding-top: 4px; }
+.timeline-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--accent); position: relative; z-index: 1; }
+.timeline-dot.system { background: var(--text3); }
+.timeline-dot.payment { background: var(--green); }
+.timeline-dot.warn { background: var(--yellow); }
+.timeline-dot.cancel { background: var(--red); }
+.timeline-content { flex: 1; min-width: 0; }
+.timeline-meta { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text3); margin-bottom: 4px; display: flex; gap: 10px; }
+.timeline-text { font-size: 13px; color: var(--text); white-space: pre-wrap; line-height: 1.6; word-break: break-word; }
+.timeline-add { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; gap: 8px; align-items: flex-start; }
+.timeline-add textarea { flex: 1; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 8px 10px; font-size: 16px; outline: none; border-radius: 2px; min-height: 60px; font-family: inherit; resize: vertical; line-height: 1.5; }
+.timeline-add textarea:focus { border-color: var(--accent); }
+.timeline-add .btn { background: var(--accent); color: #000; border: none; padding: 8px 14px; font-weight: 700; font-size: 11px; border-radius: 2px; min-height: 36px; align-self: stretch; }
+
+/* Payment grid (4 columns: 初期/1ヶ月目/2ヶ月目/3ヶ月目) */
+.payment-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 10px 0; }
+.payment-cell { background: var(--surface2); border: 1px solid var(--border); border-radius: 2px; padding: 10px; text-align: center; cursor: pointer; transition: all 0.15s; }
+.payment-cell.paid { background: var(--green-dim); border-color: var(--green); }
+.payment-cell.unpaid { background: var(--yellow-dim); border-color: var(--yellow); }
+.payment-cell.overdue { background: var(--red-dim); border-color: var(--red); }
+.payment-cell.future { opacity: 0.5; cursor: default; }
+.payment-cell .lbl { font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 1px; color: var(--text3); text-transform: uppercase; margin-bottom: 4px; }
+.payment-cell .amt { font-family: 'JetBrains Mono', monospace; font-size: 12px; font-weight: 700; color: var(--text); }
+.payment-cell .status { font-size: 10px; margin-top: 4px; }
+.payment-cell .status.paid { color: var(--green); }
+.payment-cell .status.unpaid { color: var(--yellow); }
+.payment-cell .status.overdue { color: var(--red); }
+.payment-cell .status.future { color: var(--text3); }
+
+/* Funnel */
+.funnel-step { display: flex; align-items: center; gap: 14px; padding: 10px 18px; border-bottom: 1px solid var(--border); }
+.funnel-step:last-child { border-bottom: none; }
+.funnel-step .label { font-size: 13px; min-width: 140px; }
+.funnel-step .bar { flex: 1; background: var(--bg); height: 24px; border-radius: 3px; overflow: hidden; position: relative; }
+.funnel-step .bar .fill { height: 100%; background: linear-gradient(90deg, var(--accent), rgba(0,200,255,0.5)); transition: width 0.5s; }
+.funnel-step .bar .text { position: absolute; top: 0; left: 10px; height: 100%; display: flex; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text); font-weight: 700; }
+.funnel-step .pct { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text3); min-width: 60px; text-align: right; }
+
+/* Quick actions in detail */
+.quick-actions { display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }
+.quick-actions .qa { background: var(--surface2); border: 1px solid var(--border); color: var(--text); padding: 6px 12px; font-size: 11px; border-radius: 2px; cursor: pointer; }
+.quick-actions .qa:hover { border-color: var(--accent); color: var(--accent); }
+.quick-actions .qa.paid { border-color: var(--green); color: var(--green); }
+.quick-actions .qa.paid:hover { background: var(--green-dim); }
+.quick-actions .qa.cancel { border-color: var(--red); color: var(--red); }
+.quick-actions .qa.cancel:hover { background: var(--red-dim); }
+
+/* View mode toggle */
+.view-mode-toggle { display: inline-flex; background: var(--surface2); border: 1px solid var(--border); border-radius: 2px; overflow: hidden; }
+.view-mode-toggle button { background: none; border: none; color: var(--text2); padding: 8px 14px; font-size: 11px; cursor: pointer; font-family: 'JetBrains Mono', monospace; letter-spacing: 1px; min-height: 36px; }
+.view-mode-toggle button.active { background: var(--accent); color: #000; }
+
+/* Cancellation form modal section */
+.cancel-form { background: var(--red-dim); border: 1px solid var(--red); border-radius: 2px; padding: 14px; }
+.cancel-form-title { color: var(--red); font-size: 12px; font-weight: 700; margin-bottom: 10px; letter-spacing: 1px; }
+
+@media (max-width: 900px) {
+  .kanban-col { min-width: 220px; }
+  .payment-grid { grid-template-columns: repeat(2, 1fr); }
+  .funnel-step { flex-wrap: wrap; }
+  .funnel-step .label { min-width: 100%; }
+}
+@media (max-width: 480px) {
+  .kanban-col { min-width: 200px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ==================== SETUP SCREEN ==================== -->
+<div class="fullscreen" id="setupScreen">
+  <div class="auth-card wide">
+    <div class="auth-eyebrow">// SYSTEM SETUP</div>
+    <h1 class="auth-title">YAMATO CRM — 初期設定</h1>
+    <p class="auth-sub">Firebase Firestore でデータを3人で共有します。無料で運用可能。下記手順で5分ほどで設定できます。</p>
+
+    <div class="setup-step"><strong>1.</strong> <a href="https://console.firebase.google.com/" target="_blank" rel="noopener">Firebase Console</a> でGoogleアカウントでログイン</div>
+    <div class="setup-step"><strong>2.</strong> 「プロジェクトを追加」→ 名前(例: yamato-crm)で作成。Analyticsはオフでも可</div>
+    <div class="setup-step"><strong>3.</strong> 左メニュー「Firestore Database」→「データベースの作成」→ ロケーション <code>asia-northeast1</code>(東京)、<strong>本番モード</strong>で開始</div>
+    <div class="setup-step">
+      <strong>4.</strong> Firestore の「ルール」タブを開き、以下に置き換えて「公開」:
+      <pre>rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}</pre>
+      <p style="font-size:11px; color:var(--text3); margin-top:8px;">※ パスワード認証はクライアント側で行います。URLを知っている人にしか公開しないでください。</p>
+    </div>
+    <div class="setup-step"><strong>5.</strong> プロジェクト概要 → ⚙️設定 → 「全般」の「マイアプリ」で <strong>&lt;/&gt; ウェブ</strong> → アプリ名入力 → 「アプリを登録」 → 表示される <code>firebaseConfig</code> をコピー</div>
+    <div class="setup-step"><strong>6.</strong> 下のテキスト欄にその config を貼り付けて「保存して開始」</div>
+
+    <label class="auth-label" style="margin-top:20px;">Firebase Config (JSON または JS オブジェクト)</label>
+    <textarea class="auth-textarea" id="setupConfigInput" placeholder='const firebaseConfig = { apiKey: "...", projectId: "...", ... };'></textarea>
+    <div class="auth-error" id="setupError"></div>
+    <button class="btn-primary" id="setupSaveBtn" style="margin-top:14px;">保存して開始 / SAVE & START</button>
+    <p class="auth-foot">Configはこの端末のブラウザにのみ保存されます<br>(他の端末で初めて開いた時はもう一度貼り付けが必要)</p>
+  </div>
+</div>
+
+<!-- ==================== LOGIN SCREEN ==================== -->
+<div class="fullscreen" id="loginScreen">
+  <div class="auth-card">
+    <div class="auth-eyebrow">// SECURE ACCESS</div>
+    <h1 class="auth-title">YAMATO CRM</h1>
+    <p class="auth-sub">顧客管理システム · 3名共有 · リアルタイム同期</p>
+
+    <label class="auth-label" for="loginPass">PASSWORD</label>
+    <input type="password" id="loginPass" class="auth-input" placeholder="••••••••" autocomplete="current-password" />
+    <div class="auth-error" id="loginError"></div>
+    <button class="btn-primary" id="loginBtn">ログイン / SIGN IN</button>
+
+    <div class="connection-pill" id="connectionPill">
+      <span class="dot"></span>
+      <span id="connectionText">接続待機中...</span>
+    </div>
+    <p class="auth-foot"><button class="link" id="resetSetupBtn">Firebase設定をやり直す</button></p>
+  </div>
+</div>
+
+<!-- ==================== APP ==================== -->
+<div class="app" id="app">
+  <header class="header">
+    <div class="header-brand">YAMATO<span class="sub">CRM v3</span></div>
+    <div class="nav-tabs" id="navTabs">
+      <button class="nav-tab active" data-tab="dashboard">📊 ダッシュボード</button>
+      <button class="nav-tab" data-tab="actions">⚡ アクション <span class="badge red" id="actionsBadge" style="display:none;">0</span></button>
+      <button class="nav-tab" data-tab="kanban">🗂 カンバン</button>
+      <button class="nav-tab" data-tab="leads">📋 リード <span class="badge" id="leadsBadge">0</span></button>
+      <button class="nav-tab" data-tab="all">🏢 全顧客</button>
+      <button class="nav-tab" data-tab="payments">💰 入金管理 <span class="badge orange" id="paymentsBadge" style="display:none;">0</span></button>
+      <button class="nav-tab" data-tab="active">🔄 進行中 <span class="badge" id="activeBadge">0</span></button>
+      <button class="nav-tab" data-tab="dup">🔍 重複</button>
+      <button class="nav-tab" data-tab="calendar">📅 カレンダー</button>
+      <button class="nav-tab" data-tab="reports">📈 レポート</button>
+      <button class="nav-tab" data-tab="settings">⚙️ 設定</button>
+    </div>
+    <div class="header-right">
+      <span class="sync-pill" id="syncPill"><span class="dot"></span><span id="syncText">同期中</span></span>
+      <button class="btn-icon logout" id="logoutBtn">LOGOUT</button>
+    </div>
+  </header>
+
+  <main class="main">
+
+    <!-- DASHBOARD -->
+    <section class="view active" id="view-dashboard">
+      <div class="section-head">
+        <div>
+          <div class="section-title"><span class="eyebrow">// OVERVIEW</span></div>
+          <div style="font-size: 22px; font-weight: 700; margin-top: 6px;">ダッシュボード</div>
+          <p class="section-sub" id="dashboardDate">—</p>
+        </div>
+        <div class="section-actions">
+          <button class="btn-action primary" id="quickAddBtn">+ 新規リード</button>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card clickable" data-jump="leads">
+          <div class="stat-label">アクティブリード</div>
+          <div class="stat-value" id="statLeads">0</div>
+          <div class="stat-meta">未対応・アポ取得</div>
+        </div>
+        <div class="stat-card green clickable" data-jump="reports">
+          <div class="stat-label">今月の受注</div>
+          <div class="stat-value" id="statMonthOrders">0<span class="unit">件</span></div>
+          <div class="stat-meta" id="statMonthRevenue">¥0</div>
+        </div>
+        <div class="stat-card orange clickable" data-jump="payments">
+          <div class="stat-label">未入金合計</div>
+          <div class="stat-value" id="statUnpaid">¥0</div>
+          <div class="stat-meta" id="statUnpaidCount">0件</div>
+        </div>
+        <div class="stat-card purple clickable" data-jump="active">
+          <div class="stat-label">進行中契約</div>
+          <div class="stat-value" id="statActive">0<span class="unit">件</span></div>
+          <div class="stat-meta" id="statMrr">MRR ¥0</div>
+        </div>
+        <div class="stat-card red clickable" data-jump="actions">
+          <div class="stat-label">本日アクション要</div>
+          <div class="stat-value" id="statTodayActions">0</div>
+          <div class="stat-meta">リマインダー</div>
+        </div>
+        <div class="stat-card yellow clickable" data-jump="payments">
+          <div class="stat-label">期限超過</div>
+          <div class="stat-value" id="statOverdue">0</div>
+          <div class="stat-meta" id="statOverdueAmount">¥0</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title"><span class="mono">// TODAY</span>本日対応すべきアクション</div>
+          <div class="panel-meta"><span id="todayActionCount">0 items</span></div>
+        </div>
+        <div id="todayActionList" class="action-list"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title"><span class="mono">// 3-MONTH ALERTS</span>3ヶ月目アラート(継続意思確認)</div>
+        </div>
+        <div id="m3AlertList" class="action-list"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title"><span class="mono">// PIPELINE</span>パイプライン</div>
+        </div>
+        <div id="pipelineContent" style="padding: 16px 18px;"></div>
+      </div>
+    </section>
+
+    <!-- ACTIONS -->
+    <section class="view" id="view-actions">
+      <div class="section-head">
+        <div>
+          <div class="section-title"><span class="eyebrow">// TASKS</span></div>
+          <div style="font-size: 22px; font-weight: 700; margin-top: 6px;">アクション一覧</div>
+          <p class="section-sub">今日と今後の対応予定、未入金フォロー、継続意思確認</p>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title"><span class="mono">// OVERDUE</span>期限切れ</div>
+          <div class="panel-meta"><span id="overdueCount">0 items</span></div>
+        </div>
+        <div id="overdueActionList" class="action-list"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title"><span class="mono">// TODAY</span>今日の予定</div>
+          <div class="panel-meta"><span id="todayCount">0 items</span></div>
+        </div>
+        <div id="todayActionList2" class="action-list"></div>
+      </div>
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title"><span class="mono">// UPCOMING</span>今後7日間</div>
+          <div class="panel-meta"><span id="upcomingCount">0 items</span></div>
+        </div>
+        <div id="upcomingActionList" class="action-list"></div>
+      </div>
+    </section>
+
+    <!-- KANBAN -->
+    <section class="view" id="view-kanban">
+      <div class="section-head">
+        <div>
+          <div class="section-title"><span class="eyebrow">// PIPELINE</span></div>
+          <div style="font-size: 22px; font-weight: 700; margin-top: 6px;">カンバンビュー</div>
+          <p class="section-sub">フェーズ別に顧客カードを表示。クリックで詳細</p>
+        </div>
+        <div class="section-actions">
+          <button class="btn-action primary" id="addLeadBtn4">+ 新規リード</button>
+        </div>
+      </div>
+      <div class="kanban" id="kanbanBoard"></div>
+    </section>
+
+    <!-- LEADS -->
+    <section class="view" id="view-leads">
+      <div class="section-head">
+        <div>
+          <div class="section-title"><span class="eyebrow">// LEADS</span></div>
+          <div style="font-size: 22px; font-weight: 700; margin-top: 6px;">リード一覧</div>
+          <p class="section-sub">未対応・アポ取得済みの顧客(受注前)</p>
+        </div>
+        <div class="section-actions">
+          <button class="btn-action primary" id="addLeadBtn2">+ 新規リード</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="search-bar">
+          <input type="text" id="leadsSearch" placeholder="🔍 屋号・電話・メール検索..." maxlength="100" />
+          <select id="leadsPhaseFilter"><option value="">全フェーズ</option></select>
+          <select id="leadsTagFilter"><option value="">全タグ</option></select>
+          <select id="leadsSortBy">
+            <option value="updated">更新順</option>
+            <option value="created">登録順</option>
+            <option value="name">屋号順</option>
+            <option value="meeting">商談日順</option>
+            <option value="health">ヘルススコア</option>
+          </select>
+          <button class="clear-btn" id="leadsClearBtn">クリア</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:120px;">フェーズ</th>
+                <th>屋号</th>
+                <th>連絡先</th>
+                <th>商談日</th>
+                <th>タグ</th>
+                <th style="width:80px;">健康度</th>
+                <th class="right">更新</th>
+              </tr>
+            </thead>
+            <tbody id="leadsTable"></tbody>
+          </table>
+        </div>
+        <div class="pagination" id="leadsPagination"></div>
+      </div>
+    </section>
+
+    <!-- ALL -->
+    <section class="view" id="view-all">
+      <div class="section-head">
+        <div>
+          <div class="section-title"><span class="eyebrow">// MASTER</span></div>
+          <div style="font-size: 22px; font-weight: 700; margin-top: 6px;">全顧客</div>
+          <p class="section-sub">登録されている全顧客レコード</p>
+        </div>
+        <div class="section-actions">
+          <button class="btn-action primary" id="addLeadBtn3">+ 新規追加</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="search-bar">
+          <input type="text" id="allSearch" placeholder="🔍 検索..." maxlength="100" />
+          <select id="allPhaseFilter"><option value="">全フェーズ</option></select>
+          <select id="allTagFilter"><option value="">全タグ</option></select>
+          <select id="allSortBy">
+            <option value="updated">更新順</option>
+            <option value="created">登録順</option>
+            <option value="name">屋号順</option>
+            <option value="amount">金額順</option>
+            <option value="health">ヘルススコア</option>
+          </select>
+          <button class="clear-btn" id="allClearBtn">クリア</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:140px;">フェーズ</th>
+                <th>屋号</th>
+                <th>連絡先</th>
+                <th>プラン</th>
+                <th class="right">合計</th>
+                <th style="width:80px;">健康度</th>
+                <th class="right">更新</th>
+              </tr>
+            </thead>
+            <tbody id="allTable"></tbody>
+          </table>
+        </div>
+        <div class="pagination" id="allPagination"></div>
+      </div>
+    </section>
+
+    <!-- PAYMENTS -->
+    <section class="view" id="view-payments">
+      <div class="section-head">
+        <div>
+          <div class="section-title"><span class="eyebrow">// BILLING</span></div>
+          <div style="font-size: 22px; font-weight: 700; margin-top: 6px;">入金管理</div>
+          <p class="section-sub">初期費用・月費(1〜3ヶ月目)の請求と入金状況を一元管理</p>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card orange">
+          <div class="stat-label">未入金合計</div>
+          <div class="stat-value" id="payUnpaidTotal">¥0</div>
+          <div class="stat-meta" id="payUnpaidCount">0件</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-label">期限超過</div>
+          <div class="stat-value" id="payOverdueTotal">¥0</div>
+          <div class="stat-meta" id="payOverdueCount">0件</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-label">今月入金済</div>
+          <div class="stat-value" id="payPaidMonth">¥0</div>
+          <div class="stat-meta" id="payPaidMonthCount">0件</div>
+        </div>
+        <div class="stat-card yellow">
+          <div class="stat-label">来月予定請求</div>
+          <div class="stat-value" id="payNextMonth">¥0</div>
+          <div class="stat-meta" id="payNextMonthCount">0件</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title"><span class="mono">// FILTER</span>請求一覧</div>
+          <div class="panel-meta">
+            <select id="paymentsFilter" style="background:var(--bg); border:1px solid var(--border); color:var(--text); padding:6px 10px; font-size:12px; border-radius:2px; font-family:'JetBrains Mono', monospace;">
+              <option value="unpaid">未入金のみ</option>
+              <option value="overdue">期限超過のみ</option>
+              <option value="thismonth">今月期限</option>
+              <option value="paid">入金済のみ</option>
+              <option value="all">全て</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:100px;">種別</th>
+                <th>屋号</th>
+                <th>期限</th>
+                <th>状態</th>
+                <th class="right">金額</th>
+                <th>アクション</th>
+              </tr>
+            </thead>
+            <tbody id="paymentsTable"></tbody>
+          </table>
+        </div>
+        <div class="pagination" id="paymentsPagination"></div>
+      </div>
+    </section>
+
+    <!-- ACTIVE CONTRACTS -->
+    <section class="view" id="view-active">
+      <div class="section-head">
+        <div>
+          <div class="section-title"><span class="eyebrow">// IN PROGRESS</span></div>
+          <div style="font-size: 22px; font-weight: 700; margin-top: 6px;">進行中契約</div>
+          <p class="section-sub">3ヶ月契約の進捗・継続中の顧客一覧</p>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card purple">
+          <div class="stat-label">継続中</div>
+          <div class="stat-value" id="actMrr">¥0</div>
+          <div class="stat-meta">月次経常収益(MRR)</div>
+        </div>
+        <div class="stat-card green">
+          <div class="stat-label">進行中契約数</div>
+          <div class="stat-value" id="actCount">0<span class="unit">件</span></div>
+          <div class="stat-meta">3ヶ月契約中・継続中</div>
+        </div>
+        <div class="stat-card yellow">
+          <div class="stat-label">継続意思確認待ち</div>
+          <div class="stat-value" id="actM3Pending">0<span class="unit">件</span></div>
+          <div class="stat-meta">3ヶ月目到達近い</div>
+        </div>
+        <div class="stat-card red">
+          <div class="stat-label">解約件数</div>
+          <div class="stat-value" id="actCancelled">0<span class="unit">件</span></div>
+          <div class="stat-meta">全期間累計</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title"><span class="mono">// ACTIVE</span>進行中の契約</div>
+          <div class="panel-meta">
+            <select id="activeFilter" style="background:var(--bg); border:1px solid var(--border); color:var(--text); padding:6px 10px; font-size:12px; border-radius:2px; font-family:'JetBrains Mono', monospace;">
+              <option value="active">進行中・継続中</option>
+              <option value="m3near">3ヶ月目近い</option>
+              <option value="cancelled">解約のみ</option>
+              <option value="all">全て</option>
+            </select>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:130px;">フェーズ</th>
+                <th>屋号</th>
+                <th>プラン</th>
+                <th>進捗</th>
+                <th>契約開始</th>
+                <th class="right">合計受領</th>
+                <th style="width:80px;">健康度</th>
+              </tr>
+            </thead>
+            <tbody id="activeTable"></tbody>
+          </table>
+        </div>
+        <div class="pagination" id="activePagination"></div>
+      </div>
+    </section>
+
+    <!-- DUPLICATE CHECK -->
+    <section class="view" id="view-dup">
+      <div class="section-head">
+        <div>
+          <div class="section-title"><span class="eyebrow">// DEDUP</span></div>
+          <div style="font-size: 22px; font-weight: 700; margin-top: 6px;">重複チェック</div>
+          <p class="section-sub">屋号・電話・メールでの重複候補を検出</p>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="search-bar" style="grid-template-columns: 1fr auto;">
+          <input type="text" id="dupSearch" placeholder="🔍 屋号・電話・メールで検索..." maxlength="100" />
+          <button class="clear-btn" id="dupClearBtn">クリア</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>屋号</th>
+                <th>電話</th>
+                <th>メール</th>
+                <th>フェーズ</th>
+                <th class="right">更新</th>
+              </tr>
+            </thead>
+            <tbody id="dupTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- CALENDAR -->
+    <section class="view" id="view-calendar">
+      <div class="section-head">
+        <div>
+          <div class="section-title"><span class="eyebrow">// SCHEDULE</span></div>
+          <div style="font-size: 22px; font-weight: 700; margin-top: 6px;">カレンダー</div>
+          <p class="section-sub">商談・請求書発行・入金期限・継続意思確認日</p>
+        </div>
+      </div>
+      <div class="calendar-wrap">
+        <div class="cal-head">
+          <div class="cal-title" id="calTitle">2026.05</div>
+          <div class="cal-nav">
+            <button id="calPrev">◀</button>
+            <button id="calToday">TODAY</button>
+            <button id="calNext">▶</button>
+          </div>
+        </div>
+        <div class="cal-grid" id="calGrid"></div>
+        <div style="margin-top: 16px; display: flex; gap: 14px; flex-wrap: wrap; font-size: 11px; color: var(--text3); font-family: 'JetBrains Mono', monospace;">
+          <span><span style="display:inline-block; width:10px; height:10px; background: var(--accent-dim); border-left: 2px solid var(--accent);"></span> 商談</span>
+          <span><span style="display:inline-block; width:10px; height:10px; background: var(--yellow-dim); border-left: 2px solid var(--yellow);"></span> 入金期限</span>
+          <span><span style="display:inline-block; width:10px; height:10px; background: var(--purple-dim); border-left: 2px solid var(--purple);"></span> 月費</span>
+          <span><span style="display:inline-block; width:10px; height:10px; background: var(--orange-dim); border-left: 2px solid var(--orange);"></span> フォロー</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- REPORTS -->
+    <section class="view" id="view-reports">
+      <div class="section-head">
+        <div>
+          <div class="section-title"><span class="eyebrow">// ANALYTICS</span></div>
+          <div style="font-size: 22px; font-weight: 700; margin-top: 6px;">レポート</div>
+          <p class="section-sub">継続率ファネル、月次成約、ステータス分布</p>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">総顧客数</div><div class="stat-value" id="repTotal">0</div><div class="stat-meta">全レコード</div></div>
+        <div class="stat-card green"><div class="stat-label">累計売上</div><div class="stat-value" id="repRevenue">¥0</div><div class="stat-meta">入金済み合計</div></div>
+        <div class="stat-card purple"><div class="stat-label">3ヶ月完走率</div><div class="stat-value" id="repCompletion">0<span class="unit">%</span></div><div class="stat-meta">受注→3ヶ月目入金済</div></div>
+        <div class="stat-card orange"><div class="stat-label">成約率</div><div class="stat-value" id="repConvRate">0<span class="unit">%</span></div><div class="stat-meta">受注/全レコード</div></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><div class="panel-title"><span class="mono">// FUNNEL</span>継続率ファネル</div></div>
+        <div id="funnelReport"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><div class="panel-title"><span class="mono">// MONTHLY</span>月次売上推移</div></div>
+        <div id="monthlyReport" style="padding:18px;"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><div class="panel-title"><span class="mono">// CANCELLATION</span>解約理由分布</div></div>
+        <div id="cancelReport" style="padding:18px;"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><div class="panel-title"><span class="mono">// PHASE</span>フェーズ別分布</div></div>
+        <div id="phaseReport" style="padding:18px;"></div>
+      </div>
+    </section>
+
+    <!-- SETTINGS -->
+    <section class="view" id="view-settings">
+      <div class="section-head">
+        <div>
+          <div class="section-title"><span class="eyebrow">// CONFIG</span></div>
+          <div style="font-size: 22px; font-weight: 700; margin-top: 6px;">設定 / データ管理</div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><div class="panel-title"><span class="mono">// NOTIFICATION</span>ブラウザ通知</div></div>
+        <div style="padding: 16px 18px;">
+          <p style="font-size: 12px; color: var(--text2); line-height: 1.7; margin-bottom: 14px;">
+            商談・請求・入金期限・継続意思確認のアラートをブラウザ通知で受け取れます。タブを閉じていても通知されます。
+          </p>
+          <p style="font-size: 12px; color: var(--text3); margin-bottom: 14px; font-family: 'JetBrains Mono', monospace;">
+            現在のステータス: <span id="notifStatus" style="color:var(--accent);">未確認</span>
+          </p>
+          <button class="btn-action primary" id="notifEnableBtn">🔔 通知を有効にする</button>
+          <button class="btn-action" id="notifTestBtn" style="margin-left:8px;">テスト通知</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><div class="panel-title"><span class="mono">// DATA</span>バックアップ / 復元</div></div>
+        <div style="padding: 16px 18px;">
+          <p style="font-size: 12px; color: var(--text2); line-height: 1.7; margin-bottom: 14px;">
+            全データを JSON ファイルに書き出してバックアップできます。月末や四半期ごとに保存推奨。
+          </p>
+          <button class="btn-action primary" id="backupBtn">📥 JSONバックアップ</button>
+          <button class="btn-action" id="exportCsvBtn" style="margin-left:8px;">CSV出力</button>
+          <button class="btn-action" id="restoreBtn" style="margin-left:8px;">📤 復元</button>
+          <input type="file" id="restoreFile" accept=".json,application/json" style="display:none;" />
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><div class="panel-title"><span class="mono">// STORAGE</span>データ容量</div></div>
+        <div id="dataStorageInfo" style="padding: 16px 18px; font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--text2);"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><div class="panel-title"><span class="mono">// RESET</span>設定リセット</div></div>
+        <div style="padding: 16px 18px;">
+          <p style="font-size: 12px; color: var(--red); line-height: 1.7; margin-bottom: 14px;">
+            ⚠ Firebase設定をリセットすると、再設定が必要になります(データ自体は削除されません)。
+          </p>
+          <button class="btn-action danger" id="resetConfigBtn">Firebase設定リセット</button>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</div>
+
+<!-- ==================== LEAD MODAL ==================== -->
+<div class="modal-overlay" id="leadModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="leadModalTitle">+ 新規リード</div>
+      <button class="modal-close" id="leadModalClose">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="duplicate-warning" id="dupWarning">⚠ 類似する顧客がすでに登録されています:<div id="dupWarningList" style="margin-top:6px;"></div></div>
+
+      <div class="form-grid">
+        <div class="form-group full">
+          <label class="required" for="f-name">屋号 / 会社名</label>
+          <input type="text" id="f-name" maxlength="200" placeholder="例: 株式会社サンプル" />
+        </div>
+        <div class="form-group">
+          <label for="f-tel">電話番号</label>
+          <input type="tel" id="f-tel" maxlength="20" placeholder="090-1234-5678" inputmode="tel" />
+        </div>
+        <div class="form-group">
+          <label for="f-email">メール</label>
+          <input type="email" id="f-email" maxlength="100" placeholder="info@example.com" inputmode="email" />
+        </div>
+        <div class="form-group full">
+          <label for="f-url">URL</label>
+          <input type="url" id="f-url" maxlength="500" placeholder="https://..." inputmode="url" />
+        </div>
+        <div class="form-group">
+          <label class="required" for="f-phase">フェーズ</label>
+          <select id="f-phase"></select>
+        </div>
+        <div class="form-group">
+          <label for="f-tags">タグ(カンマ区切り)</label>
+          <input type="text" id="f-tags" maxlength="200" placeholder="例: 飲食, 大阪, 紹介" />
+        </div>
+
+        <div class="form-group full collapse" id="grp-meeting">
+          <label class="required" for="f-meeting-date">商談日時</label>
+          <input type="datetime-local" id="f-meeting-date" />
+        </div>
+
+        <div class="form-group full">
+          <label>契約プラン</label>
+          <div class="checkbox-row">
+            <label><input type="radio" name="planType" value="none" checked /> なし(リードのみ)</label>
+            <label><input type="radio" name="planType" value="full" /> 初期費用 + 月費×3(基本)</label>
+            <label><input type="radio" name="planType" value="init_only" /> 初期費用のみ</label>
+            <label><input type="radio" name="planType" value="monthly_only" /> 月費のみ(3ヶ月)</label>
+            <label><input type="radio" name="planType" value="full_support" /> フルサポート</label>
+          </div>
+        </div>
+
+        <div class="form-group collapse" id="grp-service">
+          <label for="f-service">サービス内容</label>
+          <input type="text" id="f-service" maxlength="200" placeholder="例: 制作費、コンサル..." />
+        </div>
+        <div class="form-group collapse" id="grp-contract-start">
+          <label for="f-contract-start">契約開始日</label>
+          <input type="date" id="f-contract-start" />
+        </div>
+
+        <div class="form-group collapse" id="grp-init-amount">
+          <label for="f-init-amount">初期費用(円)</label>
+          <input type="number" id="f-init-amount" min="0" step="1" placeholder="0" inputmode="numeric" />
+        </div>
+        <div class="form-group collapse" id="grp-init-due">
+          <label for="f-init-due">初期費用 入金期限</label>
+          <input type="date" id="f-init-due" />
+        </div>
+        <div class="form-group collapse" id="grp-init-paid">
+          <label for="f-init-paid">初期費用 入金日</label>
+          <input type="date" id="f-init-paid" />
+        </div>
+
+        <div class="form-group collapse" id="grp-monthly-amount">
+          <label for="f-monthly-amount">月費(円)</label>
+          <input type="number" id="f-monthly-amount" min="0" step="1" placeholder="0" inputmode="numeric" />
+        </div>
+        <div class="form-group collapse" id="grp-monthly-day">
+          <label for="f-monthly-day">毎月の請求日(1-28)</label>
+          <input type="number" id="f-monthly-day" min="1" max="28" step="1" placeholder="例: 1" inputmode="numeric" />
+        </div>
+
+        <div class="form-group full">
+          <label for="f-followup">次回フォロー予定日</label>
+          <input type="date" id="f-followup" />
+          <div class="hint">設定するとアクション一覧と通知に表示されます</div>
+        </div>
+
+        <div class="form-group full collapse" id="grp-cancel">
+          <div class="cancel-form">
+            <div class="cancel-form-title">⚠ 解約情報</div>
+            <div class="form-grid" style="gap:10px;">
+              <div class="form-group">
+                <label for="f-cancel-date">解約日</label>
+                <input type="date" id="f-cancel-date" />
+              </div>
+              <div class="form-group">
+                <label for="f-cancel-reason">解約理由</label>
+                <select id="f-cancel-reason">
+                  <option value="">選択してください</option>
+                  <option value="price">価格</option>
+                  <option value="result">効果不満</option>
+                  <option value="competitor">他社乗換</option>
+                  <option value="business">事業状況</option>
+                  <option value="contact">連絡不通</option>
+                  <option value="other">その他</option>
+                </select>
+              </div>
+              <div class="form-group full">
+                <label for="f-cancel-detail">解約理由の詳細</label>
+                <textarea id="f-cancel-detail" maxlength="1000" placeholder="詳しい経緯..."></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group full">
+          <label for="f-memo">メモ</label>
+          <textarea id="f-memo" maxlength="2000" placeholder="商談内容・特記事項など..."></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-action danger" id="leadDeleteBtn" style="margin-right:auto; display:none;">削除</button>
+      <button class="btn-action" id="leadCancelBtn">キャンセル</button>
+      <button class="btn-action primary" id="leadSaveBtn">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== DETAIL MODAL ==================== -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="detailTitle">顧客詳細</div>
+      <button class="modal-close" id="detailClose">×</button>
+    </div>
+    <div class="modal-body" id="detailBody"></div>
+    <div class="modal-foot">
+      <button class="btn-action danger" id="detailDeleteBtn">削除</button>
+      <button class="btn-action" id="detailCloneBtn">複製</button>
+      <button class="btn-action" id="detailCloseBtn">閉じる</button>
+      <button class="btn-action primary" id="detailEditBtn">編集</button>
+    </div>
+  </div>
+</div>
+
+<div class="global-loading" id="globalLoading"><div class="spinner"></div></div>
+<div class="toast" id="toast"></div>
+<script>
+// Pre-module error catcher
+window.addEventListener('error', function(e) {
+  console.error('[Global Error]', e.error || e.message);
+  const loading = document.getElementById('globalLoading');
+  if (loading) loading.classList.remove('show');
+  const msg = (e.error && e.error.message) || e.message || '';
+  if (/firebasejs|module|import|fetch/i.test(msg)) {
+    setTimeout(() => alert('⚠ アプリ読み込み失敗\n\n' + msg + '\n\n対処: ページ再読み込み、ネットワーク確認'), 100);
+  }
+});
+window.addEventListener('unhandledrejection', e => console.error('[Unhandled Rejection]', e.reason));
+</script>
+
+<script type="module">
+import { initializeApp, getApps, deleteApp } from 'https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js';
+import {
+  getFirestore, collection, doc, setDoc, getDoc, getDocs, deleteDoc,
+  query, onSnapshot, serverTimestamp, writeBatch
+} from 'https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js';
+
+'use strict';
+
+// ============== CONSTANTS ==============
+const PASSWORD_HASH = '34b87405a52f95ea5c888d255bb8aad4fc29061ab96734b3c1e2887941574e57'; // Yamato0999
+const PAGE_SIZE = 30;
+const STORAGE_KEY_CONFIG = 'yamato-crm-firebase-config-v1';
+const STORAGE_KEY_NOTIF = 'yamato-crm-notif-pref-v1';
+const COLLECTION = 'crm_customers';
+
+// 全フェーズ定義(順序が大事)
+const PHASES = [
+  { key: 'lead',         label: '未対応',           cls: 'prospect',     group: 'lead' },
+  { key: 'appo',         label: 'アポ取得',         cls: 'appo',         group: 'lead' },
+  { key: 'hold',         label: '保留',             cls: 'prospect',     group: 'lead' },
+  { key: 'order',        label: '受注',             cls: 'init_unpaid',  group: 'active' },
+  { key: 'init_unpaid',  label: '初期費用入金待ち',  cls: 'init_unpaid',  group: 'active' },
+  { key: 'init_paid',    label: '初期費用入金済',   cls: 'init_paid',    group: 'active' },
+  { key: 'm1_unpaid',    label: '1ヶ月目入金待ち',  cls: 'm1_unpaid',    group: 'active' },
+  { key: 'm1_paid',      label: '1ヶ月目入金済',    cls: 'm1_paid',      group: 'active' },
+  { key: 'm2_unpaid',    label: '2ヶ月目入金待ち',  cls: 'm2_unpaid',    group: 'active' },
+  { key: 'm2_paid',      label: '2ヶ月目入金済',    cls: 'm2_paid',      group: 'active' },
+  { key: 'm3_unpaid',    label: '3ヶ月目入金待ち',  cls: 'm3_unpaid',    group: 'active' },
+  { key: 'm3_paid',      label: '3ヶ月目入金済',    cls: 'm3_paid',      group: 'active' },
+  { key: 'continuing',   label: '4ヶ月目以降継続',   cls: 'continuing',   group: 'active' },
+  { key: 'cancelled',    label: '解約',             cls: 'cancelled',    group: 'closed' },
+  { key: 'lost',         label: '失注/断り',         cls: 'closed_lost',  group: 'closed' }
+];
+const PHASE_MAP = Object.fromEntries(PHASES.map(p => [p.key, p]));
+const PHASE_ORDER = PHASES.map(p => p.key);
+
+// プランタイプ
+const PLAN_TYPES = {
+  'none':         { label: 'なし(リードのみ)',     hasInit: false, hasMonthly: false },
+  'full':         { label: '初期費用+月費×3',       hasInit: true,  hasMonthly: true  },
+  'init_only':    { label: '初期費用のみ',           hasInit: true,  hasMonthly: false },
+  'monthly_only': { label: '月費のみ(3ヶ月)',      hasInit: false, hasMonthly: true  },
+  'full_support': { label: 'フルサポート',           hasInit: true,  hasMonthly: true  }
+};
+
+const CANCEL_REASONS = {
+  'price': '価格',
+  'result': '効果不満',
+  'competitor': '他社乗換',
+  'business': '事業状況',
+  'contact': '連絡不通',
+  'other': 'その他'
+};
+
+// ============== STATE ==============
+const state = {
+  firebaseApp: null, db: null, unsubscribe: null,
+  records: [],
+  isInitialLoad: true,
+  online: false,
+  editingId: null, detailId: null,
+  notifiedIds: new Set(),
+  reminderTimer: null,
+  leadsFilter: { search: '', phase: '', tag: '', sort: 'updated', page: 1 },
+  allFilter: { search: '', phase: '', tag: '', sort: 'updated', page: 1 },
+  paymentsFilter: 'unpaid',
+  activeFilter: 'active',
+  paymentsPage: 1, activePage: 1,
+  calYear: new Date().getFullYear(),
+  calMonth: new Date().getMonth()
+};
+
+// ============== UTILS ==============
+const fmt = n => (Number(n) || 0).toLocaleString('ja-JP');
+const todayStr = () => {
+  const d = new Date();
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+};
+const isoNow = () => {
+  const d = new Date();
+  const pad = n => String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;
+};
+const uid = () => 'c_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,8);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const normalTel = t => (t || '').toString().replace(/[^0-9]/g, '');
+const normalText = t => (t || '').toString().toLowerCase().trim();
+
+function daysBetween(d1, d2) {
+  const ms = new Date(d2).setHours(0,0,0,0) - new Date(d1).setHours(0,0,0,0);
+  return Math.round(ms / 86400000);
+}
+function addDays(dateStr, days) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr); if (isNaN(d)) return '';
+  d.setDate(d.getDate() + days);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function addMonths(dateStr, months) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr); if (isNaN(d)) return '';
+  d.setMonth(d.getMonth() + months);
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function fmtDate(s) {
+  if (!s) return '—';
+  const d = new Date(s); if (isNaN(d)) return '—';
+  return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')}`;
+}
+function fmtDateTime(s) {
+  if (!s) return '—';
+  const d = new Date(s); if (isNaN(d)) return '—';
+  return `${d.getFullYear()}/${String(d.getMonth()+1).padStart(2,'0')}/${String(d.getDate()).padStart(2,'0')} ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+function relativeDate(s) {
+  if (!s) return '—';
+  const days = daysBetween(new Date(), new Date(s));
+  if (days === 0) return '今日';
+  if (days === 1) return '明日';
+  if (days === -1) return '昨日';
+  if (days > 0 && days <= 14) return `${days}日後`;
+  if (days < 0 && days >= -30) return `${Math.abs(days)}日前`;
+  return fmtDate(s);
+}
+
+function toast(msg, isError) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.toggle('error', !!isError);
+  t.classList.add('show');
+  clearTimeout(toast._t);
+  toast._t = setTimeout(() => t.classList.remove('show'), isError ? 4000 : 2200);
+}
+function showLoading(b) { document.getElementById('globalLoading').classList.toggle('show', b); }
+
+async function sha256(text) {
+  if (!window.crypto || !window.crypto.subtle) throw new Error('SubtleCrypto API が利用できません(HTTPSが必要)');
+  const buf = new TextEncoder().encode(text);
+  const hashBuf = await crypto.subtle.digest('SHA-256', buf);
+  return Array.from(new Uint8Array(hashBuf)).map(b => b.toString(16).padStart(2,'0')).join('');
+}
+
+// ============== PHASE HELPERS ==============
+function phaseInfo(phase) { return PHASE_MAP[phase] || PHASE_MAP['lead']; }
+function phaseBadge(phase) {
+  const p = phaseInfo(phase);
+  return `<span class="phase ${p.cls}">${esc(p.label)}</span>`;
+}
+function isActivePhase(phase) {
+  const p = phaseInfo(phase);
+  return p.group === 'active';
+}
+function isLeadPhase(phase) {
+  return phaseInfo(phase).group === 'lead';
+}
+
+// 月費の月インデックス取得 (0=初期, 1=1ヶ月目, 2=2ヶ月目, 3=3ヶ月目)
+function paymentMonthIndex(phase) {
+  if (phase === 'init_unpaid' || phase === 'init_paid' || phase === 'order') return 0;
+  if (phase === 'm1_unpaid' || phase === 'm1_paid') return 1;
+  if (phase === 'm2_unpaid' || phase === 'm2_paid') return 2;
+  if (phase === 'm3_unpaid' || phase === 'm3_paid') return 3;
+  if (phase === 'continuing') return 4;
+  return -1;
+}
+
+// 次のフェーズへ進める
+function nextPhase(phase) {
+  const idx = PHASE_ORDER.indexOf(phase);
+  if (idx < 0 || idx >= PHASE_ORDER.length - 1) return phase;
+  const skipList = ['cancelled', 'lost'];
+  for (let i = idx + 1; i < PHASE_ORDER.length; i++) {
+    if (!skipList.includes(PHASE_ORDER[i])) return PHASE_ORDER[i];
+  }
+  return phase;
+}
+
+// ============== HEALTH SCORE ==============
+function healthScore(rec) {
+  if (rec.phase === 'cancelled' || rec.phase === 'lost') return { score: 0, level: 'bad' };
+  if (isLeadPhase(rec.phase)) {
+    // リードは更新日からの経過日数で評価
+    if (!rec.updatedAt) return { score: 80, level: 'good' };
+    const days = daysBetween(new Date(rec.updatedAt), new Date());
+    if (days <= 3) return { score: 90, level: 'good' };
+    if (days <= 7) return { score: 70, level: 'warn' };
+    if (days <= 30) return { score: 50, level: 'warn' };
+    return { score: 30, level: 'bad' };
+  }
+  // 進行中契約
+  let score = 100;
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  // 入金期限超過判定
+  const checks = [
+    { phase: 'init_unpaid', dueField: 'init_due' },
+    { phase: 'm1_unpaid', dueField: 'm1_due' },
+    { phase: 'm2_unpaid', dueField: 'm2_due' },
+    { phase: 'm3_unpaid', dueField: 'm3_due' }
+  ];
+  if (typeof rec.phase === 'string' && rec.phase.endsWith('_unpaid')) {
+    const c = checks.find(c => c.phase === rec.phase);
+    if (c && rec[c.dueField]) {
+      const overdue = daysBetween(new Date(rec[c.dueField]), today);
+      if (overdue > 14) score -= 50;
+      else if (overdue > 7) score -= 30;
+      else if (overdue > 0) score -= 15;
+    }
+  }
+  // 最終更新からの日数
+  if (rec.updatedAt) {
+    const days = daysBetween(new Date(rec.updatedAt), today);
+    if (days > 30) score -= 20;
+    else if (days > 14) score -= 10;
+  }
+  score = Math.max(0, Math.min(100, score));
+  const level = score >= 70 ? 'good' : score >= 40 ? 'warn' : 'bad';
+  return { score, level };
+}
+function healthHTML(rec) {
+  const { score, level } = healthScore(rec);
+  return `<span class="health ${level}"><span class="health-bar"><span class="fill" style="width:${score}%"></span></span>${score}</span>`;
+}
+
+// ============== PAYMENT HELPERS ==============
+// レコードから支払い予定/状況を構築
+function paymentsOf(rec) {
+  const list = [];
+  const plan = PLAN_TYPES[rec.planType] || PLAN_TYPES['none'];
+  const start = rec.contract_start || rec.createdAt?.slice(0,10) || todayStr();
+
+  if (plan.hasInit && rec.init_amount > 0) {
+    list.push({
+      kind: '初期費用',
+      amount: Number(rec.init_amount) || 0,
+      due: rec.init_due || '',
+      paid: rec.init_paid_date || '',
+      isPaid: !!rec.init_paid_date,
+      key: 'init',
+      monthIndex: 0
+    });
+  }
+  if (plan.hasMonthly && rec.monthly_amount > 0) {
+    [1, 2, 3].forEach(m => {
+      const dueField = `m${m}_due`;
+      const paidField = `m${m}_paid_date`;
+      const due = rec[dueField] || addMonths(start, m);
+      list.push({
+        kind: `${m}ヶ月目`,
+        amount: Number(rec.monthly_amount) || 0,
+        due,
+        paid: rec[paidField] || '',
+        isPaid: !!rec[paidField],
+        key: `m${m}`,
+        monthIndex: m
+      });
+    });
+    // 継続課金中の場合は4ヶ月目以降も
+    if (rec.phase === 'continuing') {
+      // 継続中: 過去の請求は履歴で見るとして、次回請求のみ
+      const startMonth = new Date(start);
+      const today = new Date();
+      const monthsElapsed = (today.getFullYear() - startMonth.getFullYear()) * 12 + (today.getMonth() - startMonth.getMonth());
+      const nextM = Math.max(4, monthsElapsed + 1);
+      list.push({
+        kind: `${nextM}ヶ月目`,
+        amount: Number(rec.monthly_amount) || 0,
+        due: addMonths(start, nextM),
+        paid: '',
+        isPaid: false,
+        key: `m${nextM}`,
+        monthIndex: nextM
+      });
+    }
+  }
+  return list;
+}
+
+function paymentStatusOf(p, today) {
+  if (p.isPaid) return 'paid';
+  if (!p.due) return 'unpaid';
+  const due = new Date(p.due); due.setHours(0,0,0,0);
+  if (due < today) return 'overdue';
+  return 'unpaid';
+}
+
+function totalReceived(rec) {
+  return paymentsOf(rec).filter(p => p.isPaid).reduce((s, p) => s + p.amount, 0);
+}
+
+function getMonthlyMRR() {
+  const activeMonthlyPhases = ['m1_unpaid','m1_paid','m2_unpaid','m2_paid','m3_unpaid','m3_paid','continuing'];
+  return state.records.reduce((sum, r) => {
+    if (!activeMonthlyPhases.includes(r.phase)) return sum;
+    const plan = PLAN_TYPES[r.planType] || PLAN_TYPES['none'];
+    if (!plan.hasMonthly) return sum;
+    return sum + (Number(r.monthly_amount) || 0);
+  }, 0);
+}
+
+// ============== CONFIG ==============
+function loadConfig() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY_CONFIG);
+    if (!raw) return null;
+    const cfg = JSON.parse(raw);
+    if (!cfg || !cfg.apiKey || !cfg.projectId) return null;
+    return cfg;
+  } catch { return null; }
+}
+function saveConfig(cfg) {
+  try { localStorage.setItem(STORAGE_KEY_CONFIG, JSON.stringify(cfg)); return true; } catch { return false; }
+}
+function clearConfig() { try { localStorage.removeItem(STORAGE_KEY_CONFIG); } catch {} }
+
+function parseConfigInput(text) {
+  const trimmed = text.trim();
+  if (!trimmed) throw new Error('Configが空です');
+  const match = trimmed.match(/\{[\s\S]*\}/);
+  if (!match) throw new Error('オブジェクト形式 { ... } が見つかりません');
+  const objText = match[0];
+  try { return JSON.parse(objText); } catch {}
+  try {
+    const cfg = new Function(`return (${objText});`)();
+    if (!cfg || typeof cfg !== 'object') throw new Error('オブジェクトとして評価できませんでした');
+    return cfg;
+  } catch (e) { throw new Error('Configの解析失敗: ' + e.message); }
+}
+
+async function initFirebase(cfg) {
+  try {
+    const existing = getApps();
+    for (const a of existing) await deleteApp(a);
+  } catch {}
+  state.firebaseApp = initializeApp(cfg);
+  state.db = getFirestore(state.firebaseApp);
+}
+
+// ============== SCREEN SWITCH ==============
+const setupScreen = document.getElementById('setupScreen');
+const loginScreen = document.getElementById('loginScreen');
+const appScreen = document.getElementById('app');
+function showScreen(name) {
+  setupScreen.classList.toggle('active', name === 'setup');
+  loginScreen.classList.toggle('active', name === 'login');
+  appScreen.classList.toggle('active', name === 'app');
+}
+
+// ============== SETUP ==============
+document.getElementById('setupSaveBtn').addEventListener('click', async () => {
+  const text = document.getElementById('setupConfigInput').value;
+  const errEl = document.getElementById('setupError');
+  errEl.textContent = '';
+  let cfg;
+  try { cfg = parseConfigInput(text); }
+  catch (e) { errEl.textContent = '✕ ' + e.message; return; }
+  if (!cfg.apiKey || !cfg.projectId) { errEl.textContent = '✕ apiKey または projectId がありません'; return; }
+  showLoading(true);
+  try {
+    await initFirebase(cfg);
+    saveConfig(cfg);
+    toast('✓ 設定保存しました');
+    showScreen('login');
+    updateConnectionPill(true);
+  } catch (e) { errEl.textContent = '✕ 初期化失敗: ' + (e.message || ''); }
+  finally { showLoading(false); }
+});
+
+document.getElementById('resetSetupBtn').addEventListener('click', () => {
+  if (!confirm('Firebase設定をリセットして再設定しますか?\n(データ自体は削除されません)')) return;
+  clearConfig();
+  if (state.unsubscribe) { try { state.unsubscribe(); } catch {} state.unsubscribe = null; }
+  showScreen('setup');
+});
+
+function updateConnectionPill(online) {
+  const el = document.getElementById('connectionPill');
+  const text = document.getElementById('connectionText');
+  if (!state.db) { el.classList.remove('online'); el.classList.add('offline'); text.textContent = '未設定'; return; }
+  el.classList.toggle('online', !!online);
+  el.classList.toggle('offline', !online);
+  text.textContent = online ? 'クラウド準備OK' : 'オフライン';
+}
+
+// ============== LOGIN ==============
+const passwordInput = document.getElementById('loginPass');
+const loginBtn = document.getElementById('loginBtn');
+const loginError = document.getElementById('loginError');
+
+async function tryLogin() {
+  const v = passwordInput.value;
+  if (!v) return;
+  if (!state.db) { loginError.textContent = '✕ Firebase未初期化'; return; }
+  loginBtn.disabled = true; loginBtn.textContent = '確認中...';
+  try {
+    const inputHash = await sha256(v);
+    if (inputHash === PASSWORD_HASH) {
+      loginError.textContent = ''; passwordInput.value = '';
+      showScreen('app');
+      await initApp();
+    } else {
+      loginError.textContent = '✕ パスワードが違います';
+      passwordInput.value = ''; passwordInput.focus();
+    }
+  } catch (e) { loginError.textContent = '✕ ' + (e.message || ''); }
+  finally { loginBtn.disabled = false; loginBtn.textContent = 'ログイン / SIGN IN'; }
+}
+loginBtn.addEventListener('click', tryLogin);
+passwordInput.addEventListener('keydown', e => { if (e.key === 'Enter') tryLogin(); });
+
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  if (state.unsubscribe) { try { state.unsubscribe(); } catch {} state.unsubscribe = null; }
+  if (state.reminderTimer) { clearInterval(state.reminderTimer); state.reminderTimer = null; }
+  state.records = []; state.isInitialLoad = true; state.notifiedIds.clear();
+  showScreen('login'); passwordInput.focus();
+});
+
+// ============== FIRESTORE OPS ==============
+async function saveRecord(rec) {
+  const ref = doc(state.db, COLLECTION, rec.id);
+  // Firestore は undefined を許可しない。全フィールドをサニタイズ
+  const clean = {};
+  Object.keys(rec).forEach(k => {
+    const v = rec[k];
+    if (v === undefined) return; // skip undefined
+    clean[k] = v;
+  });
+  clean.updatedAt = isoNow();
+  clean._updatedServer = serverTimestamp();
+  await setDoc(ref, clean);
+}
+async function deleteRecordFromDb(id) {
+  await deleteDoc(doc(state.db, COLLECTION, id));
+}
+async function batchSaveRecords(records) {
+  if (!records.length) return;
+  const CHUNK = 400;
+  for (let i = 0; i < records.length; i += CHUNK) {
+    const batch = writeBatch(state.db);
+    records.slice(i, i + CHUNK).forEach(rec => {
+      // undefined を除去(Firestore 拒否対策)
+      const clean = {};
+      Object.keys(rec).forEach(k => {
+        if (rec[k] !== undefined) clean[k] = rec[k];
+      });
+      clean._updatedServer = serverTimestamp();
+      batch.set(doc(state.db, COLLECTION, rec.id), clean);
+    });
+    await batch.commit();
+  }
+}
+
+function subscribeAll() {
+  if (state.unsubscribe) { try { state.unsubscribe(); } catch {} }
+  const q = query(collection(state.db, COLLECTION));
+  state.unsubscribe = onSnapshot(q, snap => {
+    const list = [];
+    snap.forEach(d => {
+      const data = d.data();
+      if (!data || !data.name) return;
+      list.push({ ...data, id: d.id });
+    });
+    state.records = list;
+    state.online = true;
+    updateSyncPill(true);
+    if (state.isInitialLoad) { state.isInitialLoad = false; showLoading(false); }
+    renderAll();
+    checkReminders();
+  }, err => {
+    console.error('onSnapshot error:', err);
+    state.online = false;
+    updateSyncPill(false);
+    if (state.isInitialLoad) {
+      state.isInitialLoad = false; showLoading(false);
+      const code = err.code || '';
+      const msg = err.message || '';
+      let hint = '';
+      if (code === 'permission-denied' || /permission/i.test(msg)) {
+        hint = '\n\n【対処】Firestore のルールが正しくありません。\nルールタブで以下を貼り付けて「公開」:\n\nrules_version = \'2\';\nservice cloud.firestore {\n  match /databases/{database}/documents {\n    match /{document=**} {\n      allow read, write: if true;\n    }\n  }\n}';
+      } else if (/offline|network|unavailable/i.test(msg)) {
+        hint = '\n\n【対処】ネットワーク接続を確認してください。';
+      }
+      alert('⚠ クラウド同期失敗\n\n' + msg + hint);
+    } else {
+      toast('⚠ 同期エラー: ' + (err.message || ''), true);
+    }
+  });
+}
+
+function updateSyncPill(online) {
+  const el = document.getElementById('syncPill');
+  const text = document.getElementById('syncText');
+  el.classList.toggle('offline', !online);
+  text.textContent = online ? '同期中' : 'オフライン';
+}
+
+// ============== ACTIVITY LOG ==============
+async function addActivity(rec, type, text) {
+  const updated = { ...rec };
+  if (!Array.isArray(updated.activity)) updated.activity = [];
+  updated.activity.unshift({
+    at: isoNow(),
+    type: type || 'note',
+    text: text || ''
+  });
+  // 最新50件まで保持
+  if (updated.activity.length > 50) updated.activity = updated.activity.slice(0, 50);
+  await saveRecord(updated);
+}
+
+// ============== TAB SWITCH ==============
+const VIEW_NAMES = ['dashboard','actions','kanban','leads','all','payments','active','dup','calendar','reports','settings'];
+function switchTab(name) {
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
+  VIEW_NAMES.forEach(v => {
+    const el = document.getElementById(`view-${v}`);
+    if (el) el.classList.toggle('active', v === name);
+  });
+  if (name === 'dashboard') renderDashboard();
+  else if (name === 'actions') renderActions();
+  else if (name === 'kanban') renderKanban();
+  else if (name === 'leads') renderLeadsTable();
+  else if (name === 'all') renderAllTable();
+  else if (name === 'payments') renderPayments();
+  else if (name === 'active') renderActive();
+  else if (name === 'dup') renderDup();
+  else if (name === 'calendar') renderCalendar();
+  else if (name === 'reports') renderReports();
+  else if (name === 'settings') renderSettings();
+  try { window.scrollTo({top:0, behavior:'smooth'}); } catch { try { window.scrollTo(0, 0); } catch {} }
+}
+document.querySelectorAll('.nav-tab').forEach(t => t.addEventListener('click', () => switchTab(t.dataset.tab)));
+document.querySelectorAll('.stat-card[data-jump]').forEach(c => c.addEventListener('click', () => switchTab(c.dataset.jump)));
+
+// ============== RENDER MASTER ==============
+function renderAll() {
+  // Populate phase filter dropdowns
+  ['leadsPhaseFilter','allPhaseFilter','f-phase'].forEach(id => {
+    const sel = document.getElementById(id); if (!sel) return;
+    const cur = sel.value;
+    const filterPlaceholder = id !== 'f-phase' ? '<option value="">全フェーズ</option>' : '';
+    sel.innerHTML = filterPlaceholder + PHASES.map(p => `<option value="${p.key}">${esc(p.label)}</option>`).join('');
+    if (cur) sel.value = cur;
+  });
+  // Tags
+  const tags = new Set();
+  state.records.forEach(r => { if (Array.isArray(r.tags)) r.tags.forEach(t => t && tags.add(t)); });
+  const sortedTags = [...tags].sort();
+  ['leadsTagFilter','allTagFilter'].forEach(id => {
+    const sel = document.getElementById(id); if (!sel) return;
+    const cur = sel.value;
+    sel.innerHTML = '<option value="">全タグ</option>' + sortedTags.map(t => `<option value="${esc(t)}">${esc(t)}</option>`).join('');
+    if (cur) sel.value = cur;
+  });
+
+  updateBadges();
+
+  // Re-render currently active view
+  const active = document.querySelector('.nav-tab.active')?.dataset.tab || 'dashboard';
+  if (active === 'dashboard') renderDashboard();
+  else if (active === 'actions') renderActions();
+  else if (active === 'kanban') renderKanban();
+  else if (active === 'leads') renderLeadsTable();
+  else if (active === 'all') renderAllTable();
+  else if (active === 'payments') renderPayments();
+  else if (active === 'active') renderActive();
+  else if (active === 'dup') renderDup();
+  else if (active === 'calendar') renderCalendar();
+  else if (active === 'reports') renderReports();
+  else if (active === 'settings') renderSettings();
+}
+
+function updateBadges() {
+  const leadsCount = state.records.filter(r => isLeadPhase(r.phase)).length;
+  document.getElementById('leadsBadge').textContent = leadsCount;
+  const activeCount = state.records.filter(r => isActivePhase(r.phase)).length;
+  document.getElementById('activeBadge').textContent = activeCount;
+  // Unpaid count
+  const today = new Date(); today.setHours(0,0,0,0);
+  let unpaidCount = 0;
+  state.records.forEach(r => paymentsOf(r).forEach(p => { if (!p.isPaid) unpaidCount++; }));
+  const payBadge = document.getElementById('paymentsBadge');
+  payBadge.textContent = unpaidCount;
+  payBadge.style.display = unpaidCount > 0 ? '' : 'none';
+  // Actions
+  const actionsCount = getActionItems().filter(a => a.urgency === 'overdue' || a.urgency === 'today').length;
+  const actionsBadge = document.getElementById('actionsBadge');
+  actionsBadge.textContent = actionsCount;
+  actionsBadge.style.display = actionsCount > 0 ? '' : 'none';
+}
+
+// ============== ACTION ITEMS ==============
+function getActionItems() {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const items = [];
+  state.records.forEach(r => {
+    // 商談
+    if (r.meetingDate) {
+      const md = new Date(r.meetingDate);
+      const diff = daysBetween(today, md);
+      let urgency = 'upcoming';
+      if (diff < 0) urgency = 'overdue';
+      else if (diff === 0) urgency = 'today';
+      if (diff >= -1 && diff <= 7) {
+        items.push({ id: r.id, type: 'meeting', record: r, date: r.meetingDate, urgency, sortKey: md.getTime(),
+          title: `📅 ${r.name} と商談`, sub: fmtDateTime(r.meetingDate) });
+      }
+    }
+    // 入金期限
+    paymentsOf(r).forEach(p => {
+      if (p.isPaid || !p.due) return;
+      const dd = new Date(p.due); dd.setHours(0,0,0,0);
+      const diff = daysBetween(today, dd);
+      let urgency = 'upcoming';
+      if (diff < 0) urgency = 'overdue';
+      else if (diff === 0) urgency = 'today';
+      if (diff <= 7) {
+        items.push({ id: r.id + '_' + p.key, type: 'payment', record: r, date: p.due, urgency, sortKey: dd.getTime(),
+          title: `💰 ${r.name} ${p.kind}入金期限`, sub: `¥${fmt(p.amount)} · ${fmtDate(p.due)} (${relativeDate(p.due)})` });
+      }
+    });
+    // 3ヶ月目入金済の継続意思確認
+    if (r.phase === 'm3_paid' && !r.m3_confirmed) {
+      const m3PaidDate = r.m3_paid_date;
+      if (m3PaidDate) {
+        const days = daysBetween(new Date(m3PaidDate), today);
+        if (days <= 14) {
+          items.push({ id: r.id + '_m3confirm', type: 'm3confirm', record: r, date: m3PaidDate, urgency: 'today', sortKey: today.getTime(),
+            title: `🎯 ${r.name} 継続意思確認`, sub: `3ヶ月目入金完了 (${fmtDate(m3PaidDate)}) - 4ヶ月目以降の継続を確認` });
+        }
+      }
+    }
+    // フォロー
+    if (r.followupDate) {
+      const fd = new Date(r.followupDate); fd.setHours(0,0,0,0);
+      const diff = daysBetween(today, fd);
+      let urgency = 'upcoming';
+      if (diff < 0) urgency = 'overdue';
+      else if (diff === 0) urgency = 'today';
+      if (diff <= 7) {
+        items.push({ id: r.id + '_fu', type: 'followup', record: r, date: r.followupDate, urgency, sortKey: fd.getTime(),
+          title: `📞 ${r.name} フォロー予定`, sub: `${fmtDate(r.followupDate)} (${relativeDate(r.followupDate)})` });
+      }
+    }
+  });
+  items.sort((a, b) => a.sortKey - b.sortKey);
+  return items;
+}
+
+function actionItemHTML(item) {
+  const cls = item.type === 'meeting' ? 'purple'
+    : item.type === 'payment' ? (item.urgency === 'overdue' ? 'red' : 'orange')
+    : item.type === 'm3confirm' ? 'yellow'
+    : item.type === 'followup' ? 'green' : '';
+  const icon = item.type === 'meeting' ? '📅'
+    : item.type === 'payment' ? '💰'
+    : item.type === 'm3confirm' ? '🎯'
+    : item.type === 'followup' ? '📞' : '⚡';
+  const urgencyColor = item.urgency === 'overdue' ? 'var(--red)' : item.urgency === 'today' ? 'var(--orange)' : 'var(--text3)';
+  return `<div class="action-item" data-id="${esc(item.record.id)}">
+    <div class="action-icon ${cls}">${icon}</div>
+    <div class="action-body">
+      <div class="action-title">${esc(item.title)}</div>
+      <div class="action-sub">${esc(item.sub)}</div>
+    </div>
+    <div class="action-time" style="color:${urgencyColor};">${item.urgency === 'overdue' ? '期限切れ' : item.urgency === 'today' ? '今日' : relativeDate(item.date)}</div>
+  </div>`;
+}
+function bindActionClick(id) {
+  document.getElementById(id).querySelectorAll('.action-item').forEach(el => {
+    el.addEventListener('click', () => openDetail(el.dataset.id));
+  });
+}
+
+// ============== DASHBOARD ==============
+function renderDashboard() {
+  const today = new Date();
+  document.getElementById('dashboardDate').textContent = `${today.getFullYear()}年${today.getMonth()+1}月${today.getDate()}日 (${'日月火水木金土'[today.getDay()]})`;
+  document.getElementById('statLeads').textContent = state.records.filter(r => isLeadPhase(r.phase)).length;
+  const month = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}`;
+  const monthOrders = state.records.filter(r => r.orderDate && r.orderDate.startsWith(month));
+  document.getElementById('statMonthOrders').innerHTML = monthOrders.length + '<span class="unit">件</span>';
+  const monthRev = monthOrders.reduce((s, r) => {
+    const init = Number(r.init_amount) || 0;
+    const monthly = Number(r.monthly_amount) || 0;
+    const plan = PLAN_TYPES[r.planType] || PLAN_TYPES['none'];
+    return s + (plan.hasInit ? init : 0) + (plan.hasMonthly ? monthly * 3 : 0);
+  }, 0);
+  document.getElementById('statMonthRevenue').textContent = `¥${fmt(monthRev)}`;
+
+  // 未入金合計
+  const todayDate = new Date(today); todayDate.setHours(0,0,0,0);
+  let unpaidTotal = 0, unpaidCount = 0, overdueCount = 0, overdueAmount = 0;
+  state.records.forEach(r => paymentsOf(r).forEach(p => {
+    if (p.isPaid) return;
+    unpaidTotal += p.amount; unpaidCount++;
+    if (p.due && new Date(p.due) < todayDate) { overdueCount++; overdueAmount += p.amount; }
+  }));
+  document.getElementById('statUnpaid').textContent = `¥${fmt(unpaidTotal)}`;
+  document.getElementById('statUnpaidCount').textContent = `${unpaidCount}件`;
+  document.getElementById('statOverdue').textContent = overdueCount;
+  document.getElementById('statOverdueAmount').textContent = `¥${fmt(overdueAmount)}`;
+
+  const activeCount = state.records.filter(r => isActivePhase(r.phase)).length;
+  document.getElementById('statActive').innerHTML = activeCount + '<span class="unit">件</span>';
+  document.getElementById('statMrr').textContent = `MRR ¥${fmt(getMonthlyMRR())}`;
+
+  const actions = getActionItems();
+  const todayActions = actions.filter(a => a.urgency === 'today' || a.urgency === 'overdue');
+  document.getElementById('statTodayActions').textContent = todayActions.length;
+
+  // 今日のアクション
+  const todayList = todayActions.slice(0, 10);
+  const tEl = document.getElementById('todayActionList');
+  document.getElementById('todayActionCount').textContent = `${todayList.length} items`;
+  if (todayList.length === 0) {
+    tEl.innerHTML = `<div class="empty"><div class="empty-icon">✓</div><div class="empty-text">今日のタスクはありません</div></div>`;
+  } else {
+    tEl.innerHTML = todayList.map(actionItemHTML).join('');
+    bindActionClick('todayActionList');
+  }
+
+  // 3ヶ月アラート
+  const m3Alerts = actions.filter(a => a.type === 'm3confirm');
+  const m3El = document.getElementById('m3AlertList');
+  if (m3Alerts.length === 0) {
+    m3El.innerHTML = `<div class="empty"><div class="empty-text">継続意思確認待ちはありません</div></div>`;
+  } else {
+    m3El.innerHTML = m3Alerts.map(actionItemHTML).join('');
+    bindActionClick('m3AlertList');
+  }
+
+  // パイプライン
+  const pipelineEl = document.getElementById('pipelineContent');
+  const counts = {};
+  PHASES.forEach(p => counts[p.key] = 0);
+  state.records.forEach(r => { if (counts.hasOwnProperty(r.phase)) counts[r.phase]++; });
+  pipelineEl.innerHTML = PHASES.filter(p => counts[p.key] > 0).map(p => {
+    const c = counts[p.key];
+    const pct = state.records.length ? (c / state.records.length * 100).toFixed(0) : 0;
+    return `<div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
+      <div style="width:160px; flex-shrink:0;">${phaseBadge(p.key)}</div>
+      <div style="flex:1; background:var(--bg); height:8px; border-radius:100px; overflow:hidden;">
+        <div style="height:100%; width:${pct}%; background:var(--accent); transition:width 0.4s;"></div>
+      </div>
+      <div style="width:80px; text-align:right; font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--text2);">${c}件 (${pct}%)</div>
+    </div>`;
+  }).join('') || `<div class="empty"><div class="empty-text">データなし</div></div>`;
+}
+
+// ============== ACTIONS VIEW ==============
+function renderActions() {
+  const actions = getActionItems();
+  const overdue = actions.filter(a => a.urgency === 'overdue');
+  const today = actions.filter(a => a.urgency === 'today');
+  const upcoming = actions.filter(a => a.urgency === 'upcoming');
+  document.getElementById('overdueCount').textContent = `${overdue.length} items`;
+  document.getElementById('todayCount').textContent = `${today.length} items`;
+  document.getElementById('upcomingCount').textContent = `${upcoming.length} items`;
+  const render = (list, id, emptyText) => {
+    const el = document.getElementById(id);
+    if (!list.length) { el.innerHTML = `<div class="empty"><div class="empty-icon">✓</div><div class="empty-text">${emptyText}</div></div>`; return; }
+    el.innerHTML = list.map(actionItemHTML).join('');
+    bindActionClick(id);
+  };
+  render(overdue, 'overdueActionList', '期限切れタスクなし');
+  render(today, 'todayActionList2', '今日の予定なし');
+  render(upcoming, 'upcomingActionList', '今後7日間に予定なし');
+}
+
+// ============== KANBAN ==============
+function renderKanban() {
+  const board = document.getElementById('kanbanBoard');
+  // カンバンに表示するフェーズ(リード〜継続中まで)
+  const cols = PHASES.filter(p => p.group === 'lead' || p.group === 'active');
+  const grouped = {};
+  cols.forEach(c => grouped[c.key] = []);
+  state.records.forEach(r => { if (grouped[r.phase]) grouped[r.phase].push(r); });
+  // ソート(更新日新しい順)
+  Object.keys(grouped).forEach(k => grouped[k].sort((a, b) => (b.updatedAt || '').localeCompare(a.updatedAt || '')));
+
+  board.innerHTML = cols.map(c => {
+    const list = grouped[c.key];
+    const cards = list.slice(0, 20).map(r => {
+      const { score, level } = healthScore(r);
+      const cls = level === 'good' ? 'success' : level === 'warn' ? 'warn' : level === 'bad' ? 'danger' : '';
+      const meta = isLeadPhase(r.phase)
+        ? (r.meetingDate ? fmtDate(r.meetingDate) : (r.tel || r.email || '—'))
+        : `¥${fmt(totalReceived(r))} 受領`;
+      return `<div class="kanban-card ${cls}" data-id="${esc(r.id)}">
+        <div class="name">${esc(r.name)}</div>
+        <div class="meta"><span>${esc(meta)}</span><span>♥${score}</span></div>
+      </div>`;
+    }).join('');
+    const more = list.length > 20 ? `<div style="text-align:center; padding:8px; color:var(--text3); font-size:11px; font-family:'JetBrains Mono', monospace;">+${list.length - 20}件</div>` : '';
+    return `<div class="kanban-col">
+      <div class="kanban-head">
+        <span class="kanban-title">${esc(c.label)}</span>
+        <span class="kanban-count">${list.length}</span>
+      </div>
+      <div class="kanban-body">${cards || '<div style="padding:14px; text-align:center; color:var(--text3); font-size:11px;">なし</div>'}${more}</div>
+    </div>`;
+  }).join('');
+  board.querySelectorAll('.kanban-card').forEach(el => el.addEventListener('click', () => openDetail(el.dataset.id)));
+}
+
+// ============== LEADS TABLE ==============
+function applyLeadsFilter() {
+  const f = state.leadsFilter;
+  let list = state.records.filter(r => isLeadPhase(r.phase));
+  if (f.search) {
+    const s = normalText(f.search);
+    list = list.filter(r =>
+      normalText(r.name).includes(s) ||
+      normalTel(r.tel).includes(normalTel(f.search)) ||
+      normalText(r.email).includes(s));
+  }
+  if (f.phase) list = list.filter(r => r.phase === f.phase);
+  if (f.tag) list = list.filter(r => Array.isArray(r.tags) && r.tags.includes(f.tag));
+  list.sort((a, b) => {
+    if (f.sort === 'created') return (b.createdAt || '').localeCompare(a.createdAt || '');
+    if (f.sort === 'name') return (a.name || '').localeCompare(b.name || '');
+    if (f.sort === 'meeting') return (a.meetingDate || '9999').localeCompare(b.meetingDate || '9999');
+    if (f.sort === 'health') return healthScore(b).score - healthScore(a).score;
+    return (b.updatedAt || '').localeCompare(a.updatedAt || '');
+  });
+  return list;
+}
+
+function renderLeadsTable() {
+  const list = applyLeadsFilter();
+  const totalPages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
+  if (state.leadsFilter.page > totalPages) state.leadsFilter.page = totalPages;
+  const start = (state.leadsFilter.page - 1) * PAGE_SIZE;
+  const page = list.slice(start, start + PAGE_SIZE);
+  const tbody = document.getElementById('leadsTable');
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty"><div class="empty-icon">∅</div><div class="empty-text">該当するリードがありません</div></div></td></tr>`;
+    document.getElementById('leadsPagination').innerHTML = '';
+    return;
+  }
+  tbody.innerHTML = page.map(r => `
+    <tr data-id="${esc(r.id)}">
+      <td>${phaseBadge(r.phase)}</td>
+      <td><strong>${esc(r.name)}</strong></td>
+      <td class="mono">${esc(r.tel || '—')}<br><span style="color:var(--text3); font-size:11px;">${esc(r.email || '')}</span></td>
+      <td class="mono">${r.meetingDate ? fmtDateTime(r.meetingDate) : '—'}</td>
+      <td>${(r.tags || []).map(t => `<span class="tag">${esc(t)}</span>`).join('')}</td>
+      <td>${healthHTML(r)}</td>
+      <td class="right mono" style="font-size:11px; color:var(--text3);">${r.updatedAt ? relativeDate(r.updatedAt.slice(0,10)) : '—'}</td>
+    </tr>`).join('');
+  tbody.querySelectorAll('tr').forEach(tr => tr.addEventListener('click', () => openDetail(tr.dataset.id)));
+  renderPagination('leadsPagination', list.length, state.leadsFilter.page, p => { state.leadsFilter.page = p; renderLeadsTable(); });
+}
+
+// ============== ALL TABLE ==============
+function applyAllFilter() {
+  const f = state.allFilter;
+  let list = [...state.records];
+  if (f.search) {
+    const s = normalText(f.search);
+    list = list.filter(r =>
+      normalText(r.name).includes(s) ||
+      normalTel(r.tel).includes(normalTel(f.search)) ||
+      normalText(r.email).includes(s));
+  }
+  if (f.phase) list = list.filter(r => r.phase === f.phase);
+  if (f.tag) list = list.filter(r => Array.isArray(r.tags) && r.tags.includes(f.tag));
+  list.sort((a, b) => {
+    if (f.sort === 'created') return (b.createdAt || '').localeCompare(a.createdAt || '');
+    if (f.sort === 'name') return (a.name || '').localeCompare(b.name || '');
+    if (f.sort === 'amount') return totalReceived(b) - totalReceived(a);
+    if (f.sort === 'health') return healthScore(b).score - healthScore(a).score;
+    return (b.updatedAt || '').localeCompare(a.updatedAt || '');
+  });
+  return list;
+}
+
+function renderAllTable() {
+  const list = applyAllFilter();
+  const totalPages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
+  if (state.allFilter.page > totalPages) state.allFilter.page = totalPages;
+  const start = (state.allFilter.page - 1) * PAGE_SIZE;
+  const page = list.slice(start, start + PAGE_SIZE);
+  const tbody = document.getElementById('allTable');
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty"><div class="empty-icon">∅</div><div class="empty-text">顧客がいません</div></div></td></tr>`;
+    document.getElementById('allPagination').innerHTML = '';
+    return;
+  }
+  tbody.innerHTML = page.map(r => {
+    const plan = PLAN_TYPES[r.planType] || PLAN_TYPES['none'];
+    const planLabel = plan.label;
+    const total = totalReceived(r);
+    return `<tr data-id="${esc(r.id)}">
+      <td>${phaseBadge(r.phase)}</td>
+      <td><strong>${esc(r.name)}</strong></td>
+      <td class="mono">${esc(r.tel || '—')}<br><span style="color:var(--text3); font-size:11px;">${esc(r.email || '')}</span></td>
+      <td style="font-size:11px;">${esc(planLabel)}</td>
+      <td class="right mono">¥${fmt(total)}</td>
+      <td>${healthHTML(r)}</td>
+      <td class="right mono" style="font-size:11px; color:var(--text3);">${r.updatedAt ? relativeDate(r.updatedAt.slice(0,10)) : '—'}</td>
+    </tr>`;
+  }).join('');
+  tbody.querySelectorAll('tr').forEach(tr => tr.addEventListener('click', () => openDetail(tr.dataset.id)));
+  renderPagination('allPagination', list.length, state.allFilter.page, p => { state.allFilter.page = p; renderAllTable(); });
+}
+
+// ============== PAYMENTS VIEW ==============
+function renderPayments() {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const monthStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}`;
+  const nextMonth = new Date(today.getFullYear(), today.getMonth()+1, 1);
+  const nextMonthStr = `${nextMonth.getFullYear()}-${String(nextMonth.getMonth()+1).padStart(2,'0')}`;
+
+  // 全支払いをフラット化
+  let allPayments = [];
+  state.records.forEach(r => {
+    paymentsOf(r).forEach(p => {
+      allPayments.push({ ...p, record: r });
+    });
+  });
+
+  // フィルタ
+  const f = state.paymentsFilter;
+  let list = [...allPayments];
+  if (f === 'unpaid') list = list.filter(p => !p.isPaid);
+  else if (f === 'paid') list = list.filter(p => p.isPaid);
+  else if (f === 'overdue') list = list.filter(p => !p.isPaid && p.due && new Date(p.due) < today);
+  else if (f === 'thismonth') list = list.filter(p => p.due && p.due.startsWith(monthStr) && !p.isPaid);
+
+  list.sort((a, b) => (a.due || '9999').localeCompare(b.due || '9999'));
+
+  // Stats
+  const unpaidList = allPayments.filter(p => !p.isPaid);
+  document.getElementById('payUnpaidTotal').textContent = `¥${fmt(unpaidList.reduce((s, p) => s + p.amount, 0))}`;
+  document.getElementById('payUnpaidCount').textContent = `${unpaidList.length}件`;
+  const overdueList = unpaidList.filter(p => p.due && new Date(p.due) < today);
+  document.getElementById('payOverdueTotal').textContent = `¥${fmt(overdueList.reduce((s, p) => s + p.amount, 0))}`;
+  document.getElementById('payOverdueCount').textContent = `${overdueList.length}件`;
+  const paidMonth = allPayments.filter(p => p.isPaid && p.paid && p.paid.startsWith(monthStr));
+  document.getElementById('payPaidMonth').textContent = `¥${fmt(paidMonth.reduce((s, p) => s + p.amount, 0))}`;
+  document.getElementById('payPaidMonthCount').textContent = `${paidMonth.length}件`;
+  const nextMo = unpaidList.filter(p => p.due && p.due.startsWith(nextMonthStr));
+  document.getElementById('payNextMonth').textContent = `¥${fmt(nextMo.reduce((s, p) => s + p.amount, 0))}`;
+  document.getElementById('payNextMonthCount').textContent = `${nextMo.length}件`;
+
+  const totalPages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
+  if (state.paymentsPage > totalPages) state.paymentsPage = totalPages;
+  const start = (state.paymentsPage - 1) * PAGE_SIZE;
+  const page = list.slice(start, start + PAGE_SIZE);
+  const tbody = document.getElementById('paymentsTable');
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="6"><div class="empty"><div class="empty-icon">∅</div><div class="empty-text">対象データなし</div></div></td></tr>`;
+    document.getElementById('paymentsPagination').innerHTML = '';
+    return;
+  }
+  tbody.innerHTML = page.map(p => {
+    const status = paymentStatusOf(p, today);
+    const statusLabel = p.isPaid ? `<span class="phase init_paid">入金済 ${fmtDate(p.paid)}</span>`
+      : status === 'overdue' ? `<span class="phase init_unpaid">⚠ 期限切れ</span>`
+      : `<span class="phase m1_unpaid">未入金</span>`;
+    const overdueStyle = status === 'overdue' ? 'color: var(--red); font-weight: 700;' : '';
+    const actionBtn = p.isPaid
+      ? `<button class="btn-action" data-act="undo-paid" data-rec="${esc(p.record.id)}" data-key="${esc(p.key)}" style="padding:6px 10px; font-size:11px;">入金取消</button>`
+      : `<button class="btn-action primary" data-act="mark-paid" data-rec="${esc(p.record.id)}" data-key="${esc(p.key)}" style="padding:6px 10px; font-size:11px;">入金完了</button>`;
+    return `<tr data-id="${esc(p.record.id)}">
+      <td><span class="tag">${esc(p.kind)}</span></td>
+      <td><strong>${esc(p.record.name)}</strong></td>
+      <td class="mono" style="${overdueStyle}">${p.due ? fmtDate(p.due) : '—'}</td>
+      <td>${statusLabel}</td>
+      <td class="right mono">¥${fmt(p.amount)}</td>
+      <td onclick="event.stopPropagation()">${actionBtn}</td>
+    </tr>`;
+  }).join('');
+  tbody.querySelectorAll('tr').forEach(tr => tr.addEventListener('click', e => {
+    if (e.target.closest('button')) return;
+    openDetail(tr.dataset.id);
+  }));
+  tbody.querySelectorAll('[data-act]').forEach(btn => {
+    btn.addEventListener('click', () => paymentQuickAction(btn.dataset.rec, btn.dataset.key, btn.dataset.act));
+  });
+  renderPagination('paymentsPagination', list.length, state.paymentsPage, p => { state.paymentsPage = p; renderPayments(); });
+}
+
+async function paymentQuickAction(recId, key, action) {
+  const rec = state.records.find(r => r.id === recId);
+  if (!rec) return;
+  const updated = { ...rec };
+  let activityText = '';
+  if (action === 'mark-paid') {
+    if (key === 'init') updated.init_paid_date = todayStr();
+    else if (key.startsWith('m')) updated[`${key}_paid_date`] = todayStr();
+    // フェーズを自動進行
+    if (rec.phase === 'init_unpaid' || rec.phase === 'order') updated.phase = 'init_paid';
+    else if (rec.phase === 'm1_unpaid') updated.phase = 'm1_paid';
+    else if (rec.phase === 'm2_unpaid') updated.phase = 'm2_paid';
+    else if (rec.phase === 'm3_unpaid') updated.phase = 'm3_paid';
+    activityText = `💰 ${key === 'init' ? '初期費用' : key.replace('m', '') + 'ヶ月目'}入金完了`;
+  } else if (action === 'undo-paid') {
+    if (key === 'init') updated.init_paid_date = '';
+    else if (key.startsWith('m')) updated[`${key}_paid_date`] = '';
+    activityText = `↩ ${key === 'init' ? '初期費用' : key.replace('m', '') + 'ヶ月目'}入金取消`;
+  }
+  showLoading(true);
+  try {
+    if (!Array.isArray(updated.activity)) updated.activity = [];
+    updated.activity.unshift({ at: isoNow(), type: 'payment', text: activityText });
+    if (updated.activity.length > 50) updated.activity = updated.activity.slice(0, 50);
+    await saveRecord(updated);
+    toast('✓ ' + activityText);
+  } catch (e) { alert('更新失敗: ' + e.message); }
+  finally { showLoading(false); }
+}
+
+// ============== ACTIVE CONTRACTS ==============
+function renderActive() {
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  // Stats
+  document.getElementById('actMrr').textContent = `¥${fmt(getMonthlyMRR())}`;
+  const active = state.records.filter(r => isActivePhase(r.phase));
+  document.getElementById('actCount').innerHTML = active.length + '<span class="unit">件</span>';
+  const m3near = state.records.filter(r => r.phase === 'm3_paid' && !r.m3_confirmed).length;
+  document.getElementById('actM3Pending').innerHTML = m3near + '<span class="unit">件</span>';
+  document.getElementById('actCancelled').innerHTML = state.records.filter(r => r.phase === 'cancelled').length + '<span class="unit">件</span>';
+
+  // Filter
+  let list = [...state.records];
+  if (state.activeFilter === 'active') list = list.filter(r => isActivePhase(r.phase));
+  else if (state.activeFilter === 'm3near') list = list.filter(r => r.phase === 'm3_paid' && !r.m3_confirmed);
+  else if (state.activeFilter === 'cancelled') list = list.filter(r => r.phase === 'cancelled');
+
+  list.sort((a, b) => PHASE_ORDER.indexOf(a.phase) - PHASE_ORDER.indexOf(b.phase));
+
+  const totalPages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
+  if (state.activePage > totalPages) state.activePage = totalPages;
+  const start = (state.activePage - 1) * PAGE_SIZE;
+  const page = list.slice(start, start + PAGE_SIZE);
+  const tbody = document.getElementById('activeTable');
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty"><div class="empty-icon">∅</div><div class="empty-text">該当データなし</div></div></td></tr>`;
+    document.getElementById('activePagination').innerHTML = '';
+    return;
+  }
+  tbody.innerHTML = page.map(r => {
+    const plan = PLAN_TYPES[r.planType] || PLAN_TYPES['none'];
+    const pays = paymentsOf(r).slice(0, 4);
+    const progressHTML = pays.map(p => {
+      const s = paymentStatusOf(p, today);
+      const dot = s === 'paid' ? '●' : s === 'overdue' ? '✕' : '○';
+      const color = s === 'paid' ? 'var(--green)' : s === 'overdue' ? 'var(--red)' : 'var(--text3)';
+      return `<span style="color:${color}; font-family:'JetBrains Mono', monospace; font-size:11px;" title="${esc(p.kind)} ${fmtDate(p.due)}">${dot}</span>`;
+    }).join(' ');
+    return `<tr data-id="${esc(r.id)}">
+      <td>${phaseBadge(r.phase)}</td>
+      <td><strong>${esc(r.name)}</strong></td>
+      <td style="font-size:11px;">${esc(plan.label)}</td>
+      <td>${progressHTML}</td>
+      <td class="mono">${fmtDate(r.contract_start)}</td>
+      <td class="right mono">¥${fmt(totalReceived(r))}</td>
+      <td>${healthHTML(r)}</td>
+    </tr>`;
+  }).join('');
+  tbody.querySelectorAll('tr').forEach(tr => tr.addEventListener('click', () => openDetail(tr.dataset.id)));
+  renderPagination('activePagination', list.length, state.activePage, p => { state.activePage = p; renderActive(); });
+}
+
+// ============== DUPLICATE CHECK ==============
+function renderDup() {
+  const tbody = document.getElementById('dupTable');
+  const q = document.getElementById('dupSearch').value.trim();
+  if (!q) {
+    const groups = {};
+    state.records.forEach(r => {
+      if (r.tel) { const k = 'tel:' + normalTel(r.tel); if (k.length > 5) { if (!groups[k]) groups[k] = []; groups[k].push(r); } }
+      if (r.email) { const k = 'email:' + normalText(r.email); if (k.includes('@')) { if (!groups[k]) groups[k] = []; groups[k].push(r); } }
+    });
+    const dups = new Set();
+    Object.values(groups).forEach(arr => { if (arr.length >= 2) arr.forEach(r => dups.add(r.id)); });
+    const list = state.records.filter(r => dups.has(r.id));
+    if (!list.length) { tbody.innerHTML = `<tr><td colspan="5"><div class="empty"><div class="empty-icon">✓</div><div class="empty-text">重複候補は検出されませんでした<br><br>検索ボックスに屋号・電話番号を入力すると類似レコードを検索できます</div></div></td></tr>`; return; }
+    tbody.innerHTML = list.map(r => `<tr data-id="${esc(r.id)}">
+      <td><strong>${esc(r.name)}</strong></td>
+      <td class="mono">${esc(r.tel || '—')}</td>
+      <td class="mono">${esc(r.email || '—')}</td>
+      <td>${phaseBadge(r.phase)}</td>
+      <td class="right mono" style="font-size:11px;">${r.updatedAt ? relativeDate(r.updatedAt.slice(0,10)) : '—'}</td>
+    </tr>`).join('');
+  } else {
+    const sNorm = normalText(q), telNorm = normalTel(q);
+    const list = state.records.filter(r =>
+      normalText(r.name).includes(sNorm) ||
+      (telNorm && telNorm.length > 5 && normalTel(r.tel).includes(telNorm)) ||
+      normalText(r.email).includes(sNorm));
+    if (!list.length) { tbody.innerHTML = `<tr><td colspan="5"><div class="empty"><div class="empty-icon">∅</div><div class="empty-text">該当なし</div></div></td></tr>`; return; }
+    tbody.innerHTML = list.map(r => `<tr data-id="${esc(r.id)}">
+      <td><strong>${esc(r.name)}</strong></td>
+      <td class="mono">${esc(r.tel || '—')}</td>
+      <td class="mono">${esc(r.email || '—')}</td>
+      <td>${phaseBadge(r.phase)}</td>
+      <td class="right mono" style="font-size:11px;">${r.updatedAt ? relativeDate(r.updatedAt.slice(0,10)) : '—'}</td>
+    </tr>`).join('');
+  }
+  tbody.querySelectorAll('tr').forEach(tr => tr.addEventListener('click', () => openDetail(tr.dataset.id)));
+}
+
+// ============== CALENDAR ==============
+function renderCalendar() {
+  const y = state.calYear, m = state.calMonth;
+  document.getElementById('calTitle').textContent = `${y}.${String(m+1).padStart(2,'0')}`;
+  const first = new Date(y, m, 1);
+  const last = new Date(y, m+1, 0);
+  const startDay = first.getDay();
+  const totalDays = last.getDate();
+
+  const events = {};
+  function add(date, html) {
+    if (!events[date]) events[date] = [];
+    events[date].push(html);
+  }
+  state.records.forEach(r => {
+    if (r.meetingDate) {
+      const k = r.meetingDate.slice(0, 10);
+      const t = r.meetingDate.length > 10 ? r.meetingDate.slice(11, 16) : '';
+      add(k, `<div class="cal-event" data-id="${esc(r.id)}" title="${esc(r.name + ' 商談')}">${t} ${esc(r.name)}</div>`);
+    }
+    if (r.followupDate) add(r.followupDate.slice(0,10), `<div class="cal-event followup" data-id="${esc(r.id)}" title="${esc(r.name + ' フォロー')}">📞 ${esc(r.name)}</div>`);
+    paymentsOf(r).forEach(p => {
+      if (p.isPaid || !p.due) return;
+      const cls = p.key === 'init' ? 'invoice' : 'sub';
+      add(p.due.slice(0,10), `<div class="cal-event ${cls}" data-id="${esc(r.id)}" title="${esc(r.name + ' ' + p.kind)}">💰 ${esc(r.name)} ${esc(p.kind)}</div>`);
+    });
+  });
+
+  const today = new Date(); today.setHours(0,0,0,0);
+  let html = '';
+  ['日','月','火','水','木','金','土'].forEach((d, i) => {
+    const cls = i === 0 ? 'sun' : i === 6 ? 'sat' : '';
+    html += `<div class="cal-day-head ${cls}">${d}</div>`;
+  });
+  for (let i = 0; i < startDay; i++) html += `<div class="cal-cell other-month"></div>`;
+  for (let d = 1; d <= totalDays; d++) {
+    const cellDate = new Date(y, m, d);
+    const dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const isToday = cellDate.getTime() === today.getTime();
+    const evList = events[dateStr] || [];
+    const evHtml = evList.slice(0, 3).join('');
+    const more = evList.length > 3 ? `<div style="font-size:9px; color:var(--text3);">+${evList.length - 3}件</div>` : '';
+    html += `<div class="cal-cell ${isToday ? 'today' : ''}"><div class="day-num">${d}</div>${evHtml}${more}</div>`;
+  }
+  document.getElementById('calGrid').innerHTML = html;
+  document.querySelectorAll('.cal-event').forEach(el => el.addEventListener('click', e => { e.stopPropagation(); openDetail(el.dataset.id); }));
+}
+document.getElementById('calPrev').addEventListener('click', () => { state.calMonth--; if (state.calMonth < 0) { state.calMonth = 11; state.calYear--; } renderCalendar(); });
+document.getElementById('calNext').addEventListener('click', () => { state.calMonth++; if (state.calMonth > 11) { state.calMonth = 0; state.calYear++; } renderCalendar(); });
+document.getElementById('calToday').addEventListener('click', () => { const n = new Date(); state.calYear = n.getFullYear(); state.calMonth = n.getMonth(); renderCalendar(); });
+
+// ============== REPORTS ==============
+function renderReports() {
+  document.getElementById('repTotal').textContent = state.records.length;
+  let totalRev = 0;
+  state.records.forEach(r => totalRev += totalReceived(r));
+  document.getElementById('repRevenue').textContent = `¥${fmt(totalRev)}`;
+
+  // 3ヶ月完走率
+  const orderedRecs = state.records.filter(r => {
+    const idx = PHASE_ORDER.indexOf(r.phase);
+    return idx >= PHASE_ORDER.indexOf('order');
+  });
+  const completedRecs = state.records.filter(r => {
+    const idx = PHASE_ORDER.indexOf(r.phase);
+    return idx >= PHASE_ORDER.indexOf('m3_paid') && r.phase !== 'lost';
+  });
+  const compRate = orderedRecs.length ? (completedRecs.length / orderedRecs.length * 100).toFixed(1) : 0;
+  document.getElementById('repCompletion').innerHTML = compRate + '<span class="unit">%</span>';
+
+  const convRate = state.records.length ? (orderedRecs.length / state.records.length * 100).toFixed(1) : 0;
+  document.getElementById('repConvRate').innerHTML = convRate + '<span class="unit">%</span>';
+
+  // ファネル
+  const funnelEl = document.getElementById('funnelReport');
+  const totalLeads = state.records.length;
+  const stages = [
+    { label: '全顧客', count: totalLeads },
+    { label: 'アポ取得以降', count: state.records.filter(r => ['appo','order','init_unpaid','init_paid','m1_unpaid','m1_paid','m2_unpaid','m2_paid','m3_unpaid','m3_paid','continuing'].includes(r.phase)).length },
+    { label: '受注以降', count: state.records.filter(r => ['order','init_unpaid','init_paid','m1_unpaid','m1_paid','m2_unpaid','m2_paid','m3_unpaid','m3_paid','continuing'].includes(r.phase)).length },
+    { label: '初期費用入金済', count: state.records.filter(r => ['init_paid','m1_unpaid','m1_paid','m2_unpaid','m2_paid','m3_unpaid','m3_paid','continuing'].includes(r.phase)).length },
+    { label: '1ヶ月目入金済', count: state.records.filter(r => ['m1_paid','m2_unpaid','m2_paid','m3_unpaid','m3_paid','continuing'].includes(r.phase)).length },
+    { label: '2ヶ月目入金済', count: state.records.filter(r => ['m2_paid','m3_unpaid','m3_paid','continuing'].includes(r.phase)).length },
+    { label: '3ヶ月目入金済', count: state.records.filter(r => ['m3_paid','continuing'].includes(r.phase)).length },
+    { label: '4ヶ月目以降継続', count: state.records.filter(r => r.phase === 'continuing').length }
+  ];
+  if (!totalLeads) {
+    funnelEl.innerHTML = `<div class="empty"><div class="empty-text">データがありません</div></div>`;
+  } else {
+    funnelEl.innerHTML = stages.map(s => {
+      const pct = totalLeads ? (s.count / totalLeads * 100) : 0;
+      return `<div class="funnel-step">
+        <div class="label">${esc(s.label)}</div>
+        <div class="bar"><div class="fill" style="width:${pct.toFixed(0)}%;"></div><div class="text">${s.count}件</div></div>
+        <div class="pct">${pct.toFixed(0)}%</div>
+      </div>`;
+    }).join('');
+  }
+
+  // 月次売上
+  const monthly = {};
+  state.records.forEach(r => {
+    paymentsOf(r).forEach(p => {
+      if (!p.isPaid || !p.paid) return;
+      const m = p.paid.slice(0, 7);
+      if (!monthly[m]) monthly[m] = 0;
+      monthly[m] += p.amount;
+    });
+  });
+  const months = Object.keys(monthly).sort().reverse().slice(0, 12);
+  const monthlyEl = document.getElementById('monthlyReport');
+  if (!months.length) {
+    monthlyEl.innerHTML = `<div class="empty"><div class="empty-text">入金データがありません</div></div>`;
+  } else {
+    const maxRev = Math.max(...months.map(m => monthly[m]), 1);
+    monthlyEl.innerHTML = months.map(m => {
+      const rev = monthly[m];
+      const pct = (rev / maxRev * 100).toFixed(0);
+      return `<div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">
+        <div style="width:80px; font-family:'JetBrains Mono', monospace; font-size:12px;">${m}</div>
+        <div style="flex:1; background:var(--bg); height:8px; border-radius:100px; overflow:hidden;">
+          <div style="height:100%; width:${pct}%; background:var(--green); transition:width 0.4s;"></div>
+        </div>
+        <div style="width:140px; text-align:right; font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--text2);">¥${fmt(rev)}</div>
+      </div>`;
+    }).join('');
+  }
+
+  // 解約理由
+  const cancelEl = document.getElementById('cancelReport');
+  const cancelled = state.records.filter(r => r.phase === 'cancelled');
+  if (!cancelled.length) {
+    cancelEl.innerHTML = `<div class="empty"><div class="empty-text">解約データがありません</div></div>`;
+  } else {
+    const reasons = {};
+    cancelled.forEach(r => {
+      const k = r.cancel_reason || 'other';
+      reasons[k] = (reasons[k] || 0) + 1;
+    });
+    cancelEl.innerHTML = Object.entries(reasons).sort((a,b) => b[1] - a[1]).map(([k, c]) => {
+      const pct = (c / cancelled.length * 100).toFixed(0);
+      return `<div style="display:flex; align-items:center; gap:12px; margin-bottom:10px;">
+        <div style="width:120px; font-size:12px;">${esc(CANCEL_REASONS[k] || k)}</div>
+        <div style="flex:1; background:var(--bg); height:8px; border-radius:100px; overflow:hidden;">
+          <div style="height:100%; width:${pct}%; background:var(--red); transition:width 0.4s;"></div>
+        </div>
+        <div style="width:80px; text-align:right; font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--text2);">${c}件 (${pct}%)</div>
+      </div>`;
+    }).join('');
+  }
+
+  // フェーズ分布
+  const phaseEl = document.getElementById('phaseReport');
+  const counts = {};
+  PHASES.forEach(p => counts[p.key] = 0);
+  state.records.forEach(r => { if (counts.hasOwnProperty(r.phase)) counts[r.phase]++; });
+  phaseEl.innerHTML = PHASES.filter(p => counts[p.key] > 0).map(p => {
+    const c = counts[p.key];
+    const pct = state.records.length ? (c / state.records.length * 100).toFixed(0) : 0;
+    return `<div style="display:flex; align-items:center; gap:12px; margin-bottom:8px;">
+      <div style="width:160px;">${phaseBadge(p.key)}</div>
+      <div style="flex:1; background:var(--bg); height:8px; border-radius:100px; overflow:hidden;">
+        <div style="height:100%; width:${pct}%; background:var(--accent); transition:width 0.4s;"></div>
+      </div>
+      <div style="width:80px; text-align:right; font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--text2);">${c}件 (${pct}%)</div>
+    </div>`;
+  }).join('') || `<div class="empty"><div class="empty-text">データなし</div></div>`;
+}
+
+// ============== SETTINGS ==============
+function renderSettings() {
+  const ns = document.getElementById('notifStatus');
+  if (!('Notification' in window)) { ns.textContent = '対応していないブラウザ'; ns.style.color = 'var(--red)'; }
+  else if (Notification.permission === 'granted') { ns.textContent = '✓ 有効'; ns.style.color = 'var(--green)'; }
+  else if (Notification.permission === 'denied') { ns.textContent = 'ブロック中'; ns.style.color = 'var(--red)'; }
+  else { ns.textContent = '未設定'; ns.style.color = 'var(--text3)'; }
+
+  const bytes = JSON.stringify(state.records).length;
+  const sizeStr = bytes < 1024 ? bytes + 'B' : bytes < 1048576 ? (bytes/1024).toFixed(1) + 'KB' : (bytes/1048576).toFixed(2) + 'MB';
+  document.getElementById('dataStorageInfo').innerHTML = `
+    総レコード数: <strong>${state.records.length}</strong>件<br>
+    データサイズ: <strong>${sizeStr}</strong><br>
+    Firebase 無料枠: 1GB ストレージ / 50,000 読み取り/日 / 20,000 書き込み/日 (3人運用なら永久無料圏内)
+  `;
+}
+
+document.getElementById('notifEnableBtn').addEventListener('click', async () => {
+  if (!('Notification' in window)) { alert('このブラウザは通知に対応していません'); return; }
+  try {
+    const r = await Notification.requestPermission();
+    if (r === 'granted') {
+      localStorage.setItem(STORAGE_KEY_NOTIF, '1');
+      toast('✓ 通知を有効にしました');
+      renderSettings();
+    } else { toast('通知が拒否されました', true); }
+  } catch (e) { alert('通知許可エラー: ' + e.message); }
+});
+document.getElementById('notifTestBtn').addEventListener('click', () => {
+  if (Notification.permission !== 'granted') { alert('まず通知を有効にしてください'); return; }
+  try { new Notification('YAMATO CRM テスト', { body: '通知が正常に動作しています' }); }
+  catch (e) { alert('通知失敗: ' + e.message); }
+});
+
+// ============== REMINDERS ==============
+function checkReminders() {
+  if (typeof Notification === 'undefined' || Notification.permission !== 'granted') return;
+  const actions = getActionItems();
+  actions.filter(a => a.urgency === 'today' || a.urgency === 'overdue').forEach(a => {
+    const key = `${a.id}_${todayStr()}`;
+    if (state.notifiedIds.has(key)) return;
+    state.notifiedIds.add(key);
+    try { new Notification(a.title, { body: a.sub, tag: key, silent: false }); }
+    catch (e) { console.warn(e); }
+  });
+}
+
+// ============== PAGINATION ==============
+function renderPagination(id, total, current, onPage) {
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
+  const safe = Math.max(1, Math.min(current, totalPages));
+  const start = total === 0 ? 0 : (safe - 1) * PAGE_SIZE + 1;
+  const end = Math.min(safe * PAGE_SIZE, total);
+  const c = document.getElementById(id);
+  c.innerHTML = `<span>${start}-${end} / ${total} 件</span>
+    <div class="page-ctrl">
+      <button data-p="first" ${safe===1?'disabled':''}>«</button>
+      <button data-p="prev" ${safe===1?'disabled':''}>‹</button>
+      <span class="current">${safe} / ${totalPages}</span>
+      <button data-p="next" ${safe>=totalPages?'disabled':''}>›</button>
+      <button data-p="last" ${safe>=totalPages?'disabled':''}>»</button>
+    </div>`;
+  c.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+    const a = b.dataset.p;
+    let p = safe;
+    if (a === 'first') p = 1;
+    else if (a === 'prev') p = Math.max(1, safe - 1);
+    else if (a === 'next') p = Math.min(totalPages, safe + 1);
+    else if (a === 'last') p = totalPages;
+    onPage(p);
+  }));
+}
+
+// ============== LEAD MODAL ==============
+function openLeadModal(id, prefill) {
+  state.editingId = id;
+  const modal = document.getElementById('leadModal');
+  document.getElementById('leadModalTitle').textContent = id ? '編集' : '+ 新規リード';
+  document.getElementById('leadDeleteBtn').style.display = id ? 'inline-block' : 'none';
+
+  // フィールドリセット
+  ['f-name','f-tel','f-email','f-url','f-tags','f-meeting-date','f-service','f-contract-start',
+   'f-init-amount','f-init-due','f-init-paid','f-monthly-amount','f-monthly-day',
+   'f-followup','f-memo','f-cancel-date','f-cancel-detail'].forEach(fid => {
+    const el = document.getElementById(fid); if (el) el.value = '';
+  });
+  document.getElementById('f-cancel-reason').value = '';
+  document.getElementById('f-phase').value = 'lead';
+  const noneRadio = document.querySelector('input[name="planType"][value="none"]');
+  if (noneRadio) noneRadio.checked = true;
+  document.getElementById('dupWarning').classList.remove('show');
+
+  const rec = id ? state.records.find(r => r.id === id) : (prefill || null);
+
+  if (rec) {
+    document.getElementById('f-name').value = rec.name || '';
+    document.getElementById('f-tel').value = rec.tel || '';
+    document.getElementById('f-email').value = rec.email || '';
+    document.getElementById('f-url').value = rec.url || '';
+    document.getElementById('f-phase').value = rec.phase || 'lead';
+    document.getElementById('f-tags').value = Array.isArray(rec.tags) ? rec.tags.join(', ') : '';
+    document.getElementById('f-meeting-date').value = rec.meetingDate || '';
+    document.getElementById('f-service').value = rec.service || '';
+    document.getElementById('f-contract-start').value = rec.contract_start || '';
+    document.getElementById('f-init-amount').value = rec.init_amount || '';
+    document.getElementById('f-init-due').value = rec.init_due || '';
+    document.getElementById('f-init-paid').value = rec.init_paid_date || '';
+    document.getElementById('f-monthly-amount').value = rec.monthly_amount || '';
+    document.getElementById('f-monthly-day').value = rec.monthly_day || '';
+    document.getElementById('f-followup').value = rec.followupDate || '';
+    document.getElementById('f-memo').value = rec.memo || '';
+    document.getElementById('f-cancel-date').value = rec.cancel_date || '';
+    document.getElementById('f-cancel-reason').value = rec.cancel_reason || '';
+    document.getElementById('f-cancel-detail').value = rec.cancel_detail || '';
+    const pt = rec.planType || 'none';
+    const ptEl = document.querySelector(`input[name="planType"][value="${pt}"]`);
+    if (ptEl) ptEl.checked = true;
+  }
+
+  updateFormVisibility();
+  modal.classList.add('open');
+  setTimeout(() => document.getElementById('f-name').focus(), 100);
+}
+
+function updateFormVisibility() {
+  const phase = document.getElementById('f-phase').value;
+  const ptRadio = document.querySelector('input[name="planType"]:checked');
+  const planType = ptRadio ? ptRadio.value : 'none';
+  const plan = PLAN_TYPES[planType];
+  document.getElementById('grp-meeting').classList.toggle('show', phase === 'appo' || phase === 'lead');
+  document.getElementById('grp-service').classList.toggle('show', planType !== 'none');
+  document.getElementById('grp-contract-start').classList.toggle('show', planType !== 'none');
+  document.getElementById('grp-init-amount').classList.toggle('show', plan.hasInit);
+  document.getElementById('grp-init-due').classList.toggle('show', plan.hasInit);
+  document.getElementById('grp-init-paid').classList.toggle('show', plan.hasInit);
+  document.getElementById('grp-monthly-amount').classList.toggle('show', plan.hasMonthly);
+  document.getElementById('grp-monthly-day').classList.toggle('show', plan.hasMonthly);
+  document.getElementById('grp-cancel').classList.toggle('show', phase === 'cancelled' || phase === 'lost');
+}
+document.getElementById('f-phase').addEventListener('change', updateFormVisibility);
+document.querySelectorAll('input[name="planType"]').forEach(el => el.addEventListener('change', updateFormVisibility));
+
+document.getElementById('f-name').addEventListener('input', checkDuplicate);
+document.getElementById('f-tel').addEventListener('input', checkDuplicate);
+document.getElementById('f-email').addEventListener('input', checkDuplicate);
+function checkDuplicate() {
+  const name = document.getElementById('f-name').value.trim();
+  const tel = normalTel(document.getElementById('f-tel').value);
+  const email = normalText(document.getElementById('f-email').value);
+  const warning = document.getElementById('dupWarning');
+  const listEl = document.getElementById('dupWarningList');
+  if (!name && !tel && !email) { warning.classList.remove('show'); return; }
+  const dups = state.records.filter(r => {
+    if (r.id === state.editingId) return false;
+    if (name && normalText(r.name) === normalText(name)) return true;
+    if (tel && tel.length >= 8 && normalTel(r.tel) === tel) return true;
+    if (email && email.includes('@') && normalText(r.email) === email) return true;
+    return false;
+  });
+  if (!dups.length) { warning.classList.remove('show'); return; }
+  warning.classList.add('show');
+  listEl.innerHTML = dups.slice(0, 5).map(d => `<div>・ <strong>${esc(d.name)}</strong> (${esc(d.tel || d.email || '')})</div>`).join('');
+}
+
+function closeLeadModal() { document.getElementById('leadModal').classList.remove('open'); state.editingId = null; }
+document.getElementById('leadModalClose').addEventListener('click', closeLeadModal);
+document.getElementById('leadCancelBtn').addEventListener('click', closeLeadModal);
+
+document.getElementById('leadSaveBtn').addEventListener('click', async () => {
+  const name = document.getElementById('f-name').value.trim();
+  if (!name) { alert('屋号/会社名は必須です'); return; }
+  const phase = document.getElementById('f-phase').value;
+  const ptRadio2 = document.querySelector('input[name="planType"]:checked');
+  const planType = ptRadio2 ? ptRadio2.value : 'none';
+  const tags = document.getElementById('f-tags').value.split(',').map(t => t.trim()).filter(Boolean).slice(0, 20);
+  const meetingDate = document.getElementById('f-meeting-date').value;
+  if (phase === 'appo' && !meetingDate) { alert('アポ取得の場合、商談日時を入力してください'); return; }
+
+  const contractStart = document.getElementById('f-contract-start').value;
+  const monthlyDay = Number(document.getElementById('f-monthly-day').value) || 0;
+
+  // 月費の各月期限を自動計算
+  let m1_due = '', m2_due = '', m3_due = '';
+  if (contractStart && PLAN_TYPES[planType].hasMonthly) {
+    if (monthlyDay >= 1 && monthlyDay <= 28) {
+      // 毎月の指定日
+      const sd = new Date(contractStart);
+      for (let i = 1; i <= 3; i++) {
+        const d = new Date(sd.getFullYear(), sd.getMonth() + i, monthlyDay);
+        const ds = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+        if (i === 1) m1_due = ds; else if (i === 2) m2_due = ds; else if (i === 3) m3_due = ds;
+      }
+    } else {
+      m1_due = addMonths(contractStart, 1);
+      m2_due = addMonths(contractStart, 2);
+      m3_due = addMonths(contractStart, 3);
+    }
+  }
+
+  const rec = {
+    name: name.slice(0, 200),
+    tel: document.getElementById('f-tel').value.trim().slice(0, 50),
+    email: document.getElementById('f-email').value.trim().slice(0, 200),
+    url: document.getElementById('f-url').value.trim().slice(0, 500),
+    phase, planType, tags,
+    meetingDate: meetingDate || '',
+    service: document.getElementById('f-service').value.trim().slice(0, 300),
+    contract_start: contractStart || '',
+    init_amount: Number(document.getElementById('f-init-amount').value) || 0,
+    init_due: document.getElementById('f-init-due').value || '',
+    init_paid_date: document.getElementById('f-init-paid').value || '',
+    monthly_amount: Number(document.getElementById('f-monthly-amount').value) || 0,
+    monthly_day: monthlyDay,
+    m1_due, m2_due, m3_due,
+    followupDate: document.getElementById('f-followup').value || '',
+    memo: document.getElementById('f-memo').value.trim().slice(0, 5000),
+    cancel_date: document.getElementById('f-cancel-date').value || '',
+    cancel_reason: document.getElementById('f-cancel-reason').value || '',
+    cancel_detail: document.getElementById('f-cancel-detail').value.trim().slice(0, 2000)
+  };
+
+  // orderDate を受注時に自動設定。既存値があれば必ず保持
+  const existingForOrder = state.editingId ? state.records.find(r => r.id === state.editingId) : null;
+  if (existingForOrder && existingForOrder.orderDate) {
+    rec.orderDate = existingForOrder.orderDate;
+  } else if (phase === 'order' || phase === 'init_unpaid' || phase === 'init_paid' || (typeof phase === 'string' && phase.startsWith('m')) || phase === 'continuing') {
+    rec.orderDate = todayStr();
+  }
+
+  // フェーズ変更のアクティビティ記録
+  const existing = state.editingId ? state.records.find(r => r.id === state.editingId) : null;
+  let activity = existing && Array.isArray(existing.activity) ? [...existing.activity] : [];
+  if (!existing) {
+    activity.unshift({ at: isoNow(), type: 'system', text: `🆕 顧客登録: ${phaseInfo(phase).label}` });
+  } else if (existing.phase !== phase) {
+    activity.unshift({ at: isoNow(), type: 'system', text: `🔄 フェーズ変更: ${phaseInfo(existing.phase).label} → ${phaseInfo(phase).label}` });
+  }
+  // 入金日入力されたら活動記録
+  const checkPaid = (key, label, oldVal, newVal) => {
+    if (newVal && !oldVal) activity.unshift({ at: isoNow(), type: 'payment', text: `💰 ${label}入金 (${fmtDate(newVal)})` });
+  };
+  if (existing) {
+    checkPaid('init', '初期費用', existing.init_paid_date, rec.init_paid_date);
+  }
+  if (activity.length > 50) activity = activity.slice(0, 50);
+  rec.activity = activity;
+
+  if (state.editingId) {
+    rec.id = state.editingId;
+    rec.createdAt = existing?.createdAt || isoNow();
+    // 既存の入金履歴を引き継ぐ
+    if (existing) {
+      ['m1_paid_date','m2_paid_date','m3_paid_date','m3_confirmed'].forEach(k => {
+        if (existing[k] != null) rec[k] = existing[k];
+      });
+    }
+  } else {
+    rec.id = uid();
+    rec.createdAt = isoNow();
+  }
+
+  showLoading(true);
+  try {
+    await saveRecord(rec);
+    closeLeadModal();
+    toast(`✓ ${state.editingId ? '更新' : '追加'}しました`);
+  } catch (e) { alert('保存失敗: ' + (e.message || '')); }
+  finally { showLoading(false); }
+});
+
+document.getElementById('leadDeleteBtn').addEventListener('click', async () => {
+  if (!state.editingId) return;
+  if (!confirm('この顧客を削除しますか?\nこの操作は取り消せません。')) return;
+  showLoading(true);
+  try {
+    await deleteRecordFromDb(state.editingId);
+    closeLeadModal();
+    toast('✓ 削除しました');
+  } catch (e) { alert('削除失敗: ' + (e.message || '')); }
+  finally { showLoading(false); }
+});
+
+// ============== DETAIL MODAL ==============
+function openDetail(id) {
+  const rec = state.records.find(r => r.id === id);
+  if (!rec) return;
+  state.detailId = id;
+  document.getElementById('detailTitle').textContent = rec.name;
+  const body = document.getElementById('detailBody');
+  const plan = PLAN_TYPES[rec.planType] || PLAN_TYPES['none'];
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  // Payment grid
+  const pays = paymentsOf(rec);
+  let paymentGridHTML = '';
+  if (pays.length) {
+    paymentGridHTML = `<div class="payment-grid">` + pays.slice(0, 8).map(p => {
+      const s = paymentStatusOf(p, today);
+      const statusLabel = p.isPaid ? `✓ ${fmtDate(p.paid)}`
+        : s === 'overdue' ? `⚠ 期限切れ`
+        : s === 'unpaid' && p.due ? `${fmtDate(p.due)}` : '未設定';
+      return `<div class="payment-cell ${s}">
+        <div class="lbl">${esc(p.kind)}</div>
+        <div class="amt">¥${fmt(p.amount)}</div>
+        <div class="status ${s}">${esc(statusLabel)}</div>
+      </div>`;
+    }).join('') + `</div>`;
+  }
+
+  // クイックアクション
+  let quickActionsHTML = '';
+  pays.forEach(p => {
+    if (!p.isPaid) {
+      quickActionsHTML += `<button class="qa paid" data-act="pay" data-key="${esc(p.key)}">✓ ${esc(p.kind)}入金完了</button>`;
+    }
+  });
+  if (rec.phase === 'm3_paid' && !rec.m3_confirmed) {
+    quickActionsHTML += `<button class="qa paid" data-act="confirm-m3">🎯 継続意思確認(継続中へ)</button>`;
+    quickActionsHTML += `<button class="qa cancel" data-act="cancel">❌ 解約処理へ</button>`;
+  }
+
+  // タイムライン
+  const activity = Array.isArray(rec.activity) ? rec.activity : [];
+  const timelineHTML = activity.length ? activity.map(a => {
+    const dotCls = a.type === 'payment' ? 'payment' : a.type === 'cancel' ? 'cancel' : a.type === 'warn' ? 'warn' : a.type === 'system' ? 'system' : '';
+    return `<div class="timeline-entry">
+      <div class="timeline-dot-wrap"><div class="timeline-dot ${dotCls}"></div></div>
+      <div class="timeline-content">
+        <div class="timeline-meta">
+          <span>${fmtDateTime(a.at)}</span>
+          ${a.type ? `<span style="color:var(--accent);">${esc(a.type)}</span>` : ''}
+        </div>
+        <div class="timeline-text">${esc(a.text)}</div>
+      </div>
+    </div>`;
+  }).join('') : `<div class="empty" style="padding:20px;"><div class="empty-text" style="font-size:11px;">活動履歴なし</div></div>`;
+
+  const { score, level } = healthScore(rec);
+
+  body.innerHTML = `
+    <div class="detail-section">
+      <div class="detail-section-title">// 基本情報</div>
+      <div class="detail-row"><div class="label">フェーズ</div><div class="value">${phaseBadge(rec.phase)} <span class="health ${level}" style="margin-left:8px;"><span class="health-bar"><span class="fill" style="width:${score}%"></span></span>健康度 ${score}</span></div></div>
+      <div class="detail-row"><div class="label">プラン</div><div class="value">${esc(plan.label)}</div></div>
+      <div class="detail-row"><div class="label">屋号</div><div class="value">${esc(rec.name)}</div></div>
+      <div class="detail-row"><div class="label">電話</div><div class="value">${rec.tel ? `<a href="tel:${esc(rec.tel)}">${esc(rec.tel)}</a>` : '—'}</div></div>
+      <div class="detail-row"><div class="label">メール</div><div class="value">${rec.email ? `<a href="mailto:${esc(rec.email)}">${esc(rec.email)}</a>` : '—'}</div></div>
+      <div class="detail-row"><div class="label">URL</div><div class="value">${rec.url ? `<a href="${esc(rec.url)}" target="_blank" rel="noopener">${esc(rec.url)}</a>` : '—'}</div></div>
+      <div class="detail-row"><div class="label">タグ</div><div class="value">${(rec.tags || []).map(t => `<span class="tag">${esc(t)}</span>`).join('') || '—'}</div></div>
+    </div>
+
+    ${rec.meetingDate ? `<div class="detail-section">
+      <div class="detail-section-title">// 商談</div>
+      <div class="detail-row"><div class="label">商談日時</div><div class="value">${fmtDateTime(rec.meetingDate)}</div></div>
+    </div>` : ''}
+
+    ${pays.length ? `<div class="detail-section">
+      <div class="detail-section-title">// 入金状況</div>
+      <div class="detail-row"><div class="label">サービス</div><div class="value">${esc(rec.service || '—')}</div></div>
+      <div class="detail-row"><div class="label">契約開始</div><div class="value">${fmtDate(rec.contract_start)}</div></div>
+      <div class="detail-row"><div class="label">合計受領</div><div class="value mono" style="color:var(--green); font-weight:700;">¥${fmt(totalReceived(rec))}</div></div>
+      ${paymentGridHTML}
+      ${quickActionsHTML ? `<div class="quick-actions">${quickActionsHTML}</div>` : ''}
+    </div>` : ''}
+
+    ${rec.followupDate ? `<div class="detail-section">
+      <div class="detail-section-title">// フォロー</div>
+      <div class="detail-row"><div class="label">次回予定</div><div class="value">${fmtDate(rec.followupDate)} (${relativeDate(rec.followupDate)})</div></div>
+    </div>` : ''}
+
+    ${rec.phase === 'cancelled' || rec.cancel_date ? `<div class="detail-section">
+      <div class="detail-section-title">// 解約情報</div>
+      <div class="detail-row"><div class="label">解約日</div><div class="value">${fmtDate(rec.cancel_date)}</div></div>
+      <div class="detail-row"><div class="label">理由</div><div class="value">${esc(CANCEL_REASONS[rec.cancel_reason] || rec.cancel_reason || '—')}</div></div>
+      <div class="detail-row"><div class="label">詳細</div><div class="value" style="white-space:pre-wrap;">${esc(rec.cancel_detail || '—')}</div></div>
+    </div>` : ''}
+
+    ${rec.memo ? `<div class="detail-section">
+      <div class="detail-section-title">// メモ</div>
+      <div style="white-space:pre-wrap; font-size:13px; line-height:1.7; color:var(--text); background:var(--bg); padding:12px; border-radius:3px; border:1px solid var(--border);">${esc(rec.memo)}</div>
+    </div>` : ''}
+
+    <div class="detail-section">
+      <div class="detail-section-title">// 対応履歴 / タイムライン</div>
+      <div class="timeline-add">
+        <textarea id="newActivityText" placeholder="電話した、メール送った、状況など..."></textarea>
+        <button class="btn" id="addActivityBtn">追加</button>
+      </div>
+      <div class="timeline-list">${timelineHTML}</div>
+    </div>
+
+    <div class="detail-section">
+      <div class="detail-section-title">// 履歴</div>
+      <div class="detail-row"><div class="label">登録</div><div class="value mono" style="font-size:12px; color:var(--text3);">${fmtDateTime(rec.createdAt)}</div></div>
+      <div class="detail-row"><div class="label">最終更新</div><div class="value mono" style="font-size:12px; color:var(--text3);">${fmtDateTime(rec.updatedAt)}</div></div>
+    </div>
+  `;
+  document.getElementById('detailModal').classList.add('open');
+
+  // クイックアクションbind
+  body.querySelectorAll('.qa').forEach(btn => {
+    btn.addEventListener('click', () => detailQuickAction(btn.dataset.act, btn.dataset.key));
+  });
+  // アクティビティ追加
+  const addBtn = document.getElementById('addActivityBtn');
+  if (addBtn) addBtn.addEventListener('click', async () => {
+    const text = document.getElementById('newActivityText').value.trim();
+    if (!text) return;
+    showLoading(true);
+    try {
+      const cur = state.records.find(r => r.id === state.detailId);
+      await addActivity(cur, 'note', text);
+      toast('✓ 履歴に追加しました');
+      // 詳細を再描画
+      setTimeout(() => openDetail(state.detailId), 300);
+    } catch (e) { alert('追加失敗: ' + e.message); }
+    finally { showLoading(false); }
+  });
+}
+
+async function detailQuickAction(act, key) {
+  const rec = state.records.find(r => r.id === state.detailId);
+  if (!rec) return;
+  const updated = { ...rec };
+  if (!Array.isArray(updated.activity)) updated.activity = [];
+  let activityText = '';
+
+  if (act === 'pay') {
+    const p = paymentsOf(rec).find(x => x.key === key);
+    if (!p) return;
+    if (key === 'init') updated.init_paid_date = todayStr();
+    else if (key.startsWith('m')) updated[`${key}_paid_date`] = todayStr();
+    // フェーズ自動進行
+    if (rec.phase === 'init_unpaid' || rec.phase === 'order') updated.phase = 'init_paid';
+    else if (rec.phase === 'm1_unpaid') updated.phase = 'm1_paid';
+    else if (rec.phase === 'm2_unpaid') updated.phase = 'm2_paid';
+    else if (rec.phase === 'm3_unpaid') updated.phase = 'm3_paid';
+    activityText = `💰 ${p.kind}入金完了 (¥${fmt(p.amount)})`;
+  } else if (act === 'confirm-m3') {
+    updated.phase = 'continuing';
+    updated.m3_confirmed = true;
+    activityText = `🎯 継続意思確認: 4ヶ月目以降継続へ`;
+  } else if (act === 'cancel') {
+    closeDetail();
+    openLeadModal(state.detailId);
+    // フェーズを cancelled に
+    setTimeout(() => {
+      document.getElementById('f-phase').value = 'cancelled';
+      updateFormVisibility();
+      document.getElementById('f-cancel-date').value = todayStr();
+    }, 200);
+    return;
+  }
+
+  updated.activity.unshift({ at: isoNow(), type: act === 'pay' ? 'payment' : 'system', text: activityText });
+  if (updated.activity.length > 50) updated.activity = updated.activity.slice(0, 50);
+  showLoading(true);
+  try {
+    await saveRecord(updated);
+    toast('✓ ' + activityText);
+    setTimeout(() => openDetail(state.detailId), 300);
+  } catch (e) { alert('失敗: ' + e.message); }
+  finally { showLoading(false); }
+}
+
+function closeDetail() { document.getElementById('detailModal').classList.remove('open'); state.detailId = null; }
+document.getElementById('detailClose').addEventListener('click', closeDetail);
+document.getElementById('detailCloseBtn').addEventListener('click', closeDetail);
+document.getElementById('detailEditBtn').addEventListener('click', () => { const id = state.detailId; closeDetail(); openLeadModal(id); });
+document.getElementById('detailCloneBtn').addEventListener('click', () => {
+  const rec = state.records.find(r => r.id === state.detailId);
+  if (!rec) return;
+  closeDetail();
+  const cloned = { ...rec, name: rec.name + ' (コピー)', phase: 'lead', activity: [] };
+  delete cloned.id;
+  delete cloned.createdAt;
+  delete cloned.updatedAt;
+  delete cloned.orderDate;
+  delete cloned.init_paid_date;
+  delete cloned.m1_paid_date;
+  delete cloned.m2_paid_date;
+  delete cloned.m3_paid_date;
+  delete cloned.m3_confirmed;
+  delete cloned.cancel_date;
+  delete cloned.cancel_reason;
+  delete cloned.cancel_detail;
+  openLeadModal(null, cloned);
+});
+document.getElementById('detailDeleteBtn').addEventListener('click', async () => {
+  if (!state.detailId) return;
+  if (!confirm('この顧客を削除しますか?\nこの操作は取り消せません。')) return;
+  showLoading(true);
+  try { await deleteRecordFromDb(state.detailId); closeDetail(); toast('✓ 削除しました'); }
+  catch (e) { alert('削除失敗: ' + (e.message || '')); }
+  finally { showLoading(false); }
+});
+
+// New lead buttons
+['quickAddBtn','addLeadBtn2','addLeadBtn3','addLeadBtn4'].forEach(id => {
+  const el = document.getElementById(id); if (el) el.addEventListener('click', () => openLeadModal());
+});
+
+// モーダル: 背景タップで閉じる + Escキーで閉じる
+document.getElementById('leadModal').addEventListener('click', e => {
+  if (e.target.id === 'leadModal') closeLeadModal();
+});
+document.getElementById('detailModal').addEventListener('click', e => {
+  if (e.target.id === 'detailModal') closeDetail();
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') {
+    if (document.getElementById('detailModal').classList.contains('open')) closeDetail();
+    else if (document.getElementById('leadModal').classList.contains('open')) closeLeadModal();
+  }
+});
+
+// ============== FILTER LISTENERS ==============
+document.getElementById('leadsSearch').addEventListener('input', () => { state.leadsFilter.search = document.getElementById('leadsSearch').value; state.leadsFilter.page = 1; renderLeadsTable(); });
+['leadsPhaseFilter','leadsTagFilter','leadsSortBy'].forEach(id => {
+  const key = id === 'leadsPhaseFilter' ? 'phase' : id === 'leadsTagFilter' ? 'tag' : 'sort';
+  document.getElementById(id).addEventListener('change', () => { state.leadsFilter[key] = document.getElementById(id).value; state.leadsFilter.page = 1; renderLeadsTable(); });
+});
+document.getElementById('leadsClearBtn').addEventListener('click', () => {
+  ['leadsSearch','leadsPhaseFilter','leadsTagFilter'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('leadsSortBy').value = 'updated';
+  state.leadsFilter = { search: '', phase: '', tag: '', sort: 'updated', page: 1 };
+  renderLeadsTable();
+});
+
+document.getElementById('allSearch').addEventListener('input', () => { state.allFilter.search = document.getElementById('allSearch').value; state.allFilter.page = 1; renderAllTable(); });
+['allPhaseFilter','allTagFilter','allSortBy'].forEach(id => {
+  const key = id === 'allPhaseFilter' ? 'phase' : id === 'allTagFilter' ? 'tag' : 'sort';
+  document.getElementById(id).addEventListener('change', () => { state.allFilter[key] = document.getElementById(id).value; state.allFilter.page = 1; renderAllTable(); });
+});
+document.getElementById('allClearBtn').addEventListener('click', () => {
+  ['allSearch','allPhaseFilter','allTagFilter'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('allSortBy').value = 'updated';
+  state.allFilter = { search: '', phase: '', tag: '', sort: 'updated', page: 1 };
+  renderAllTable();
+});
+
+document.getElementById('paymentsFilter').addEventListener('change', () => { state.paymentsFilter = document.getElementById('paymentsFilter').value; state.paymentsPage = 1; renderPayments(); });
+document.getElementById('activeFilter').addEventListener('change', () => { state.activeFilter = document.getElementById('activeFilter').value; state.activePage = 1; renderActive(); });
+
+document.getElementById('dupSearch').addEventListener('input', renderDup);
+document.getElementById('dupClearBtn').addEventListener('click', () => { document.getElementById('dupSearch').value = ''; renderDup(); });
+
+// ============== BACKUP/RESTORE ==============
+document.getElementById('backupBtn').addEventListener('click', async () => {
+  try {
+    const snap = await getDocs(collection(state.db, COLLECTION));
+    const all = [];
+    snap.forEach(d => all.push({ id: d.id, ...d.data() }));
+    const payload = { version: 3, exportedAt: isoNow(), records: all };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `yamato-crm-backup-${todayStr()}.json`;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+    toast(`✓ ${all.length}件をバックアップ`);
+  } catch (e) { alert('バックアップ失敗: ' + e.message); }
+});
+document.getElementById('exportCsvBtn').addEventListener('click', () => {
+  const escCsv = v => { const s = String(v == null ? '' : v); return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+  const header = ['ID','屋号','電話','メール','URL','フェーズ','プラン','契約開始','初期費用','初期入金日','月費','m1期限','m1入金','m2期限','m2入金','m3期限','m3入金','合計受領','タグ','メモ','解約日','解約理由','登録','更新'];
+  const rows = state.records.map(r => [
+    r.id, r.name, r.tel, r.email, r.url, phaseInfo(r.phase).label, (PLAN_TYPES[r.planType] || {}).label || '',
+    r.contract_start, r.init_amount, r.init_paid_date, r.monthly_amount,
+    r.m1_due, r.m1_paid_date, r.m2_due, r.m2_paid_date, r.m3_due, r.m3_paid_date,
+    totalReceived(r),
+    (r.tags || []).join('|'), r.memo,
+    r.cancel_date, CANCEL_REASONS[r.cancel_reason] || r.cancel_reason || '',
+    r.createdAt, r.updatedAt
+  ]);
+  const csv = '\uFEFF' + [header, ...rows].map(row => row.map(escCsv).join(',')).join('\r\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `yamato-crm-${todayStr()}.csv`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+  toast(`✓ ${rows.length}件をCSV出力`);
+});
+document.getElementById('restoreBtn').addEventListener('click', () => document.getElementById('restoreFile').click());
+document.getElementById('restoreFile').addEventListener('change', async e => {
+  const file = e.target.files[0]; if (!file) return;
+  if (!confirm(`「${file.name}」から復元します。既存IDはスキップします。続行?`)) { e.target.value = ''; return; }
+  showLoading(true);
+  try {
+    const text = await file.text();
+    const data = JSON.parse(text);
+    if (!Array.isArray(data.records)) throw new Error('不正なバックアップファイル');
+    const existing = new Set(state.records.map(r => r.id));
+    const toAdd = data.records.filter(r => r && r.id && r.name && !existing.has(r.id));
+    if (!toAdd.length) alert('追加可能な新規レコードなし');
+    else { await batchSaveRecords(toAdd); alert(`復元完了\n追加: ${toAdd.length}件\nスキップ: ${data.records.length - toAdd.length}件`); }
+  } catch (err) { alert('復元失敗: ' + err.message); }
+  finally { showLoading(false); e.target.value = ''; }
+});
+document.getElementById('resetConfigBtn').addEventListener('click', () => {
+  if (!confirm('Firebase設定をリセットしますか?(データ自体は削除されません)')) return;
+  clearConfig();
+  if (state.unsubscribe) { try { state.unsubscribe(); } catch {} state.unsubscribe = null; }
+  state.records = [];
+  showScreen('setup');
+});
+
+// ============== INIT ==============
+async function initApp() {
+  state.isInitialLoad = true;
+  showLoading(true);
+  subscribeAll();
+  state.reminderTimer = setInterval(() => {
+    checkReminders();
+    const today = todayStr();
+    if (!state.notifiedIds._date) state.notifiedIds._date = today;
+    else if (state.notifiedIds._date !== today) { state.notifiedIds.clear(); state.notifiedIds._date = today; }
+  }, 5 * 60 * 1000);
+  setTimeout(() => { if (state.isInitialLoad) { state.isInitialLoad = false; showLoading(false); } }, 10000);
+}
+
+async function startup() {
+  if (!window.crypto || !window.crypto.subtle) {
+    alert('⚠ このアプリはHTTPS環境でのみ動作します。GitHub Pagesは自動的にHTTPSなので問題ありません。');
+  }
+  const cfg = loadConfig();
+  if (!cfg) { showScreen('setup'); return; }
+  showLoading(true);
+  try {
+    await initFirebase(cfg);
+    showScreen('login');
+    updateConnectionPill(true);
+    passwordInput.focus();
+  } catch (e) {
+    console.error(e);
+    alert('Firebase初期化失敗: ' + (e.message || ''));
+    showScreen('setup');
+  } finally { showLoading(false); }
+}
+startup();
+</script>
+</body>
+</html>
