@@ -206,6 +206,38 @@ button { font-family: inherit; cursor: pointer; }
 .ch-comment-input input:focus { border-color: var(--accent); }
 .ch-del { margin-left: auto; background: none; border: none; color: var(--text3); font-size: 15px; cursor: pointer; padding: 0 4px; }
 .ch-del:hover { color: var(--red); }
+/* ==== チャッター + カレンダー 2カラム ==== */
+.ch-layout { display: grid; grid-template-columns: minmax(0,1fr) 400px; gap: 18px; align-items: start; }
+@media (max-width: 1100px) { .ch-layout { grid-template-columns: 1fr; } }
+.ch-side { position: sticky; top: 68px; }
+.ch-side .panel-title { font-size: 13px; }
+.ch-side .cal-wcol { min-height: 0; }
+.ch-side .cal-whead { padding: 5px 2px; }
+.ch-side .cal-whead .dn { font-size: 14px; }
+.ch-side .cal-wbody { padding: 4px; max-height: 300px; }
+.ch-side .cal-event { font-size: 10px; padding: 3px 4px; }
+.ch-toolbar { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
+.ch-refresh { background: var(--surface); border: 1px solid var(--border2); color: var(--text2); padding: 6px 12px; border-radius: 2px; font-size: 12px; min-height: 34px; display: flex; align-items: center; gap: 6px; }
+.ch-refresh:hover { border-color: var(--accent); color: var(--accent); }
+.ch-refresh.spin span.ic { display: inline-block; animation: spin 0.6s linear; }
+@keyframes spin { from { transform: rotate(0); } to { transform: rotate(360deg); } }
+.ch-updated { font-size: 11px; color: var(--text3); font-family: 'JetBrains Mono', monospace; }
+.fab-add { background: var(--accent); color: var(--accent-on); border: none; width: 34px; height: 34px; border-radius: 50%; font-size: 20px; line-height: 1; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.fab-add:hover { background: var(--accent-hover); }
+.ch-post.fresh { animation: flashIn 1.2s ease-out; }
+@keyframes flashIn { 0% { background: var(--accent-dim); } 100% { background: var(--surface); } }
+/* ==== メンバー ==== */
+.member-chip { display: inline-flex; align-items: center; gap: 6px; background: var(--surface2); border: 1px solid var(--border2); border-radius: 100px; padding: 5px 12px; font-size: 12px; margin: 0 6px 6px 0; }
+.member-chip button { background: none; border: none; color: var(--text3); font-size: 14px; padding: 0; }
+.member-chip button:hover { color: var(--red); }
+/* ==== 商談フェーズ ==== */
+.dphase { font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 100px; white-space: nowrap; background: var(--surface3); color: var(--text2); }
+.dphase.win { background: var(--green-dim); color: var(--green); }
+.dphase.lost { background: var(--red-dim); color: var(--red); }
+.dphase.hot { background: var(--accent-dim); color: var(--accent); }
+.lstatus { font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 100px; background: var(--accent-dim); color: var(--accent); white-space: nowrap; }
+.lstatus.done { background: var(--surface3); color: var(--text3); }
+.lstatus.conv { background: var(--green-dim); color: var(--green); }
 .month-nav span { padding: 0 12px; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: var(--text); white-space: nowrap; min-width: 92px; text-align: center; }
 
 /* MAIN */
@@ -629,14 +661,12 @@ service cloud.firestore {
     <div class="nav-tabs" id="navTabs">
       <button class="nav-tab active" data-tab="dashboard">📊 ダッシュボード</button>
       <button class="nav-tab" data-tab="chatter">💬 チャッター <span class="badge" id="chatterBadge" style="display:none;">0</span></button>
-      <button class="nav-tab" data-tab="actions">⚡ アクション <span class="badge red" id="actionsBadge" style="display:none;">0</span></button>
-      <button class="nav-tab" data-tab="kanban">🗂 カンバン</button>
-      <button class="nav-tab" data-tab="leads">📋 リード <span class="badge" id="leadsBadge">0</span></button>
-      <button class="nav-tab" data-tab="all">🏢 全顧客</button>
+      <button class="nav-tab" data-tab="leadlist">📇 リード <span class="badge" id="leadBadge">0</span></button>
+      <button class="nav-tab" data-tab="all">🏢 取引先 <span class="badge" id="acctBadge">0</span></button>
+      <button class="nav-tab" data-tab="deals">🤝 商談 <span class="badge" id="dealBadge">0</span></button>
       <button class="nav-tab" data-tab="payments">💰 入金管理 <span class="badge orange" id="paymentsBadge" style="display:none;">0</span></button>
       <button class="nav-tab" data-tab="active">🔄 進行中 <span class="badge" id="activeBadge">0</span></button>
       <button class="nav-tab" data-tab="dup">🔍 重複</button>
-      <button class="nav-tab" data-tab="calendar">📅 カレンダー</button>
       <button class="nav-tab" data-tab="reports">📈 レポート</button>
       <button class="nav-tab" data-tab="settings">⚙️ 設定</button>
     </div>
@@ -670,7 +700,7 @@ service cloud.firestore {
       </div>
 
       <div class="stats-grid">
-        <div class="stat-card clickable" data-jump="leads">
+        <div class="stat-card clickable" data-jump="leadlist">
           <div class="stat-label">アクティブリード</div>
           <div class="stat-value" id="statLeads">0</div>
           <div class="stat-meta">未対応・アポ取得</div>
@@ -690,7 +720,7 @@ service cloud.firestore {
           <div class="stat-value" id="statActive">0<span class="unit">件</span></div>
           <div class="stat-meta" id="statMrr">MRR ¥0</div>
         </div>
-        <div class="stat-card red clickable" data-jump="actions">
+        <div class="stat-card red clickable" data-jump="chatter">
           <div class="stat-label">本日アクション要</div>
           <div class="stat-value" id="statTodayActions">0</div>
           <div class="stat-meta">リマインダー</div>
@@ -734,15 +764,25 @@ service cloud.firestore {
           <p class="section-sub">アポ報告・商談報告・受注・失注が自動で流れる共有フィード</p>
         </div>
         <div class="section-actions">
-          <button class="btn-action primary" id="apoReportBtn">📞 アポ取得</button>
+          <button class="btn-action primary" id="apoReportBtn">📞 アポ報告</button>
           <button class="btn-action primary" id="shodanReportBtn">🤝 商談報告</button>
         </div>
       </div>
 
-      <div class="ch-composer">
+      <div class="ch-layout">
+      <div>
+      <div class="ch-toolbar">
+        <button class="fab-add" id="chFabBtn" title="投稿する">＋</button>
+        <button class="ch-refresh" id="chRefreshBtn"><span class="ic">🔄</span> 更新</button>
+        <span class="ch-updated" id="chUpdatedAt">—</span>
+      </div>
+
+      <div class="ch-composer" id="chComposer">
         <textarea id="chText" placeholder="チームに共有する内容を入力..." maxlength="5000"></textarea>
         <div class="ch-composer-foot">
-          <span style="font-size:11px; color:var(--text3);">投稿者: <strong id="chMeLabel">—</strong></span>
+          <span style="font-size:11px; color:var(--text3);">投稿者:
+            <select id="chAuthorSel" style="background:var(--bg); border:1px solid var(--border); color:var(--text); padding:5px 8px; border-radius:2px; font-size:12px;"></select>
+          </span>
           <button class="btn-action primary" id="chPostBtn">共有</button>
         </div>
       </div>
@@ -760,109 +800,131 @@ service cloud.firestore {
       <div style="text-align:center; margin-top:14px;">
         <button class="btn-action" id="chMoreBtn" style="display:none;">さらに表示</button>
       </div>
+      </div>
+
+      <!-- カレンダー(チャッターの隣) -->
+      <div class="ch-side">
+        <div class="panel">
+          <div class="panel-head">
+            <div class="panel-title"><span class="mono">// SCHEDULE</span><span id="calTitle">—</span></div>
+            <div style="display:flex; gap:6px; align-items:center;">
+              <button class="fab-add" id="calAddBtn" title="予定を追加(アポ報告)" style="width:28px;height:28px;font-size:17px;">＋</button>
+            </div>
+          </div>
+          <div style="padding: 12px;">
+            <div class="cal-head" style="margin-bottom:10px;">
+              <div class="cal-view-toggle">
+                <button id="calWeekBtn" class="active">週</button>
+                <button id="calMonthBtn">月</button>
+              </div>
+              <div class="cal-nav">
+                <button id="calPrev">◀</button>
+                <button id="calToday">今日</button>
+                <button id="calNext">▶</button>
+              </div>
+            </div>
+            <div class="cal-week" id="calWeek"></div>
+            <div class="cal-grid" id="calGrid" style="display:none;"></div>
+            <div style="margin-top: 12px; display: flex; gap: 10px; flex-wrap: wrap; font-size: 10px; color: var(--text3);">
+              <span>🔵 商談</span><span>🟡 入金期限</span><span>🟣 月費</span><span>🟠 フォロー</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      </div>
     </section>
 
-    <!-- ACTIONS -->
-    <section class="view" id="view-actions">
-      <div class="section-head">
-        <div>
-          <div class="section-title"><span class="eyebrow">// TASKS</span></div>
-          <div style="font-size: 22px; font-weight: 700; margin-top: 6px;">アクション一覧</div>
-          <p class="section-sub">今日と今後の対応予定、未入金フォロー、継続意思確認</p>
-        </div>
-      </div>
 
-      <div class="panel">
-        <div class="panel-head">
-          <div class="panel-title"><span class="mono">// OVERDUE</span>期限切れ</div>
-          <div class="panel-meta"><span id="overdueCount">0 items</span></div>
-        </div>
-        <div id="overdueActionList" class="action-list"></div>
-      </div>
-      <div class="panel">
-        <div class="panel-head">
-          <div class="panel-title"><span class="mono">// TODAY</span>今日の予定</div>
-          <div class="panel-meta"><span id="todayCount">0 items</span></div>
-        </div>
-        <div id="todayActionList2" class="action-list"></div>
-      </div>
-      <div class="panel">
-        <div class="panel-head">
-          <div class="panel-title"><span class="mono">// UPCOMING</span>今後7日間</div>
-          <div class="panel-meta"><span id="upcomingCount">0 items</span></div>
-        </div>
-        <div id="upcomingActionList" class="action-list"></div>
-      </div>
-    </section>
 
-    <!-- KANBAN -->
-    <section class="view" id="view-kanban">
-      <div class="section-head">
-        <div>
-          <div class="section-title"><span class="eyebrow">// PIPELINE</span></div>
-          <div style="font-size: 22px; font-weight: 700; margin-top: 6px;">カンバンビュー</div>
-          <p class="section-sub">フェーズ別に顧客カードを表示。クリックで詳細</p>
-        </div>
-        <div class="section-actions">
-          <button class="btn-action primary" id="addLeadBtn4">+ 新規リード</button>
-        </div>
-      </div>
-      <div class="kanban" id="kanbanBoard"></div>
-    </section>
 
-    <!-- LEADS -->
-    <section class="view" id="view-leads">
+    <!-- LEAD LIST -->
+    <section class="view" id="view-leadlist">
       <div class="section-head">
         <div>
           <div class="section-title"><span class="eyebrow">// LEADS</span></div>
-          <div style="font-size: 22px; font-weight: 700; margin-top: 6px;">リード一覧</div>
-          <p class="section-sub">未対応・アポ取得済みの顧客(受注前)</p>
+          <div style="font-size: 22px; font-weight: 700; margin-top: 6px;">リード</div>
+          <p class="section-sub">まだアポが取れていない見込み企業。アポ報告を押すと取引先に昇格します</p>
         </div>
         <div class="section-actions">
-          <button class="btn-action primary" id="addLeadBtn2">+ 新規リード</button>
+          <button class="btn-action primary" id="newLeadBtn">＋ 新規リード</button>
         </div>
       </div>
       <div class="panel">
         <div class="search-bar">
-          <input type="text" id="leadsSearch" placeholder="🔍 屋号・電話・メール検索..." maxlength="100" />
-          <select id="leadsPhaseFilter"><option value="">全フェーズ</option></select>
-          <select id="leadsTagFilter"><option value="">全タグ</option></select>
-          <select id="leadsSortBy">
-            <option value="updated">更新順</option>
-            <option value="created">登録順</option>
-            <option value="name">屋号順</option>
-            <option value="meeting">商談日順</option>
-            <option value="health">ヘルススコア</option>
+          <input type="text" id="leadListSearch" placeholder="🔍 会社名・電話・URL検索..." maxlength="100" />
+          <select id="leadListStatus">
+            <option value="">全ステータス</option>
+            <option value="新規">新規</option>
+            <option value="案件化">案件化</option>
+            <option value="完了">完了</option>
           </select>
-          <button class="clear-btn" id="leadsClearBtn">クリア</button>
+          <button class="clear-btn" id="leadListClear">クリア</button>
         </div>
         <div class="table-wrap">
           <table>
             <thead>
               <tr>
-                <th style="width:120px;">フェーズ</th>
-                <th>屋号</th>
-                <th>連絡先</th>
-                <th>商談日</th>
-                <th>タグ</th>
-                <th style="width:80px;">健康度</th>
-                <th class="right">更新</th>
+                <th style="width:86px;">状況</th>
+                <th>会社名</th>
+                <th style="width:130px;">電話</th>
+                <th style="width:110px;">携帯</th>
+                <th>Webサイト</th>
+                <th style="width:100px;">業種</th>
+                <th style="width:150px;" class="right">アクション</th>
               </tr>
             </thead>
-            <tbody id="leadsTable"></tbody>
+            <tbody id="leadListTable"></tbody>
           </table>
         </div>
-        <div class="pagination" id="leadsPagination"></div>
+        <div class="pagination" id="leadListPagination"></div>
       </div>
     </section>
 
-    <!-- ALL -->
+    <!-- DEALS -->
+    <section class="view" id="view-deals">
+      <div class="section-head">
+        <div>
+          <div class="section-title"><span class="eyebrow">// OPPORTUNITIES</span></div>
+          <div style="font-size: 22px; font-weight: 700; margin-top: 6px;">商談</div>
+          <p class="section-sub">取引先ごとの商談レコード。保存するとチャッターに流れます</p>
+        </div>
+        <div class="section-actions">
+          <button class="btn-action primary" id="newDealBtn">＋ 商談報告</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="search-bar">
+          <input type="text" id="dealSearch" placeholder="🔍 商談名・取引先検索..." maxlength="100" />
+          <select id="dealPhaseFilter"><option value="">全フェーズ</option></select>
+          <button class="clear-btn" id="dealClear">クリア</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:110px;">フェーズ</th>
+                <th>商談名</th>
+                <th style="width:100px;">商材</th>
+                <th style="width:110px;">金額</th>
+                <th style="width:110px;">受注/失注日</th>
+                <th style="width:100px;">失注理由</th>
+                <th style="width:100px;">アポ取得者</th>
+                <th style="width:90px;" class="right">営業者</th>
+              </tr>
+            </thead>
+            <tbody id="dealTable"></tbody>
+          </table>
+        </div>
+        <div class="pagination" id="dealPagination"></div>
+      </div>
+    </section>
+
     <section class="view" id="view-all">
       <div class="section-head">
         <div>
           <div class="section-title"><span class="eyebrow">// MASTER</span></div>
-          <div style="font-size: 22px; font-weight: 700; margin-top: 6px;">全顧客</div>
-          <p class="section-sub">登録されている全顧客レコード</p>
+          <div style="font-size: 22px; font-weight: 700; margin-top: 6px;">取引先</div>
+          <p class="section-sub">アポ取得済み・商談中・契約中の企業</p>
         </div>
         <div class="section-actions">
           <button class="btn-action primary" id="addLeadBtn3">+ 新規追加</button>
@@ -887,6 +949,7 @@ service cloud.firestore {
             <thead>
               <tr>
                 <th style="width:140px;">フェーズ</th>
+                <th style="width:150px;">アクション</th>
                 <th>屋号</th>
                 <th>連絡先</th>
                 <th>プラン</th>
@@ -1064,39 +1127,7 @@ service cloud.firestore {
     </section>
 
     <!-- CALENDAR -->
-    <section class="view" id="view-calendar">
-      <div class="section-head">
-        <div>
-          <div class="section-title"><span class="eyebrow">// SCHEDULE</span></div>
-          <div style="font-size: 22px; font-weight: 700; margin-top: 6px;">カレンダー</div>
-          <p class="section-sub">商談・請求書発行・入金期限・継続意思確認日</p>
-        </div>
-      </div>
-      <div class="calendar-wrap">
-        <div class="cal-head">
-          <div class="cal-title" id="calTitle">2026.05</div>
-          <div class="cal-nav">
-            <div class="cal-view-toggle">
-              <button id="calWeekBtn" class="active">週</button>
-              <button id="calMonthBtn">月</button>
-            </div>
-            <button id="calPrev">◀</button>
-            <button id="calToday">TODAY</button>
-            <button id="calNext">▶</button>
-          </div>
-        </div>
-        <div class="cal-week" id="calWeek"></div>
-        <div class="cal-grid" id="calGrid" style="display:none;"></div>
-        <div style="margin-top: 16px; display: flex; gap: 14px; flex-wrap: wrap; font-size: 11px; color: var(--text3); font-family: 'JetBrains Mono', monospace;">
-          <span><span style="display:inline-block; width:10px; height:10px; background: var(--accent-dim); border-left: 2px solid var(--accent);"></span> 商談</span>
-          <span><span style="display:inline-block; width:10px; height:10px; background: var(--yellow-dim); border-left: 2px solid var(--yellow);"></span> 入金期限</span>
-          <span><span style="display:inline-block; width:10px; height:10px; background: var(--purple-dim); border-left: 2px solid var(--purple);"></span> 月費</span>
-          <span><span style="display:inline-block; width:10px; height:10px; background: var(--orange-dim); border-left: 2px solid var(--orange);"></span> フォロー</span>
-        </div>
-      </div>
-    </section>
 
-    <!-- REPORTS -->
     <section class="view" id="view-reports">
       <div class="section-head">
         <div>
@@ -1181,11 +1212,38 @@ service cloud.firestore {
       </div>
 
       <div class="panel">
-        <div class="panel-head"><div class="panel-title"><span class="mono">// MIGRATE</span>リード / アポ / 商談 の振り分け</div></div>
+        <div class="panel-head"><div class="panel-title"><span class="mono">// TEAM</span>メンバー管理</div></div>
+        <div style="padding: 16px 18px;">
+          <p style="font-size: 12px; color: var(--text2); line-height: 1.8; margin-bottom: 12px;">
+            アポ取得者・営業者・チャッターの投稿者として選べる名前です。全員で共有されます。
+          </p>
+          <div id="memberList" style="margin-bottom:12px;"></div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <input type="text" id="newMemberName" placeholder="名前を入力" maxlength="30"
+              style="flex:1; min-width:160px; background:var(--bg); border:1px solid var(--border); color:var(--text); padding:9px 12px; border-radius:2px; min-height:38px;" />
+            <button class="btn-action primary" id="addMemberBtn">＋ 追加</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><div class="panel-title"><span class="mono">// PRODUCTS</span>商材マスタ</div></div>
+        <div style="padding: 16px 18px;">
+          <div id="productList" style="margin-bottom:12px;"></div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <input type="text" id="newProductName" placeholder="商材名を入力" maxlength="40"
+              style="flex:1; min-width:160px; background:var(--bg); border:1px solid var(--border); color:var(--text); padding:9px 12px; border-radius:2px; min-height:38px;" />
+            <button class="btn-action primary" id="addProductBtn">＋ 追加</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><div class="panel-title"><span class="mono">// MIGRATE</span>リード / 取引先 の振り分け</div></div>
         <div style="padding: 16px 18px;">
           <p style="font-size: 12px; color: var(--text2); line-height: 1.8; margin-bottom: 14px;">
-            既存データを現在のフェーズから <strong>リード / アポ / 商談</strong> に自動で振り分けます。<br>
-            未対応 → リード ／ アポ取得・保留 → アポ ／ 受注以降・失注・解約 → 商談<br>
+            既存データを現在のフェーズから <strong>リード / 取引先</strong> に自動で振り分けます。<br>
+            未対応 → リード ／ アポ取得以降すべて → 取引先<br>
             <span style="color: var(--yellow);">実行前にバックアップJSONを自動ダウンロードします。</span>
           </p>
           <button class="btn-action" id="migratePreviewBtn">🔍 プレビュー</button>
@@ -1369,11 +1427,79 @@ service cloud.firestore {
 </div>
 
 <!-- ==================== DETAIL MODAL ==================== -->
-<!-- ==================== アポ取得 MODAL ==================== -->
+<!-- ==================== 新規リード MODAL ==================== -->
+<div class="modal-overlay" id="leadNewModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="leadNewTitle">＋ 新規リード</div>
+      <button class="modal-close" id="leadNewClose">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="duplicate-warning" id="lnDupWarning">⚠ 類似する会社がすでに登録されています:<div id="lnDupList" style="margin-top:6px;"></div></div>
+      <div class="form-grid">
+        <div class="form-group full">
+          <label class="required" for="ln-name">会社名</label>
+          <input type="text" id="ln-name" maxlength="200" placeholder="例: 株式会社サンプル" />
+        </div>
+        <div class="form-group">
+          <label for="ln-status">リード状況</label>
+          <select id="ln-status">
+            <option value="新規">新規</option>
+            <option value="案件化">案件化</option>
+            <option value="完了">完了</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="ln-industry">業種</label>
+          <input type="text" id="ln-industry" maxlength="60" placeholder="例: 不動産系" />
+        </div>
+        <div class="form-group">
+          <label for="ln-tel">電話</label>
+          <input type="tel" id="ln-tel" maxlength="20" inputmode="tel" placeholder="0120-000-000" />
+        </div>
+        <div class="form-group">
+          <label for="ln-mobile">携帯</label>
+          <input type="tel" id="ln-mobile" maxlength="20" inputmode="tel" placeholder="090-0000-0000" />
+        </div>
+        <div class="form-group full">
+          <label for="ln-url">Webサイト</label>
+          <input type="url" id="ln-url" maxlength="500" inputmode="url" placeholder="https://..." />
+        </div>
+        <div class="form-group">
+          <label for="ln-url2">Webサイト2</label>
+          <input type="url" id="ln-url2" maxlength="500" inputmode="url" />
+        </div>
+        <div class="form-group">
+          <label for="ln-url3">Webサイト3</label>
+          <input type="url" id="ln-url3" maxlength="500" inputmode="url" />
+        </div>
+        <div class="form-group">
+          <label for="ln-pref">都道府県</label>
+          <input type="text" id="ln-pref" maxlength="20" placeholder="例: 福岡県" />
+        </div>
+        <div class="form-group">
+          <label for="ln-map">Google Map URL</label>
+          <input type="url" id="ln-map" maxlength="500" inputmode="url" />
+        </div>
+        <div class="form-group full">
+          <label for="ln-memo">メモ</label>
+          <textarea id="ln-memo" rows="3" maxlength="3000"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-action danger" id="leadNewDelete" style="margin-right:auto; display:none;">削除</button>
+      <button class="btn-action" id="leadNewCancel">キャンセル</button>
+      <button class="btn-action primary" id="leadNewSave">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== アポ報告 MODAL ==================== -->
 <div class="modal-overlay" id="apoModal">
   <div class="modal">
     <div class="modal-head">
-      <div class="modal-title">📞 アポ取得</div>
+      <div class="modal-title">📞 アポ報告</div>
       <button class="modal-close" id="apoModalClose">×</button>
     </div>
     <div class="modal-body">
@@ -1381,49 +1507,61 @@ service cloud.firestore {
         <div class="form-group full">
           <label for="a-target">対象</label>
           <select id="a-target"></select>
-          <div class="hint">既存リードを選ぶか「＋新規で登録」を選択</div>
+          <div class="hint">リード / 取引先から選択。「＋ 新規で登録」なら新しく作成します</div>
         </div>
         <div class="form-group full">
-          <label class="required" for="a-name">社名 / 屋号</label>
+          <label class="required" for="a-name">会社名 / 屋号</label>
           <input type="text" id="a-name" maxlength="200" placeholder="例: 株式会社サンプル" />
         </div>
         <div class="form-group">
-          <label class="required" for="a-date">商談日時</label>
-          <input type="datetime-local" id="a-date" />
+          <label class="required" for="a-date">商談日</label>
+          <input type="date" id="a-date" />
         </div>
         <div class="form-group">
-          <label for="a-method">商談方法</label>
-          <select id="a-method">
-            <option value="Zoom">Zoom</option>
-            <option value="対面">対面</option>
-            <option value="電話">電話</option>
-          </select>
+          <label class="required" for="a-time">時刻</label>
+          <input type="time" id="a-time" step="900" />
         </div>
         <div class="form-group">
-          <label for="a-industry">業種</label>
-          <input type="text" id="a-industry" maxlength="60" placeholder="例: 不動産系" />
-        </div>
-        <div class="form-group">
-          <label for="a-rep">代表者名</label>
-          <input type="text" id="a-rep" maxlength="60" placeholder="例: 山田 太郎 様" />
-        </div>
-        <div class="form-group">
-          <label for="a-tel">電話番号</label>
+          <label class="required" for="a-tel">電話番号</label>
           <input type="tel" id="a-tel" maxlength="20" inputmode="tel" placeholder="090-1234-5678" />
         </div>
         <div class="form-group">
-          <label for="a-url">HP</label>
-          <input type="url" id="a-url" maxlength="500" inputmode="url" placeholder="https://..." />
+          <label for="a-rep">代表者名 <span style="color:var(--text3); font-weight:400;">(聞いてない場合は空欄)</span></label>
+          <input type="text" id="a-rep" maxlength="60" placeholder="例: 山田 太郎" />
         </div>
         <div class="form-group full">
-          <label for="a-content">アポ内容</label>
-          <textarea id="a-content" rows="6" maxlength="5000" placeholder="課題 / 来意 / トーク内容など"></textarea>
+          <label class="required" for="a-place">住所情報 <span style="color:var(--text3); font-weight:400;">(Zoom商談の場合は「Zoom」と記載)</span></label>
+          <input type="text" id="a-place" maxlength="200" placeholder="Zoom / 福岡県福岡市..." />
+        </div>
+        <div class="form-group full">
+          <label for="a-zoom">ZoomURL送付方法 <span style="color:var(--text3); font-weight:400;">(メールで送る場合はメアドのみ記入)</span></label>
+          <input type="text" id="a-zoom" maxlength="200" placeholder="info@example.com / SMS など" />
+        </div>
+        <div class="form-group">
+          <label for="a-product">商材</label>
+          <select id="a-product"></select>
+        </div>
+        <div class="form-group">
+          <label for="a-industry">業種</label>
+          <input type="text" id="a-industry" maxlength="60" />
+        </div>
+        <div class="form-group">
+          <label class="required" for="a-owner">アポ取得者</label>
+          <select id="a-owner"></select>
+        </div>
+        <div class="form-group">
+          <label for="a-sales">営業者 <span style="color:var(--text3); font-weight:400;">(未定なら自分のまま)</span></label>
+          <select id="a-sales"></select>
+        </div>
+        <div class="form-group full">
+          <label class="required" for="a-memo">アポ報告用メモ欄</label>
+          <textarea id="a-memo" rows="7" maxlength="5000" placeholder="課題 / 来意 / 反応 / トーク内容など"></textarea>
         </div>
       </div>
     </div>
     <div class="modal-foot">
       <button class="btn-action" id="apoCancelBtn">キャンセル</button>
-      <button class="btn-action primary" id="apoConfirmBtn">決定（チャッターに流す）</button>
+      <button class="btn-action primary" id="apoConfirmBtn">保存（チャッターに流す）</button>
     </div>
   </div>
 </div>
@@ -1432,34 +1570,54 @@ service cloud.firestore {
 <div class="modal-overlay" id="shodanModal">
   <div class="modal">
     <div class="modal-head">
-      <div class="modal-title">🤝 商談報告</div>
+      <div class="modal-title" id="shodanTitle">🤝 商談報告</div>
       <button class="modal-close" id="shodanModalClose">×</button>
     </div>
     <div class="modal-body">
       <div class="form-grid">
         <div class="form-group full">
-          <label class="required" for="d-target">対象顧客</label>
+          <label class="required" for="d-target">取引先</label>
           <select id="d-target"></select>
         </div>
         <div class="form-group full">
-          <label class="required">結果</label>
-          <div class="checkbox-row">
-            <label><input type="radio" name="dResult" value="order" checked /> 受注</label>
-            <label><input type="radio" name="dResult" value="lost" /> 失注</label>
-            <label><input type="radio" name="dResult" value="hold" /> 保留 / 再商談</label>
-          </div>
+          <label class="required" for="d-name">商談名</label>
+          <input type="text" id="d-name" maxlength="200" placeholder="取引先を選ぶと自動で入ります" />
+        </div>
+        <div class="form-group">
+          <label class="required" for="d-phase">フェーズ</label>
+          <select id="d-phase"></select>
+        </div>
+        <div class="form-group">
+          <label for="d-product">商材</label>
+          <select id="d-product"></select>
+        </div>
+        <div class="form-group">
+          <label for="d-first">初回商談日</label>
+          <input type="date" id="d-first" />
+        </div>
+        <div class="form-group">
+          <label for="d-close">受注日・失注日</label>
+          <input type="date" id="d-close" />
+        </div>
+        <div class="form-group">
+          <label for="d-apo-owner">アポ取得者</label>
+          <select id="d-apo-owner"></select>
+        </div>
+        <div class="form-group">
+          <label class="required" for="d-sales">営業者</label>
+          <select id="d-sales"></select>
         </div>
 
         <div class="form-group collapse" id="grp-d-init">
-          <label for="d-init">初期費用(円)</label>
+          <label for="d-init">初期費用(円・税抜)</label>
           <input type="number" id="d-init" min="0" step="1" inputmode="numeric" placeholder="0" />
         </div>
         <div class="form-group collapse" id="grp-d-monthly">
-          <label for="d-monthly">月費(円)</label>
+          <label for="d-monthly">月費(円・税抜)</label>
           <input type="number" id="d-monthly" min="0" step="1" inputmode="numeric" placeholder="0" />
         </div>
 
-        <div class="form-group collapse" id="grp-d-lost">
+        <div class="form-group collapse full" id="grp-d-lost">
           <label class="required" for="d-lost-reason">失注理由</label>
           <select id="d-lost-reason">
             <option value="">選択してください</option>
@@ -1472,20 +1630,17 @@ service cloud.firestore {
             <option value="other">その他</option>
           </select>
         </div>
-        <div class="form-group collapse" id="grp-d-next">
-          <label for="d-next">次回フォロー予定日</label>
-          <input type="date" id="d-next" />
-        </div>
 
         <div class="form-group full">
-          <label class="required" for="d-content">商談内容</label>
-          <textarea id="d-content" rows="7" maxlength="5000" placeholder="話した内容 / 反応 / 課題 / 次アクション"></textarea>
+          <label class="required" for="d-memo">商談内容 / メモ</label>
+          <textarea id="d-memo" rows="8" maxlength="5000" placeholder="話した内容 / 反応 / 課題 / 次アクション"></textarea>
         </div>
       </div>
     </div>
     <div class="modal-foot">
+      <button class="btn-action danger" id="shodanDeleteBtn" style="margin-right:auto; display:none;">削除</button>
       <button class="btn-action" id="shodanCancelBtn">キャンセル</button>
-      <button class="btn-action primary" id="shodanConfirmBtn">決定（チャッターに流す）</button>
+      <button class="btn-action primary" id="shodanConfirmBtn">保存（チャッターに流す）</button>
     </div>
   </div>
 </div>
@@ -1600,7 +1755,6 @@ const state = {
   editingId: null, detailId: null,
   notifiedIds: new Set(),
   reminderTimer: null,
-  leadsFilter: { search: '', phase: '', tag: '', sort: 'updated', page: 1 },
   allFilter: { search: '', phase: '', tag: '', sort: 'updated', page: 1 },
   paymentsFilter: 'unpaid',
   activeFilter: 'active',
@@ -1611,6 +1765,18 @@ const state = {
   chatterUnsub: null,
   chatterFilter: '',
   chatterLimit: 20,
+  chatterSyncedAt: null,
+  chatterTimer: null,
+  lastSeenPostId: null,
+  deals: [],
+  dealsUnsub: null,
+  dealFilter: { search: '', phase: '', page: 1 },
+  editingDealId: null,
+  editingLeadId: null,
+  leadListFilter: { search: '', status: '', page: 1 },
+  members: [],
+  products: [],
+  metaUnsub: null,
   me: '',
   dashYear: new Date().getFullYear(),
   dashMonth: new Date().getMonth(),
@@ -2057,7 +2223,7 @@ async function addActivity(rec, type, text) {
 }
 
 // ============== TAB SWITCH ==============
-const VIEW_NAMES = ['dashboard','actions','kanban','leads','all','payments','active','dup','calendar','reports','settings'];
+const VIEW_NAMES = ['dashboard','chatter','leadlist','all','deals','payments','active','dup','reports','settings'];
 function switchTab(name) {
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
   VIEW_NAMES.forEach(v => {
@@ -2065,15 +2231,13 @@ function switchTab(name) {
     if (el) el.classList.toggle('active', v === name);
   });
   if (name === 'dashboard') renderDashboard();
-  else if (name === 'actions') renderActions();
-  else if (name === 'kanban') renderKanban();
-  else if (name === 'leads') renderLeadsTable();
+  else if (name === 'leadlist') renderLeadList();
   else if (name === 'all') renderAllTable();
+  else if (name === 'deals') renderDealList();
   else if (name === 'payments') renderPayments();
   else if (name === 'active') renderActive();
   else if (name === 'dup') renderDup();
-  else if (name === 'calendar') renderCalendar();
-  else if (name === 'chatter') renderChatter();
+  else if (name === 'chatter') { renderChatter(); renderCalendar(); }
   else if (name === 'reports') renderReports();
   else if (name === 'settings') renderSettings();
   try { window.scrollTo({top:0, behavior:'smooth'}); } catch { try { window.scrollTo(0, 0); } catch {} }
@@ -2084,7 +2248,7 @@ document.querySelectorAll('.stat-card[data-jump]').forEach(c => c.addEventListen
 // ============== RENDER MASTER ==============
 function renderAll() {
   // Populate phase filter dropdowns
-  ['leadsPhaseFilter','allPhaseFilter','f-phase'].forEach(id => {
+  ['allPhaseFilter','f-phase'].forEach(id => {
     const sel = document.getElementById(id); if (!sel) return;
     const cur = sel.value;
     const filterPlaceholder = id !== 'f-phase' ? '<option value="">全フェーズ</option>' : '';
@@ -2107,22 +2271,26 @@ function renderAll() {
   // Re-render currently active view
   const active = document.querySelector('.nav-tab.active')?.dataset.tab || 'dashboard';
   if (active === 'dashboard') renderDashboard();
-  else if (active === 'actions') renderActions();
-  else if (active === 'kanban') renderKanban();
-  else if (active === 'leads') renderLeadsTable();
+  else if (active === 'leadlist') renderLeadList();
+  else if (active === 'deals') renderDealList();
   else if (active === 'all') renderAllTable();
   else if (active === 'payments') renderPayments();
   else if (active === 'active') renderActive();
   else if (active === 'dup') renderDup();
-  else if (active === 'calendar') renderCalendar();
-  else if (active === 'chatter') renderChatter();
+  else if (active === 'chatter') { renderChatter(); renderCalendar(); }
   else if (active === 'reports') renderReports();
   else if (active === 'settings') renderSettings();
 }
 
 function updateBadges() {
-  const leadsCount = state.records.filter(r => isLeadPhase(r.phase)).length;
-  document.getElementById('leadsBadge').textContent = leadsCount;
+  const leadBadgeEl = document.getElementById('leadBadge');
+  const leadN = state.records.filter(r => (r.kind || inferKind(r.phase)) === 'lead').length;
+  leadBadgeEl.textContent = leadN; leadBadgeEl.style.display = leadN ? '' : 'none';
+  const acctBadgeEl = document.getElementById('acctBadge');
+  const acctN = state.records.filter(r => (r.kind || inferKind(r.phase)) !== 'lead').length;
+  acctBadgeEl.textContent = acctN; acctBadgeEl.style.display = acctN ? '' : 'none';
+  const dealBadgeEl = document.getElementById('dealBadge');
+  dealBadgeEl.textContent = state.deals.length; dealBadgeEl.style.display = state.deals.length ? '' : 'none';
   const activeCount = state.records.filter(r => isActivePhase(r.phase)).length;
   document.getElementById('activeBadge').textContent = activeCount;
   // Unpaid count
@@ -2133,10 +2301,7 @@ function updateBadges() {
   payBadge.textContent = unpaidCount;
   payBadge.style.display = unpaidCount > 0 ? '' : 'none';
   // Actions
-  const actionsCount = getActionItems().filter(a => a.urgency === 'overdue' || a.urgency === 'today').length;
-  const actionsBadge = document.getElementById('actionsBadge');
-  actionsBadge.textContent = actionsCount;
-  actionsBadge.style.display = actionsCount > 0 ? '' : 'none';
+
 }
 
 // ============== ACTION ITEMS ==============
@@ -2339,12 +2504,20 @@ function setMe(name) {
 function updateMeLabels() {
   const n = getMe() || '未設定';
   const a = document.getElementById('meName'); if (a) a.textContent = n;
-  const b = document.getElementById('chMeLabel'); if (b) b.textContent = n;
+  const b = document.getElementById('chAuthorSel');
+  if (b && getMe() && state.members.includes(getMe())) b.value = getMe();
 }
 function ensureMe() {
   if (getMe()) return true;
-  const v = prompt('チャッターに表示するあなたの名前を入力してください（例: 山田）');
-  if (v && v.trim()) { setMe(v); return true; }
+  const hint = state.members.length ? `\n登録済みメンバー: ${state.members.join(' / ')}` : '';
+  const v = prompt('チャッターに表示するあなたの名前を入力してください（例: 山田）' + hint);
+  if (v && v.trim()) {
+    setMe(v);
+    if (!state.members.includes(getMe())) {
+      saveMeta('members', [...state.members, getMe()]).catch(e => console.error(e));
+    }
+    return true;
+  }
   toast('表示名が未設定です', true);
   return false;
 }
@@ -2366,8 +2539,15 @@ function subscribeChatter() {
   state.chatterUnsub = onSnapshot(q, snap => {
     const list = [];
     snap.forEach(d => { const data = d.data(); if (data) list.push({ ...data, id: d.id }); });
-    list.sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')));
+    list.sort((a, b) => {
+      const am = Number(a.createdMs) || Date.parse(a.createdAt || '') || 0;
+      const bm = Number(b.createdMs) || Date.parse(b.createdAt || '') || 0;
+      if (bm !== am) return bm - am;
+      return String(b.id).localeCompare(String(a.id));
+    });
     state.chatter = list;
+    state.chatterSyncedAt = new Date();
+    updateChatterSyncLabel();
     const badge = document.getElementById('chatterBadge');
     if (badge) {
       const todayCount = list.filter(x => String(x.createdAt || '').startsWith(todayStr())).length;
@@ -2384,13 +2564,14 @@ async function postToChatter(type, text, opts) {
   const post = {
     id: 'p_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8),
     type: type,
-    author: getMe() || '匿名',
+    author: (opts.author || getMe() || '匿名'),
     text: String(text || '').slice(0, 8000),
     recordId: opts.recordId || '',
     recordName: opts.recordName || '',
     likes: [],
     comments: [],
-    createdAt: isoNow()
+    createdAt: isoNow(),
+    createdMs: Date.now()
   };
   try { await saveChatterPost(post); return true; }
   catch (e) { console.error(e); toast('チャッター投稿に失敗: ' + (e.message || ''), true); return false; }
@@ -2425,12 +2606,16 @@ function renderChatter() {
     return;
   }
 
-  feedEl.innerHTML = shown.map(post => {
+  const newestId = shown.length ? shown[0].id : null;
+  const isFresh = newestId && state.lastSeenPostId && newestId !== state.lastSeenPostId;
+  state.lastSeenPostId = newestId;
+  feedEl.innerHTML = shown.map((post, idx) => {
     const t = CH_TYPES[post.type] || CH_TYPES.manual;
+    const freshCls = (isFresh && idx === 0) ? ' fresh' : '';
     const likes = Array.isArray(post.likes) ? post.likes : [];
     const comments = Array.isArray(post.comments) ? post.comments : [];
     const liked = me && likes.includes(me);
-    return `<div class="ch-post" data-pid="${esc(post.id)}">
+    return `<div class="ch-post${freshCls}" data-pid="${esc(post.id)}">
       <div class="ch-post-head">
         <div class="ch-avatar">${esc(initial(post.author))}</div>
         <div>
@@ -2508,6 +2693,45 @@ function bindChatterEvents() {
   document.querySelectorAll('[data-open]').forEach(el => el.addEventListener('click', () => openDetail(el.dataset.open)));
 }
 
+// ---- 更新表示 / 自動更新 ----
+function updateChatterSyncLabel() {
+  const el = document.getElementById('chUpdatedAt');
+  if (!el) return;
+  if (!state.chatterSyncedAt) { el.textContent = '未接続'; return; }
+  const secs = Math.floor((Date.now() - state.chatterSyncedAt.getTime()) / 1000);
+  const when = secs < 5 ? 'たった今' : secs < 60 ? `${secs}秒前` :
+               secs < 3600 ? `${Math.floor(secs / 60)}分前` : `${Math.floor(secs / 3600)}時間前`;
+  el.textContent = `最終更新: ${when}`;
+}
+function startChatterAutoRefresh() {
+  if (state.chatterTimer) clearInterval(state.chatterTimer);
+  state.chatterTimer = setInterval(() => {
+    updateChatterSyncLabel();
+    if (document.querySelector('.nav-tab.active')?.dataset.tab === 'chatter') renderChatter();
+  }, 10000);
+}
+document.getElementById('chRefreshBtn').addEventListener('click', function () {
+  this.classList.remove('spin');
+  void this.offsetWidth;
+  this.classList.add('spin');
+  state.chatterSyncedAt = new Date();
+  updateChatterSyncLabel();
+  renderChatter();
+  renderCalendar();
+  toast('✓ 更新しました');
+});
+document.getElementById('chFabBtn').addEventListener('click', () => {
+  const ta = document.getElementById('chText');
+  document.getElementById('chComposer').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  ta.focus();
+});
+document.getElementById('calAddBtn').addEventListener('click', () => {
+  openApoModal(null, state.calMode === 'week' ? (state.calWeekStart || todayStr()) : todayStr());
+});
+document.getElementById('chAuthorSel').addEventListener('change', e => {
+  if (e.target.value) setMe(e.target.value);
+});
+
 // ---- コントロール ----
 document.getElementById('chPostBtn').addEventListener('click', async () => {
   if (!ensureMe()) return;
@@ -2516,7 +2740,8 @@ document.getElementById('chPostBtn').addEventListener('click', async () => {
   if (!text) { toast('内容を入力してください', true); return; }
   const btn = document.getElementById('chPostBtn');
   btn.disabled = true;
-  if (await postToChatter('manual', text)) { ta.value = ''; toast('✓ 投稿しました'); }
+  const author = document.getElementById('chAuthorSel').value || getMe();
+  if (await postToChatter('manual', text, { author })) { ta.value = ''; toast('✓ 投稿しました'); }
   btn.disabled = false;
 });
 document.querySelectorAll('.ch-filter').forEach(b => b.addEventListener('click', () => {
@@ -2549,198 +2774,608 @@ applyTheme(localStorage.getItem(STORAGE_KEY_THEME) || 'dark');
 
 
 // ==================================================================
-// ============ アポ取得 / 商談報告 (チャッター自動投稿) ============
+// ======= リード / 取引先 / 商談 (Salesforce型・独立オブジェクト) =======
 // ==================================================================
-const apoModal = document.getElementById('apoModal');
-const shodanModal = document.getElementById('shodanModal');
-const openModal = el => el.classList.add('open');
-const closeModal = el => el.classList.remove('open');
+const LEAD_STATUSES = ['新規', '案件化', '完了'];
+const DEFAULT_PRODUCTS = ['HP制作', 'SNS運用', 'SEO', '広告運用', 'その他'];
 
-// 顧客セレクトを埋める
-function fillTargetSelect(selectId, opts) {
-  opts = opts || {};
-  const sel = document.getElementById(selectId);
-  const list = [...state.records].sort((a, b) => String(a.name).localeCompare(String(b.name), 'ja'));
-  const filtered = opts.filter ? list.filter(opts.filter) : list;
-  sel.innerHTML = (opts.allowNew ? '<option value="">＋ 新規で登録</option>' : '<option value="">選択してください</option>')
-    + filtered.map(r => `<option value="${esc(r.id)}">${esc(r.name)}（${esc(phaseInfo(r.phase).label)}）</option>`).join('');
+const DEAL_PHASES = [
+  { key: 'shodanka',  label: '商談化',                   cls: 'hot'  },
+  { key: 'kentou',    label: '検討',                     cls: 'hot'  },
+  { key: 'saihou',    label: '再訪',                     cls: ''     },
+  { key: 'kaitou',    label: '回答待ち',                 cls: ''     },
+  { key: 'risuke',    label: 'リスケ',                   cls: ''     },
+  { key: 'juchu',     label: '受注',                     cls: 'win'  },
+  { key: 'kaishu',    label: '回収待ち',                 cls: 'win'  },
+  { key: 'nagare_r',  label: 'アポ流れ(先方連絡あり)',    cls: 'lost' },
+  { key: 'nagare_o',  label: 'アポ流れ(音信不通)',        cls: 'lost' },
+  { key: 'lost',      label: '失注',                     cls: 'lost' }
+];
+const DEAL_PHASE_MAP = Object.fromEntries(DEAL_PHASES.map(d => [d.key, d]));
+function dealPhaseInfo(k) { return DEAL_PHASE_MAP[k] || DEAL_PHASES[0]; }
+function dealPhaseBadge(k) {
+  const d = dealPhaseInfo(k);
+  return `<span class="dphase ${d.cls}">${esc(d.label)}</span>`;
 }
-
-// ---------- アポ取得 ----------
-document.getElementById('apoReportBtn').addEventListener('click', () => {
-  if (!ensureMe()) return;
-  fillTargetSelect('a-target', { allowNew: true });
-  ['a-name','a-industry','a-rep','a-tel','a-url','a-content'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('a-date').value = '';
-  document.getElementById('a-method').value = 'Zoom';
-  openModal(apoModal);
-});
-document.getElementById('a-target').addEventListener('change', e => {
-  const rec = state.records.find(r => r.id === e.target.value);
-  if (!rec) return;
-  document.getElementById('a-name').value = rec.name || '';
-  document.getElementById('a-tel').value = rec.tel || '';
-  document.getElementById('a-url').value = rec.url || '';
-});
-apoModal.addEventListener('click', e => { if (e.target === apoModal) closeModal(apoModal); });
-shodanModal.addEventListener('click', e => { if (e.target === shodanModal) closeModal(shodanModal); });
-document.getElementById('apoModalClose').addEventListener('click', () => closeModal(apoModal));
-document.getElementById('apoCancelBtn').addEventListener('click', () => closeModal(apoModal));
-
-document.getElementById('apoConfirmBtn').addEventListener('click', async () => {
-  const name = document.getElementById('a-name').value.trim();
-  const dt = document.getElementById('a-date').value;
-  if (!name) { toast('社名を入力してください', true); return; }
-  if (!dt) { toast('商談日時を入力してください', true); return; }
-
-  const targetId = document.getElementById('a-target').value;
-  const method = document.getElementById('a-method').value;
-  const industry = document.getElementById('a-industry').value.trim();
-  const rep_ = document.getElementById('a-rep').value.trim();
-  const tel = document.getElementById('a-tel').value.trim();
-  const url = document.getElementById('a-url').value.trim();
-  const content = document.getElementById('a-content').value.trim();
-
-  const btn = document.getElementById('apoConfirmBtn');
-  btn.disabled = true;
-  try {
-    const existing = targetId ? state.records.find(r => r.id === targetId) : null;
-    const base = existing ? { ...existing } : {
-      id: uid(), planType: 'none', tags: [], activity: [], createdAt: isoNow(),
-      init_amount: 0, monthly_amount: 0
-    };
-    const activity = Array.isArray(base.activity) ? [...base.activity] : [];
-    activity.unshift({ at: isoNow(), type: 'system', text: `📞 アポ取得: ${fmtDateTime(dt)} (${method}) / ${getMe()}` });
-
-    const rec = {
-      ...base,
-      name, tel: tel || base.tel || '', url: url || base.url || '',
-      kind: 'appo',
-      phase: 'appo',
-      meetingDate: dt,
-      industry: industry || base.industry || '',
-      rep_name: rep_ || base.rep_name || '',
-      meet_method: method,
-      apo_owner: getMe(),
-      apo_content: content,
-      memo: base.memo || '',
-      activity: activity.slice(0, 50),
-      updatedAt: isoNow()
-    };
-    await saveRecord(rec);
-
-    const body = `アポ報告です！\n\n【日時】${fmtDateTime(dt)}\n【社名】${name}\n【商談方法】${method}\n【業種】${industry || '—'}\n【代表者名】${rep_ || '—'}\n【HP】${url || '—'}\n【電話】${tel || '—'}\n\n【アポ内容】\n${content || '—'}`;
-    await postToChatter('apo', body, { recordId: rec.id, recordName: name });
-
-    closeModal(apoModal);
-    toast('✓ アポを登録してチャッターに流しました');
-    switchTab('chatter');
-  } catch (e) {
-    console.error(e);
-    toast('失敗: ' + (e.message || ''), true);
-  } finally { btn.disabled = false; }
-});
-
-// ---------- 商談報告 ----------
-function updateShodanFields() {
-  const v = document.querySelector('input[name="dResult"]:checked').value;
-  document.getElementById('grp-d-init').classList.toggle('show', v === 'order');
-  document.getElementById('grp-d-monthly').classList.toggle('show', v === 'order');
-  document.getElementById('grp-d-lost').classList.toggle('show', v === 'lost');
-  document.getElementById('grp-d-next').classList.toggle('show', v === 'hold');
+function leadStatusBadge(st) {
+  const cls = st === '完了' ? 'done' : st === '案件化' ? 'conv' : '';
+  return `<span class="lstatus ${cls}">${esc(st || '新規')}</span>`;
 }
-document.getElementById('shodanReportBtn').addEventListener('click', () => {
-  if (!ensureMe()) return;
-  fillTargetSelect('d-target', {});
-  document.querySelector('input[name="dResult"][value="order"]').checked = true;
-  ['d-init','d-monthly','d-content','d-next'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('d-lost-reason').value = '';
-  updateShodanFields();
-  openModal(shodanModal);
-});
-document.querySelectorAll('input[name="dResult"]').forEach(r => r.addEventListener('change', updateShodanFields));
-document.getElementById('shodanModalClose').addEventListener('click', () => closeModal(shodanModal));
-document.getElementById('shodanCancelBtn').addEventListener('click', () => closeModal(shodanModal));
-
-document.getElementById('shodanConfirmBtn').addEventListener('click', async () => {
-  const targetId = document.getElementById('d-target').value;
-  const result = document.querySelector('input[name="dResult"]:checked').value;
-  const content = document.getElementById('d-content').value.trim();
-  const lostReason = document.getElementById('d-lost-reason').value;
-
-  if (!targetId) { toast('対象顧客を選択してください', true); return; }
-  if (!content) { toast('商談内容を入力してください', true); return; }
-  if (result === 'lost' && !lostReason) { toast('失注理由を選択してください', true); return; }
-
-  const existing = state.records.find(r => r.id === targetId);
-  if (!existing) { toast('顧客が見つかりません', true); return; }
-
-  const btn = document.getElementById('shodanConfirmBtn');
-  btn.disabled = true;
-  try {
-    const rec = { ...existing, kind: 'deal', updatedAt: isoNow() };
-    const activity = Array.isArray(existing.activity) ? [...existing.activity] : [];
-    let chType, header;
-
-    if (result === 'order') {
-      const init = Number(document.getElementById('d-init').value) || 0;
-      const monthly = Number(document.getElementById('d-monthly').value) || 0;
-      rec.phase = 'order';
-      rec.orderDate = existing.orderDate || todayStr();
-      rec.init_amount = init;
-      rec.monthly_amount = monthly;
-      if (init && monthly) rec.planType = 'full';
-      else if (init) rec.planType = 'init_only';
-      else if (monthly) rec.planType = 'monthly_only';
-      rec.deal_owner = getMe();
-      activity.unshift({ at: isoNow(), type: 'system', text: `🎉 受注 (${getMe()}) 初期¥${fmt(init)} / 月費¥${fmt(monthly)}` });
-      chType = 'juchu';
-      header = `🎉 受注報告！\n\n【社名】${existing.name}\n【初期費用】¥${fmt(init)}\n【月費】¥${fmt(monthly)}\n【担当】${getMe()}`;
-    } else if (result === 'lost') {
-      rec.phase = 'lost';
-      rec.lost_reason = lostReason;
-      rec.lost_date = todayStr();
-      rec.lost_detail = content.slice(0, 2000);
-      rec.deal_owner = getMe();
-      activity.unshift({ at: isoNow(), type: 'system', text: `✕ 失注: ${LOST_REASONS[lostReason]} (${getMe()})` });
-      chType = 'shitsuchu';
-      header = `失注報告です。\n\n【社名】${existing.name}\n【失注理由】${LOST_REASONS[lostReason]}\n【担当】${getMe()}`;
-    } else {
-      const next = document.getElementById('d-next').value;
-      rec.phase = 'hold';
-      if (next) rec.followupDate = next;
-      rec.deal_owner = getMe();
-      activity.unshift({ at: isoNow(), type: 'system', text: `⏸ 保留/再商談 (${getMe()})${next ? ' 次回: ' + fmtDate(next) : ''}` });
-      chType = 'shodan';
-      header = `商談報告です。\n\n【社名】${existing.name}\n【結果】保留 / 再商談${next ? `\n【次回フォロー】${fmtDate(next)}` : ''}\n【担当】${getMe()}`;
-    }
-
-    rec.activity = activity.slice(0, 50);
-    await saveRecord(rec);
-    await postToChatter(chType, `${header}\n\n【商談内容】\n${content}`, { recordId: rec.id, recordName: existing.name });
-
-    closeModal(shodanModal);
-    toast('✓ 商談報告をチャッターに流しました');
-    switchTab('chatter');
-  } catch (e) {
-    console.error(e);
-    toast('失敗: ' + (e.message || ''), true);
-  } finally { btn.disabled = false; }
-});
-
-// ==================================================================
-// ==================== データ移行 (kind 振り分け) ====================
-// ==================================================================
+function recKind(r) { return r.kind || inferKind(r.phase); }
 function inferKind(phase) {
   if (phase === 'lead') return 'lead';
   if (phase === 'appo' || phase === 'hold') return 'appo';
   return 'deal';
 }
+
+// ================== メンバー / 商材 (共有設定) ==================
+const META_COLLECTION = 'crm_meta';
+async function saveMeta(key, value) {
+  await setDoc(doc(state.db, META_COLLECTION, key), { list: value, updatedAt: isoNow(), _updatedServer: serverTimestamp() });
+}
+function subscribeMeta() {
+  if (state.metaUnsub) { try { state.metaUnsub(); } catch {} }
+  const q = query(collection(state.db, META_COLLECTION));
+  state.metaUnsub = onSnapshot(q, snap => {
+    snap.forEach(d => {
+      const data = d.data();
+      if (!data || !Array.isArray(data.list)) return;
+      if (d.id === 'members') state.members = data.list;
+      if (d.id === 'products') state.products = data.list;
+    });
+    if (!state.products.length) state.products = [...DEFAULT_PRODUCTS];
+    refreshMemberSelects();
+    renderSettingsMembers();
+  }, err => console.error('meta onSnapshot:', err));
+}
+function memberOptions(selected) {
+  const list = state.members.length ? state.members : (getMe() ? [getMe()] : []);
+  return list.map(m => `<option value="${esc(m)}"${m === selected ? ' selected' : ''}>${esc(m)}</option>`).join('');
+}
+function refreshMemberSelects() {
+  const me = getMe();
+  [['a-owner', me], ['a-sales', me], ['d-apo-owner', ''], ['d-sales', me], ['chAuthorSel', me]].forEach(([id, def]) => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const cur = el.value;
+    el.innerHTML = (id === 'd-apo-owner' ? '<option value="">—</option>' : '') + memberOptions(cur || def);
+    if (cur && state.members.includes(cur)) el.value = cur;
+  });
+  ['a-product', 'd-product'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    const cur = el.value;
+    el.innerHTML = '<option value="">--なし--</option>' +
+      (state.products.length ? state.products : DEFAULT_PRODUCTS).map(pr => `<option value="${esc(pr)}">${esc(pr)}</option>`).join('');
+    if (cur) el.value = cur;
+  });
+  const dp = document.getElementById('d-phase');
+  if (dp && !dp.options.length) dp.innerHTML = DEAL_PHASES.map(d => `<option value="${d.key}">${esc(d.label)}</option>`).join('');
+  const dpf = document.getElementById('dealPhaseFilter');
+  if (dpf && dpf.options.length <= 1) {
+    dpf.innerHTML = '<option value="">全フェーズ</option>' + DEAL_PHASES.map(d => `<option value="${d.key}">${esc(d.label)}</option>`).join('');
+  }
+}
+function renderSettingsMembers() {
+  const el = document.getElementById('memberList');
+  if (!el) return;
+  el.innerHTML = state.members.length
+    ? state.members.map(m => `<span class="member-chip">${esc(m)}<button data-rmmember="${esc(m)}" title="削除">×</button></span>`).join('')
+    : '<span style="font-size:12px; color:var(--text3);">メンバーが未登録です</span>';
+  el.querySelectorAll('[data-rmmember]').forEach(b => b.addEventListener('click', async () => {
+    const name = b.dataset.rmmember;
+    if (!confirm(`メンバー「${name}」を削除しますか?`)) return;
+    try { await saveMeta('members', state.members.filter(m => m !== name)); toast('✓ 削除しました'); }
+    catch (e) { toast('失敗: ' + e.message, true); }
+  }));
+  const pl = document.getElementById('productList');
+  if (pl) {
+    const prods = state.products.length ? state.products : DEFAULT_PRODUCTS;
+    pl.innerHTML = prods.map(pr => `<span class="member-chip">${esc(pr)}<button data-rmprod="${esc(pr)}" title="削除">×</button></span>`).join('');
+    pl.querySelectorAll('[data-rmprod]').forEach(b => b.addEventListener('click', async () => {
+      const name = b.dataset.rmprod;
+      if (!confirm(`商材「${name}」を削除しますか?`)) return;
+      try { await saveMeta('products', prods.filter(x => x !== name)); toast('✓ 削除しました'); }
+      catch (e) { toast('失敗: ' + e.message, true); }
+    }));
+  }
+}
+
+// ================== 商談コレクション ==================
+const DEALS_COLLECTION = 'crm_deals';
+async function saveDeal(d) {
+  const clean = {};
+  Object.keys(d).forEach(k => { if (d[k] !== undefined) clean[k] = d[k]; });
+  clean.updatedAt = isoNow();
+  clean._updatedServer = serverTimestamp();
+  await setDoc(doc(state.db, DEALS_COLLECTION, d.id), clean);
+}
+function subscribeDeals() {
+  if (state.dealsUnsub) { try { state.dealsUnsub(); } catch {} }
+  const q = query(collection(state.db, DEALS_COLLECTION));
+  state.dealsUnsub = onSnapshot(q, snap => {
+    const list = [];
+    snap.forEach(d => { const data = d.data(); if (data && data.dealName) list.push({ ...data, id: d.id }); });
+    list.sort((a, b) => {
+      const c = String(b.updatedAt || '').localeCompare(String(a.updatedAt || ''));
+      return c !== 0 ? c : String(b.id).localeCompare(String(a.id));
+    });
+    state.deals = list;
+    updateBadges();
+    const active = document.querySelector('.nav-tab.active')?.dataset.tab;
+    if (active === 'deals') renderDealList();
+  }, err => console.error('deals onSnapshot:', err));
+}
+
+// ================== 1. リード ==================
+function applyLeadFilter() {
+  const f = state.leadListFilter;
+  let list = state.records.filter(r => recKind(r) === 'lead');
+  if (f.search) {
+    const q = normalText(f.search), qt = normalTel(f.search);
+    list = list.filter(r =>
+      normalText(r.name).includes(q) ||
+      (qt && (normalTel(r.tel).includes(qt) || normalTel(r.mobile).includes(qt))) ||
+      normalText(r.url).includes(q));
+  }
+  if (f.status) list = list.filter(r => (r.leadStatus || '新規') === f.status);
+  list.sort((a, b) => String(b.updatedAt || '').localeCompare(String(a.updatedAt || '')));
+  return list;
+}
+function renderLeadList() {
+  const list = applyLeadFilter();
+  const tbody = document.getElementById('leadListTable');
+  const totalPages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
+  if (state.leadListFilter.page > totalPages) state.leadListFilter.page = totalPages;
+  const start = (state.leadListFilter.page - 1) * PAGE_SIZE;
+  const page = list.slice(start, start + PAGE_SIZE);
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty"><div class="empty-icon">📇</div><div class="empty-text">リードがありません</div></div></td></tr>`;
+    document.getElementById('leadListPagination').innerHTML = '';
+    return;
+  }
+  tbody.innerHTML = page.map(r => `<tr data-id="${esc(r.id)}">
+    <td>${leadStatusBadge(r.leadStatus)}</td>
+    <td><strong>${esc(r.name)}</strong>${r.pref ? `<br><span style="font-size:11px;color:var(--text3);">${esc(r.pref)}</span>` : ''}</td>
+    <td class="mono">${esc(r.tel || '—')}</td>
+    <td class="mono">${esc(r.mobile || '—')}</td>
+    <td style="font-size:11px; max-width:220px; overflow:hidden; text-overflow:ellipsis;">${esc(r.url || '—')}</td>
+    <td style="font-size:11px;">${esc(r.industry || '—')}</td>
+    <td class="right"><button class="btn-action primary" style="padding:5px 9px; font-size:11px; min-height:30px;" data-apo="${esc(r.id)}">📞 アポ報告</button></td>
+  </tr>`).join('');
+  tbody.querySelectorAll('tr').forEach(tr => tr.addEventListener('click', e => {
+    if (e.target.closest('[data-apo]')) return;
+    openLeadNewModal(tr.dataset.id);
+  }));
+  tbody.querySelectorAll('[data-apo]').forEach(b => b.addEventListener('click', e => {
+    e.stopPropagation(); openApoModal(b.dataset.apo);
+  }));
+  renderPagination('leadListPagination', list.length, state.leadListFilter.page, pg => { state.leadListFilter.page = pg; renderLeadList(); });
+}
+document.getElementById('leadListSearch').addEventListener('input', e => { state.leadListFilter.search = e.target.value; state.leadListFilter.page = 1; renderLeadList(); });
+document.getElementById('leadListStatus').addEventListener('change', e => { state.leadListFilter.status = e.target.value; state.leadListFilter.page = 1; renderLeadList(); });
+document.getElementById('leadListClear').addEventListener('click', () => {
+  state.leadListFilter = { search: '', status: '', page: 1 };
+  document.getElementById('leadListSearch').value = '';
+  document.getElementById('leadListStatus').value = '';
+  renderLeadList();
+});
+
+// ---- 新規リードモーダル ----
+const leadNewModal = document.getElementById('leadNewModal');
+const LN_FIELDS = ['ln-name','ln-industry','ln-tel','ln-mobile','ln-url','ln-url2','ln-url3','ln-pref','ln-map','ln-memo'];
+function openLeadNewModal(id) {
+  state.editingLeadId = id || null;
+  LN_FIELDS.forEach(f => document.getElementById(f).value = '');
+  document.getElementById('ln-status').value = '新規';
+  document.getElementById('lnDupWarning').classList.remove('show');
+  document.getElementById('leadNewDelete').style.display = id ? '' : 'none';
+  document.getElementById('leadNewTitle').textContent = id ? 'リードを編集' : '＋ 新規リード';
+  if (id) {
+    const r = state.records.find(x => x.id === id);
+    if (r) {
+      document.getElementById('ln-name').value = r.name || '';
+      document.getElementById('ln-status').value = r.leadStatus || '新規';
+      document.getElementById('ln-industry').value = r.industry || '';
+      document.getElementById('ln-tel').value = r.tel || '';
+      document.getElementById('ln-mobile').value = r.mobile || '';
+      document.getElementById('ln-url').value = r.url || '';
+      document.getElementById('ln-url2').value = r.url2 || '';
+      document.getElementById('ln-url3').value = r.url3 || '';
+      document.getElementById('ln-pref').value = r.pref || '';
+      document.getElementById('ln-map').value = r.mapUrl || '';
+      document.getElementById('ln-memo').value = r.memo || '';
+    }
+  }
+  leadNewModal.classList.add('open');
+}
+document.getElementById('newLeadBtn').addEventListener('click', () => openLeadNewModal(null));
+document.getElementById('leadNewClose').addEventListener('click', () => leadNewModal.classList.remove('open'));
+document.getElementById('leadNewCancel').addEventListener('click', () => leadNewModal.classList.remove('open'));
+leadNewModal.addEventListener('click', e => { if (e.target === leadNewModal) leadNewModal.classList.remove('open'); });
+
+document.getElementById('ln-name').addEventListener('input', e => {
+  const v = normalText(e.target.value);
+  const warn = document.getElementById('lnDupWarning');
+  if (v.length < 2) { warn.classList.remove('show'); return; }
+  const dups = state.records.filter(r => r.id !== state.editingLeadId && normalText(r.name).includes(v)).slice(0, 3);
+  if (dups.length) {
+    document.getElementById('lnDupList').innerHTML = dups.map(d => `<div style="font-size:11px;">・${esc(d.name)}（${esc(phaseInfo(d.phase).label)}）</div>`).join('');
+    warn.classList.add('show');
+  } else warn.classList.remove('show');
+});
+
+document.getElementById('leadNewSave').addEventListener('click', async () => {
+  const name = document.getElementById('ln-name').value.trim();
+  if (!name) { toast('会社名を入力してください', true); return; }
+  const btn = document.getElementById('leadNewSave');
+  btn.disabled = true;
+  try {
+    const existing = state.editingLeadId ? state.records.find(r => r.id === state.editingLeadId) : null;
+    const activity = existing && Array.isArray(existing.activity) ? [...existing.activity] : [];
+    if (!existing) activity.unshift({ at: isoNow(), type: 'system', text: `🆕 リード登録 (${getMe() || '—'})` });
+    const rec = {
+      ...(existing || { id: uid(), planType: 'none', tags: [], init_amount: 0, monthly_amount: 0, createdAt: isoNow() }),
+      name,
+      kind: 'lead',
+      phase: existing && existing.phase !== 'lead' ? existing.phase : 'lead',
+      leadStatus: document.getElementById('ln-status').value,
+      industry: document.getElementById('ln-industry').value.trim(),
+      tel: document.getElementById('ln-tel').value.trim(),
+      mobile: document.getElementById('ln-mobile').value.trim(),
+      url: document.getElementById('ln-url').value.trim(),
+      url2: document.getElementById('ln-url2').value.trim(),
+      url3: document.getElementById('ln-url3').value.trim(),
+      pref: document.getElementById('ln-pref').value.trim(),
+      mapUrl: document.getElementById('ln-map').value.trim(),
+      memo: document.getElementById('ln-memo').value.trim().slice(0, 3000),
+      activity: activity.slice(0, 50),
+      updatedAt: isoNow()
+    };
+    await saveRecord(rec);
+    leadNewModal.classList.remove('open');
+    toast(existing ? '✓ リードを更新しました' : '✓ リードを登録しました');
+  } catch (e) { console.error(e); toast('失敗: ' + (e.message || ''), true); }
+  finally { btn.disabled = false; }
+});
+document.getElementById('leadNewDelete').addEventListener('click', async () => {
+  if (!state.editingLeadId) return;
+  if (!confirm('このリードを削除しますか?')) return;
+  try { await deleteRecordFromDb(state.editingLeadId); leadNewModal.classList.remove('open'); toast('✓ 削除しました'); }
+  catch (e) { toast('失敗: ' + e.message, true); }
+});
+
+// ================== 2. アポ報告 ==================
+const apoModal = document.getElementById('apoModal');
+function fillApoTarget(selectedId) {
+  const sel = document.getElementById('a-target');
+  const list = [...state.records].sort((a, b) => String(a.name).localeCompare(String(b.name), 'ja'));
+  sel.innerHTML = '<option value="">＋ 新規で登録</option>' +
+    list.map(r => `<option value="${esc(r.id)}"${r.id === selectedId ? ' selected' : ''}>${esc(r.name)}（${recKind(r) === 'lead' ? 'リード' : '取引先'}）</option>`).join('');
+}
+function openApoModal(recordId, prefillDate) {
+  if (!ensureMe()) return;
+  fillApoTarget(recordId || '');
+  refreshMemberSelects();
+  ['a-name','a-rep','a-place','a-zoom','a-memo','a-industry','a-tel'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('a-date').value = prefillDate || '';
+  document.getElementById('a-time').value = '';
+  document.getElementById('a-product').value = '';
+  document.getElementById('a-owner').value = getMe();
+  document.getElementById('a-sales').value = getMe();
+  if (recordId) applyApoTarget(recordId);
+  apoModal.classList.add('open');
+}
+function applyApoTarget(id) {
+  const r = state.records.find(x => x.id === id);
+  if (!r) return;
+  document.getElementById('a-name').value = r.name || '';
+  document.getElementById('a-tel').value = r.tel || r.mobile || '';
+  document.getElementById('a-industry').value = r.industry || '';
+  document.getElementById('a-rep').value = r.rep_name || '';
+}
+document.getElementById('a-target').addEventListener('change', e => {
+  if (e.target.value) applyApoTarget(e.target.value);
+  else ['a-name','a-tel','a-industry','a-rep'].forEach(id => document.getElementById(id).value = '');
+});
+document.getElementById('apoReportBtn').addEventListener('click', () => openApoModal(null));
+document.getElementById('apoModalClose').addEventListener('click', () => apoModal.classList.remove('open'));
+document.getElementById('apoCancelBtn').addEventListener('click', () => apoModal.classList.remove('open'));
+apoModal.addEventListener('click', e => { if (e.target === apoModal) apoModal.classList.remove('open'); });
+
+document.getElementById('apoConfirmBtn').addEventListener('click', async () => {
+  const name = document.getElementById('a-name').value.trim();
+  const date = document.getElementById('a-date').value;
+  const time = document.getElementById('a-time').value;
+  const tel = document.getElementById('a-tel').value.trim();
+  const place = document.getElementById('a-place').value.trim();
+  const memo = document.getElementById('a-memo').value.trim();
+  const owner = document.getElementById('a-owner').value;
+
+  if (!name) { toast('会社名を入力してください', true); return; }
+  if (!date || !time) { toast('商談日と時刻を入力してください', true); return; }
+  if (!tel) { toast('電話番号を入力してください', true); return; }
+  if (!place) { toast('住所情報を入力してください（Zoomなら「Zoom」）', true); return; }
+  if (!memo) { toast('アポ報告用メモを入力してください', true); return; }
+  if (!owner) { toast('アポ取得者を選択してください', true); return; }
+
+  const targetId = document.getElementById('a-target').value;
+  const rep_ = document.getElementById('a-rep').value.trim();
+  const zoom = document.getElementById('a-zoom').value.trim();
+  const product = document.getElementById('a-product').value;
+  const industry = document.getElementById('a-industry').value.trim();
+  const sales = document.getElementById('a-sales').value;
+  const dt = `${date}T${time}`;
+
+  const btn = document.getElementById('apoConfirmBtn');
+  btn.disabled = true;
+  try {
+    const existing = targetId ? state.records.find(r => r.id === targetId) : null;
+    const base = existing || { id: uid(), planType: 'none', tags: [], init_amount: 0, monthly_amount: 0, createdAt: isoNow(), activity: [] };
+    const activity = Array.isArray(base.activity) ? [...base.activity] : [];
+    activity.unshift({ at: isoNow(), type: 'system', text: `📞 アポ報告: ${fmtDateTime(dt)} / ${place} (取得: ${owner})` });
+
+    const rec = {
+      ...base,
+      name, tel,
+      kind: 'account',
+      phase: (base.phase && base.phase !== 'lead') ? base.phase : 'appo',
+      leadStatus: '案件化',
+      meetingDate: dt,
+      rep_name: rep_,
+      meet_place: place,
+      zoom_send: zoom,
+      product: product,
+      industry: industry || base.industry || '',
+      apo_owner: owner,
+      sales_owner: sales,
+      apo_memo: memo,
+      activity: activity.slice(0, 50),
+      updatedAt: isoNow()
+    };
+    await saveRecord(rec);
+
+    const body =
+`【日時】${fmtDateTime(dt)}
+【屋号】${name}
+【電話番号】${tel}
+【代表者名】${rep_ || '—'}
+【訪問先/住所】${place}
+【ZoomURL送付方法】${zoom || '—'}
+【商材】${product || '—'}
+【業種】${industry || '—'}
+【アポ取得者】${owner}
+【営業者】${sales || '—'}
+
+【メモ】
+${memo}`;
+    const ok = await postToChatter('apo', body, { recordId: rec.id, recordName: name, author: owner });
+    apoModal.classList.remove('open');
+    toast(ok ? '✓ アポ報告をチャッターに流しました' : '⚠ 保存しましたがチャッター投稿に失敗', !ok);
+    switchTab('chatter');
+  } catch (e) { console.error(e); toast('失敗: ' + (e.message || ''), true); }
+  finally { btn.disabled = false; }
+});
+
+// ================== 3. 商談報告 ==================
+const shodanModal = document.getElementById('shodanModal');
+function updateDealFields() {
+  const v = document.getElementById('d-phase').value;
+  const isWin = v === 'juchu' || v === 'kaishu';
+  const isLost = v === 'lost' || v === 'nagare_r' || v === 'nagare_o';
+  document.getElementById('grp-d-init').classList.toggle('show', isWin);
+  document.getElementById('grp-d-monthly').classList.toggle('show', isWin);
+  document.getElementById('grp-d-lost').classList.toggle('show', isLost);
+}
+function openDealModal(dealId, customerId) {
+  if (!ensureMe()) return;
+  refreshMemberSelects();
+  state.editingDealId = dealId || null;
+  const accounts = state.records.filter(r => recKind(r) !== 'lead')
+    .sort((a, b) => String(a.name).localeCompare(String(b.name), 'ja'));
+  const sel = document.getElementById('d-target');
+  sel.innerHTML = '<option value="">選択してください</option>' +
+    accounts.map(r => `<option value="${esc(r.id)}">${esc(r.name)}</option>`).join('');
+
+  document.getElementById('shodanTitle').textContent = dealId ? '🤝 商談を編集' : '🤝 商談報告';
+  document.getElementById('shodanDeleteBtn').style.display = dealId ? '' : 'none';
+  ['d-name','d-init','d-monthly','d-memo','d-first','d-close'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('d-lost-reason').value = '';
+  document.getElementById('d-phase').value = 'shodanka';
+  document.getElementById('d-sales').value = getMe();
+
+  const d = dealId ? state.deals.find(x => x.id === dealId) : null;
+  if (d) {
+    sel.value = d.customerId || '';
+    document.getElementById('d-name').value = d.dealName || '';
+    document.getElementById('d-phase').value = d.dealPhase || 'shodanka';
+    document.getElementById('d-product').value = d.product || '';
+    document.getElementById('d-first').value = d.firstMeetingDate || '';
+    document.getElementById('d-close').value = d.closeDate || '';
+    document.getElementById('d-apo-owner').value = d.apoOwner || '';
+    document.getElementById('d-sales').value = d.salesOwner || getMe();
+    document.getElementById('d-init').value = d.amount_init || '';
+    document.getElementById('d-monthly').value = d.amount_monthly || '';
+    document.getElementById('d-lost-reason').value = d.lostReason || '';
+    document.getElementById('d-memo').value = d.memo || '';
+  } else if (customerId) {
+    sel.value = customerId;
+    const c = state.records.find(r => r.id === customerId);
+    if (c) {
+      document.getElementById('d-name').value = c.name || '';
+      document.getElementById('d-product').value = c.product || '';
+      document.getElementById('d-apo-owner').value = c.apo_owner || '';
+      if (c.meetingDate) document.getElementById('d-first').value = c.meetingDate.slice(0, 10);
+    }
+  }
+  updateDealFields();
+  shodanModal.classList.add('open');
+}
+document.getElementById('d-target').addEventListener('change', e => {
+  const c = state.records.find(r => r.id === e.target.value);
+  if (!c) return;
+  if (!document.getElementById('d-name').value) document.getElementById('d-name').value = c.name || '';
+  if (c.apo_owner) document.getElementById('d-apo-owner').value = c.apo_owner;
+  if (c.product) document.getElementById('d-product').value = c.product;
+  if (c.meetingDate && !document.getElementById('d-first').value) document.getElementById('d-first').value = c.meetingDate.slice(0, 10);
+});
+document.getElementById('d-phase').addEventListener('change', updateDealFields);
+document.getElementById('shodanReportBtn').addEventListener('click', () => openDealModal(null, null));
+document.getElementById('newDealBtn').addEventListener('click', () => openDealModal(null, null));
+document.getElementById('shodanModalClose').addEventListener('click', () => shodanModal.classList.remove('open'));
+document.getElementById('shodanCancelBtn').addEventListener('click', () => shodanModal.classList.remove('open'));
+shodanModal.addEventListener('click', e => { if (e.target === shodanModal) shodanModal.classList.remove('open'); });
+
+document.getElementById('shodanDeleteBtn').addEventListener('click', async () => {
+  if (!state.editingDealId) return;
+  if (!confirm('この商談を削除しますか?')) return;
+  try {
+    await deleteDoc(doc(state.db, DEALS_COLLECTION, state.editingDealId));
+    shodanModal.classList.remove('open');
+    toast('✓ 削除しました');
+  } catch (e) { toast('失敗: ' + e.message, true); }
+});
+
+document.getElementById('shodanConfirmBtn').addEventListener('click', async () => {
+  const customerId = document.getElementById('d-target').value;
+  const dealName = document.getElementById('d-name').value.trim();
+  const phase = document.getElementById('d-phase').value;
+  const memo = document.getElementById('d-memo').value.trim();
+  const lostReason = document.getElementById('d-lost-reason').value;
+  const sales = document.getElementById('d-sales').value;
+
+  if (!customerId) { toast('取引先を選択してください', true); return; }
+  if (!dealName) { toast('商談名を入力してください', true); return; }
+  if (!memo) { toast('商談内容を入力してください', true); return; }
+  if (!sales) { toast('営業者を選択してください', true); return; }
+  const isWin = phase === 'juchu' || phase === 'kaishu';
+  const isLost = phase === 'lost' || phase === 'nagare_r' || phase === 'nagare_o';
+  if (isLost && !lostReason) { toast('失注理由を選択してください', true); return; }
+
+  const customer = state.records.find(r => r.id === customerId);
+  const init = Number(document.getElementById('d-init').value) || 0;
+  const monthly = Number(document.getElementById('d-monthly').value) || 0;
+  const closeDate = document.getElementById('d-close').value || ((isWin || isLost) ? todayStr() : '');
+
+  const btn = document.getElementById('shodanConfirmBtn');
+  btn.disabled = true;
+  try {
+    const prev = state.editingDealId ? state.deals.find(x => x.id === state.editingDealId) : null;
+    const deal = {
+      ...(prev || { id: 'd_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 6), createdAt: isoNow() }),
+      customerId, customerName: customer ? customer.name : '',
+      dealName,
+      dealPhase: phase,
+      product: document.getElementById('d-product').value,
+      firstMeetingDate: document.getElementById('d-first').value || '',
+      closeDate,
+      amount_init: isWin ? init : 0,
+      amount_monthly: isWin ? monthly : 0,
+      lostReason: isLost ? lostReason : '',
+      memo: memo.slice(0, 5000),
+      apoOwner: document.getElementById('d-apo-owner').value,
+      salesOwner: sales,
+      updatedAt: isoNow()
+    };
+    await saveDeal(deal);
+
+    // 取引先レコード側も同期(入金管理・レポートが動くように)
+    if (customer) {
+      const upd = { ...customer, kind: 'account', updatedAt: isoNow() };
+      const act = Array.isArray(customer.activity) ? [...customer.activity] : [];
+      if (isWin) {
+        upd.phase = 'order';
+        upd.orderDate = customer.orderDate || closeDate || todayStr();
+        upd.init_amount = init; upd.monthly_amount = monthly;
+        upd.planType = (init && monthly) ? 'full' : init ? 'init_only' : monthly ? 'monthly_only' : 'none';
+        act.unshift({ at: isoNow(), type: 'system', text: `🎉 受注 (${sales}) 初期¥${fmt(init)} / 月費¥${fmt(monthly)}` });
+      } else if (isLost) {
+        upd.phase = 'lost';
+        upd.lost_reason = lostReason; upd.lost_date = closeDate || todayStr(); upd.lost_detail = memo.slice(0, 2000);
+        act.unshift({ at: isoNow(), type: 'system', text: `✕ 失注: ${LOST_REASONS[lostReason]} (${sales})` });
+      } else {
+        act.unshift({ at: isoNow(), type: 'system', text: `🤝 商談報告: ${dealPhaseInfo(phase).label} (${sales})` });
+      }
+      upd.activity = act.slice(0, 50);
+      await saveRecord(upd);
+    }
+
+    const chType = isWin ? 'juchu' : isLost ? 'shitsuchu' : 'shodan';
+    const head = isWin ? '🎉 受注報告' : isLost ? '✕ 失注報告' : '🤝 商談報告';
+    const body =
+`${head}
+
+【屋号】${customer ? customer.name : dealName}
+【電話番号】${customer ? (customer.tel || customer.mobile || '—') : '—'}
+【商談名】${dealName}
+【フェーズ】${dealPhaseInfo(phase).label}
+【商材】${deal.product || '—'}${isWin ? `
+【初期費用】¥${fmt(init)}
+【月費】¥${fmt(monthly)}` : ''}${isLost ? `
+【失注理由】${LOST_REASONS[lostReason] || '—'}` : ''}
+【アポ取得者】${deal.apoOwner || '—'}
+【営業者】${sales}
+
+【メモ】
+${memo}`;
+    const ok = await postToChatter(chType, body, { recordId: customerId, recordName: customer ? customer.name : dealName, author: sales });
+
+    shodanModal.classList.remove('open');
+    toast(ok ? '✓ 商談報告をチャッターに流しました' : '⚠ 保存しましたがチャッター投稿に失敗', !ok);
+    switchTab('chatter');
+  } catch (e) { console.error(e); toast('失敗: ' + (e.message || ''), true); }
+  finally { btn.disabled = false; }
+});
+
+// ================== 4. 商談一覧 ==================
+function renderDealList() {
+  const f = state.dealFilter;
+  let list = [...state.deals];
+  if (f.search) {
+    const q = normalText(f.search);
+    list = list.filter(d => normalText(d.dealName).includes(q) || normalText(d.customerName).includes(q));
+  }
+  if (f.phase) list = list.filter(d => d.dealPhase === f.phase);
+  const tbody = document.getElementById('dealTable');
+  const totalPages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
+  if (f.page > totalPages) f.page = totalPages;
+  const page = list.slice((f.page - 1) * PAGE_SIZE, (f.page - 1) * PAGE_SIZE + PAGE_SIZE);
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty"><div class="empty-icon">🤝</div><div class="empty-text">商談がありません</div></div></td></tr>`;
+    document.getElementById('dealPagination').innerHTML = '';
+    return;
+  }
+  tbody.innerHTML = page.map(d => {
+    const amt = (Number(d.amount_init) || 0) + (Number(d.amount_monthly) || 0) * 3;
+    return `<tr data-did="${esc(d.id)}">
+      <td>${dealPhaseBadge(d.dealPhase)}</td>
+      <td><strong>${esc(d.dealName)}</strong><br><span style="font-size:11px;color:var(--text3);">${esc(d.customerName || '')}</span></td>
+      <td style="font-size:11px;">${esc(d.product || '—')}</td>
+      <td class="mono">${amt ? '¥' + fmt(amt) : '—'}</td>
+      <td class="mono" style="font-size:11px;">${d.closeDate ? fmtDate(d.closeDate) : '—'}</td>
+      <td style="font-size:11px; color:var(--red);">${d.lostReason ? esc(LOST_REASONS[d.lostReason] || d.lostReason) : '—'}</td>
+      <td style="font-size:11px;">${esc(d.apoOwner || '—')}</td>
+      <td class="right" style="font-size:11px;">${esc(d.salesOwner || '—')}</td>
+    </tr>`;
+  }).join('');
+  tbody.querySelectorAll('tr').forEach(tr => tr.addEventListener('click', () => openDealModal(tr.dataset.did)));
+  renderPagination('dealPagination', list.length, f.page, pg => { f.page = pg; renderDealList(); });
+}
+document.getElementById('dealSearch').addEventListener('input', e => { state.dealFilter.search = e.target.value; state.dealFilter.page = 1; renderDealList(); });
+document.getElementById('dealPhaseFilter').addEventListener('change', e => { state.dealFilter.phase = e.target.value; state.dealFilter.page = 1; renderDealList(); });
+document.getElementById('dealClear').addEventListener('click', () => {
+  state.dealFilter = { search: '', phase: '', page: 1 };
+  document.getElementById('dealSearch').value = '';
+  document.getElementById('dealPhaseFilter').value = '';
+  renderDealList();
+});
+
+// ================== 5. 移行ツール ==================
 function migrationPreview() {
-  const counts = { lead: 0, appo: 0, deal: 0, already: 0 };
+  const counts = { lead: 0, account: 0, already: 0 };
   state.records.forEach(r => {
     if (r.kind) { counts.already++; return; }
-    counts[inferKind(r.phase)]++;
+    counts[inferKind(r.phase) === 'lead' ? 'lead' : 'account']++;
   });
   return counts;
 }
@@ -2749,38 +3384,51 @@ document.getElementById('migratePreviewBtn').addEventListener('click', () => {
   document.getElementById('migrateResult').innerHTML =
     `<div style="font-size:13px; line-height:1.9; color:var(--text2);">
       対象レコード: <strong style="color:var(--text)">${state.records.length}件</strong><br>
-      → 📋 リード: <strong style="color:var(--accent)">${c.lead}件</strong>（未対応）<br>
-      → 📞 アポ: <strong style="color:var(--accent)">${c.appo}件</strong>（アポ取得・保留）<br>
-      → 🤝 商談: <strong style="color:var(--accent)">${c.deal}件</strong>（受注以降・失注・解約）<br>
+      → 📇 リード: <strong style="color:var(--accent)">${c.lead}件</strong>（未対応）<br>
+      → 🏢 取引先: <strong style="color:var(--accent)">${c.account}件</strong>（アポ取得以降すべて）<br>
       <span style="color:var(--text3)">振り分け済みでスキップ: ${c.already}件</span>
     </div>`;
 });
 document.getElementById('migrateRunBtn').addEventListener('click', async () => {
   const targets = state.records.filter(r => !r.kind);
   if (!targets.length) { toast('振り分けが必要なレコードはありません'); return; }
-  if (!confirm(`${targets.length}件を リード / アポ / 商談 に振り分けます。\n実行前にバックアップJSONを自動ダウンロードします。続行しますか?`)) return;
-
-  // 自動バックアップ
+  if (!confirm(`${targets.length}件を リード / 取引先 に振り分けます。\n実行前にバックアップJSONを自動ダウンロードします。続行しますか?`)) return;
   try {
-    const blob = new Blob([JSON.stringify({ exportedAt: isoNow(), note: 'migration auto-backup', records: state.records }, null, 2)], { type: 'application/json' });
+    const blob = new Blob([JSON.stringify({ exportedAt: isoNow(), records: state.records, deals: state.deals }, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url; a.download = `crm-backup-before-migration-${todayStr()}.json`;
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     URL.revokeObjectURL(url);
   } catch (e) { console.error('backup failed', e); }
-
   showLoading(true);
   try {
-    const updated = targets.map(r => ({ ...r, kind: inferKind(r.phase) }));
+    const updated = targets.map(r => ({ ...r, kind: inferKind(r.phase) === 'lead' ? 'lead' : 'account', leadStatus: r.leadStatus || (inferKind(r.phase) === 'lead' ? '新規' : '案件化') }));
     await batchSaveRecords(updated);
     toast(`✓ ${updated.length}件を振り分けました`);
     document.getElementById('migrateResult').innerHTML =
       `<div style="color:var(--green); font-size:13px;">✓ ${updated.length}件の振り分けが完了しました</div>`;
-  } catch (e) {
-    console.error(e);
-    alert('移行失敗: ' + (e.message || ''));
-  } finally { showLoading(false); }
+  } catch (e) { console.error(e); alert('移行失敗: ' + (e.message || '')); }
+  finally { showLoading(false); }
+});
+
+// ================== 6. メンバー / 商材 追加 ==================
+document.getElementById('addMemberBtn').addEventListener('click', async () => {
+  const input = document.getElementById('newMemberName');
+  const name = input.value.trim().slice(0, 30);
+  if (!name) { toast('名前を入力してください', true); return; }
+  if (state.members.includes(name)) { toast('すでに登録されています', true); return; }
+  try { await saveMeta('members', [...state.members, name]); input.value = ''; toast('✓ 追加しました'); }
+  catch (e) { toast('失敗: ' + e.message, true); }
+});
+document.getElementById('addProductBtn').addEventListener('click', async () => {
+  const input = document.getElementById('newProductName');
+  const name = input.value.trim().slice(0, 40);
+  if (!name) { toast('商材名を入力してください', true); return; }
+  const cur = state.products.length ? state.products : DEFAULT_PRODUCTS;
+  if (cur.includes(name)) { toast('すでに登録されています', true); return; }
+  try { await saveMeta('products', [...cur, name]); input.value = ''; toast('✓ 追加しました'); }
+  catch (e) { toast('失敗: ' + e.message, true); }
 });
 
 function dashShiftMonth(dir) {
@@ -2795,109 +3443,8 @@ document.getElementById('dashThisMonth').addEventListener('click', () => {
   const n = new Date(); state.dashYear = n.getFullYear(); state.dashMonth = n.getMonth(); renderDashboard();
 });
 
-function renderActions() {
-  const actions = getActionItems();
-  const overdue = actions.filter(a => a.urgency === 'overdue');
-  const today = actions.filter(a => a.urgency === 'today');
-  const upcoming = actions.filter(a => a.urgency === 'upcoming');
-  document.getElementById('overdueCount').textContent = `${overdue.length} items`;
-  document.getElementById('todayCount').textContent = `${today.length} items`;
-  document.getElementById('upcomingCount').textContent = `${upcoming.length} items`;
-  const render = (list, id, emptyText) => {
-    const el = document.getElementById(id);
-    if (!list.length) { el.innerHTML = `<div class="empty"><div class="empty-icon">✓</div><div class="empty-text">${emptyText}</div></div>`; return; }
-    el.innerHTML = list.map(actionItemHTML).join('');
-    bindActionClick(id);
-  };
-  render(overdue, 'overdueActionList', '期限切れタスクなし');
-  render(today, 'todayActionList2', '今日の予定なし');
-  render(upcoming, 'upcomingActionList', '今後7日間に予定なし');
-}
 
-// ============== KANBAN ==============
-function renderKanban() {
-  const board = document.getElementById('kanbanBoard');
-  // カンバンに表示するフェーズ(リード〜継続中まで)
-  const cols = PHASES.filter(p => p.group === 'lead' || p.group === 'active');
-  const grouped = {};
-  cols.forEach(c => grouped[c.key] = []);
-  state.records.forEach(r => { if (grouped[r.phase]) grouped[r.phase].push(r); });
-  // ソート(更新日新しい順)
-  Object.keys(grouped).forEach(k => grouped[k].sort((a, b) => (b.updatedAt || '').localeCompare(a.updatedAt || '')));
 
-  board.innerHTML = cols.map(c => {
-    const list = grouped[c.key];
-    const cards = list.slice(0, 20).map(r => {
-      const { score, level } = healthScore(r);
-      const cls = level === 'good' ? 'success' : level === 'warn' ? 'warn' : level === 'bad' ? 'danger' : '';
-      const meta = isLeadPhase(r.phase)
-        ? (r.meetingDate ? fmtDate(r.meetingDate) : (r.tel || r.email || '—'))
-        : `¥${fmt(totalReceived(r))} 受領`;
-      return `<div class="kanban-card ${cls}" data-id="${esc(r.id)}">
-        <div class="name">${esc(r.name)}</div>
-        <div class="meta"><span>${esc(meta)}</span><span>♥${score}</span></div>
-      </div>`;
-    }).join('');
-    const more = list.length > 20 ? `<div style="text-align:center; padding:8px; color:var(--text3); font-size:11px; font-family:'JetBrains Mono', monospace;">+${list.length - 20}件</div>` : '';
-    return `<div class="kanban-col">
-      <div class="kanban-head">
-        <span class="kanban-title">${esc(c.label)}</span>
-        <span class="kanban-count">${list.length}</span>
-      </div>
-      <div class="kanban-body">${cards || '<div style="padding:14px; text-align:center; color:var(--text3); font-size:11px;">なし</div>'}${more}</div>
-    </div>`;
-  }).join('');
-  board.querySelectorAll('.kanban-card').forEach(el => el.addEventListener('click', () => openDetail(el.dataset.id)));
-}
-
-// ============== LEADS TABLE ==============
-function applyLeadsFilter() {
-  const f = state.leadsFilter;
-  let list = state.records.filter(r => isLeadPhase(r.phase));
-  if (f.search) {
-    const s = normalText(f.search);
-    list = list.filter(r =>
-      normalText(r.name).includes(s) ||
-      normalTel(r.tel).includes(normalTel(f.search)) ||
-      normalText(r.email).includes(s));
-  }
-  if (f.phase) list = list.filter(r => r.phase === f.phase);
-  if (f.tag) list = list.filter(r => Array.isArray(r.tags) && r.tags.includes(f.tag));
-  list.sort((a, b) => {
-    if (f.sort === 'created') return (b.createdAt || '').localeCompare(a.createdAt || '');
-    if (f.sort === 'name') return (a.name || '').localeCompare(b.name || '');
-    if (f.sort === 'meeting') return (a.meetingDate || '9999').localeCompare(b.meetingDate || '9999');
-    if (f.sort === 'health') return healthScore(b).score - healthScore(a).score;
-    return (b.updatedAt || '').localeCompare(a.updatedAt || '');
-  });
-  return list;
-}
-
-function renderLeadsTable() {
-  const list = applyLeadsFilter();
-  const totalPages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
-  if (state.leadsFilter.page > totalPages) state.leadsFilter.page = totalPages;
-  const start = (state.leadsFilter.page - 1) * PAGE_SIZE;
-  const page = list.slice(start, start + PAGE_SIZE);
-  const tbody = document.getElementById('leadsTable');
-  if (!list.length) {
-    tbody.innerHTML = `<tr><td colspan="7"><div class="empty"><div class="empty-icon">∅</div><div class="empty-text">該当するリードがありません</div></div></td></tr>`;
-    document.getElementById('leadsPagination').innerHTML = '';
-    return;
-  }
-  tbody.innerHTML = page.map(r => `
-    <tr data-id="${esc(r.id)}">
-      <td>${phaseBadge(r.phase)}</td>
-      <td><strong>${esc(r.name)}</strong></td>
-      <td class="mono">${esc(r.tel || '—')}<br><span style="color:var(--text3); font-size:11px;">${esc(r.email || '')}</span></td>
-      <td class="mono">${r.meetingDate ? fmtDateTime(r.meetingDate) : '—'}</td>
-      <td>${(r.tags || []).map(t => `<span class="tag">${esc(t)}</span>`).join('')}</td>
-      <td>${healthHTML(r)}</td>
-      <td class="right mono" style="font-size:11px; color:var(--text3);">${r.updatedAt ? relativeDate(r.updatedAt.slice(0,10)) : '—'}</td>
-    </tr>`).join('');
-  tbody.querySelectorAll('tr').forEach(tr => tr.addEventListener('click', () => openDetail(tr.dataset.id)));
-  renderPagination('leadsPagination', list.length, state.leadsFilter.page, p => { state.leadsFilter.page = p; renderLeadsTable(); });
-}
 
 // ============== ALL TABLE ==============
 function applyAllFilter() {
@@ -2923,14 +3470,14 @@ function applyAllFilter() {
 }
 
 function renderAllTable() {
-  const list = applyAllFilter();
+  const list = applyAllFilter().filter(r => recKind(r) !== 'lead');
   const totalPages = Math.max(1, Math.ceil(list.length / PAGE_SIZE));
   if (state.allFilter.page > totalPages) state.allFilter.page = totalPages;
   const start = (state.allFilter.page - 1) * PAGE_SIZE;
   const page = list.slice(start, start + PAGE_SIZE);
   const tbody = document.getElementById('allTable');
   if (!list.length) {
-    tbody.innerHTML = `<tr><td colspan="7"><div class="empty"><div class="empty-icon">∅</div><div class="empty-text">顧客がいません</div></div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty"><div class="empty-icon">∅</div><div class="empty-text">取引先がありません</div></div></td></tr>`;
     document.getElementById('allPagination').innerHTML = '';
     return;
   }
@@ -2946,9 +3493,16 @@ function renderAllTable() {
       <td class="right mono">¥${fmt(total)}</td>
       <td>${healthHTML(r)}</td>
       <td class="right mono" style="font-size:11px; color:var(--text3);">${r.updatedAt ? relativeDate(r.updatedAt.slice(0,10)) : '—'}</td>
+      <td class="right"><button class="btn-action" style="padding:5px 9px; font-size:11px; min-height:30px;" data-deal="${esc(r.id)}">🤝 商談報告</button></td>
     </tr>`;
   }).join('');
-  tbody.querySelectorAll('tr').forEach(tr => tr.addEventListener('click', () => openDetail(tr.dataset.id)));
+  tbody.querySelectorAll('tr').forEach(tr => tr.addEventListener('click', e => {
+    if (e.target.closest('[data-deal]')) return;
+    openDetail(tr.dataset.id);
+  }));
+  tbody.querySelectorAll('[data-deal]').forEach(b => b.addEventListener('click', e => {
+    e.stopPropagation(); openDealModal(null, b.dataset.deal);
+  }));
   renderPagination('allPagination', list.length, state.allFilter.page, p => { state.allFilter.page = p; renderAllTable(); });
 }
 
@@ -3970,17 +4524,7 @@ document.addEventListener('keydown', e => {
 });
 
 // ============== FILTER LISTENERS ==============
-document.getElementById('leadsSearch').addEventListener('input', () => { state.leadsFilter.search = document.getElementById('leadsSearch').value; state.leadsFilter.page = 1; renderLeadsTable(); });
-['leadsPhaseFilter','leadsTagFilter','leadsSortBy'].forEach(id => {
-  const key = id === 'leadsPhaseFilter' ? 'phase' : id === 'leadsTagFilter' ? 'tag' : 'sort';
-  document.getElementById(id).addEventListener('change', () => { state.leadsFilter[key] = document.getElementById(id).value; state.leadsFilter.page = 1; renderLeadsTable(); });
-});
-document.getElementById('leadsClearBtn').addEventListener('click', () => {
-  ['leadsSearch','leadsPhaseFilter','leadsTagFilter'].forEach(id => document.getElementById(id).value = '');
-  document.getElementById('leadsSortBy').value = 'updated';
-  state.leadsFilter = { search: '', phase: '', tag: '', sort: 'updated', page: 1 };
-  renderLeadsTable();
-});
+
 
 document.getElementById('allSearch').addEventListener('input', () => { state.allFilter.search = document.getElementById('allSearch').value; state.allFilter.page = 1; renderAllTable(); });
 ['allPhaseFilter','allTagFilter','allSortBy'].forEach(id => {
@@ -4067,6 +4611,10 @@ async function initApp() {
   showLoading(true);
   subscribeAll();
   subscribeChatter();
+  subscribeDeals();
+  subscribeMeta();
+  startChatterAutoRefresh();
+  refreshMemberSelects();
   updateMeLabels();
   state.calWeekStart = ymd(startOfWeek(new Date()));
   state.calMode = localStorage.getItem(STORAGE_KEY_CALMODE) || 'week';
