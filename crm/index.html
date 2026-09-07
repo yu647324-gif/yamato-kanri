@@ -207,15 +207,6 @@ button { font-family: inherit; cursor: pointer; }
 .ch-del { margin-left: auto; background: none; border: none; color: var(--text3); font-size: 15px; cursor: pointer; padding: 0 4px; }
 .ch-del:hover { color: var(--red); }
 /* ==== チャッター + カレンダー 2カラム ==== */
-.ch-layout { display: grid; grid-template-columns: minmax(0,1fr) 400px; gap: 18px; align-items: start; }
-@media (max-width: 1100px) { .ch-layout { grid-template-columns: 1fr; } }
-.ch-side { position: sticky; top: 68px; }
-.ch-side .panel-title { font-size: 13px; }
-.ch-side .cal-wcol { min-height: 0; }
-.ch-side .cal-whead { padding: 5px 2px; }
-.ch-side .cal-whead .dn { font-size: 14px; }
-.ch-side .cal-wbody { padding: 4px; max-height: 300px; }
-.ch-side .cal-event { font-size: 10px; padding: 3px 4px; }
 .ch-toolbar { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; flex-wrap: wrap; }
 .ch-refresh { background: var(--surface); border: 1px solid var(--border2); color: var(--text2); padding: 6px 12px; border-radius: 2px; font-size: 12px; min-height: 34px; display: flex; align-items: center; gap: 6px; }
 .ch-refresh:hover { border-color: var(--accent); color: var(--accent); }
@@ -227,6 +218,21 @@ button { font-family: inherit; cursor: pointer; }
 .ch-post.fresh { animation: flashIn 1.2s ease-out; }
 @keyframes flashIn { 0% { background: var(--accent-dim); } 100% { background: var(--surface); } }
 /* ==== メンバー ==== */
+/* ==== 検索できる会社ピッカー ==== */
+.picker { position: relative; }
+.picker-input { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 11px 34px 11px 13px; font-size: 16px; border-radius: 2px; outline: none; min-height: var(--tap-min); }
+.picker-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
+.picker-input.chosen { border-color: var(--green); font-weight: 700; }
+.picker-clear { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; color: var(--text3); font-size: 18px; padding: 0 4px; line-height: 1; }
+.picker-clear:hover { color: var(--red); }
+.picker-list { position: absolute; z-index: 40; left: 0; right: 0; top: calc(100% + 3px); background: var(--surface); border: 1px solid var(--border2); border-radius: 3px; max-height: 290px; overflow-y: auto; box-shadow: var(--shadow-modal); display: none; }
+.picker-list.open { display: block; }
+.picker-item { padding: 10px 13px; cursor: pointer; border-bottom: 1px solid var(--border); }
+.picker-item:last-child { border-bottom: none; }
+.picker-item:hover, .picker-item.active { background: var(--accent-dim); }
+.picker-item .pi-name { font-size: 13px; font-weight: 700; color: var(--text); }
+.picker-item .pi-sub { font-size: 11px; color: var(--text3); font-family: 'JetBrains Mono', monospace; margin-top: 2px; word-break: break-all; }
+.picker-empty { padding: 14px; font-size: 12px; color: var(--text3); text-align: center; }
 .member-chip { display: inline-flex; align-items: center; gap: 6px; background: var(--surface2); border: 1px solid var(--border2); border-radius: 100px; padding: 5px 12px; font-size: 12px; margin: 0 6px 6px 0; }
 .member-chip button { background: none; border: none; color: var(--text3); font-size: 14px; padding: 0; }
 .member-chip button:hover { color: var(--red); }
@@ -453,8 +459,25 @@ tbody tr:last-child td { border-bottom: none; }
 @media (max-width: 900px) {
   .header { padding: 0 12px; }
   .header-brand { font-size: 10px; padding-right: 12px; }
-  .nav-tabs { min-height: 44px; margin-left: 4px; }
-  .nav-tab { padding: 0 10px; font-size: 12px; min-height: 44px; }
+  /* --- スマホは下部固定ナビに全タブを出す --- */
+  .header { min-height: 48px; padding: 0 10px; }
+  .nav-tabs {
+    position: fixed; left: 0; right: 0; bottom: 0; top: auto;
+    display: grid; grid-template-columns: repeat(6, 1fr);
+    background: var(--surface); border-top: 1px solid var(--border2);
+    padding: 4px 2px calc(4px + env(safe-area-inset-bottom));
+    margin: 0; min-height: 0; overflow: visible; z-index: 300;
+    box-shadow: 0 -3px 14px rgba(0,0,0,0.22);
+  }
+  .nav-tab {
+    position: relative; flex-direction: column; gap: 1px; padding: 5px 1px; min-height: 52px;
+    font-size: 9px; line-height: 1.15; border-bottom: none; border-radius: 4px;
+    text-align: center; white-space: normal; justify-content: center; overflow: hidden;
+  }
+  .nav-tab.active { background: var(--accent-dim); border-bottom: none; }
+  .nav-tab .badge { position: absolute; transform: translate(16px, -14px); font-size: 8px; padding: 1px 4px; }
+  .main { padding-bottom: 130px; }
+  .modal-foot { bottom: 0; }
   .main { padding: 16px 12px 60px; }
   .section-head { gap: 8px; }
   .section-title { font-size: 18px; }
@@ -589,13 +612,13 @@ tbody tr:last-child td { border-bottom: none; }
 .cancel-form-title { color: var(--red); font-size: 12px; font-weight: 700; margin-bottom: 10px; letter-spacing: 1px; }
 
 @media (max-width: 900px) {
-  .kanban-col { min-width: 220px; }
+
   .payment-grid { grid-template-columns: repeat(2, 1fr); }
   .funnel-step { flex-wrap: wrap; }
   .funnel-step .label { min-width: 100%; }
 }
 @media (max-width: 480px) {
-  .kanban-col { min-width: 200px; }
+
 }
 </style>
 </head>
@@ -661,6 +684,7 @@ service cloud.firestore {
     <div class="nav-tabs" id="navTabs">
       <button class="nav-tab active" data-tab="dashboard">📊 ダッシュボード</button>
       <button class="nav-tab" data-tab="chatter">💬 チャッター <span class="badge" id="chatterBadge" style="display:none;">0</span></button>
+      <button class="nav-tab" data-tab="calendar">📅 カレンダー</button>
       <button class="nav-tab" data-tab="leadlist">📇 リード <span class="badge" id="leadBadge">0</span></button>
       <button class="nav-tab" data-tab="all">🏢 取引先 <span class="badge" id="acctBadge">0</span></button>
       <button class="nav-tab" data-tab="deals">🤝 商談 <span class="badge" id="dealBadge">0</span></button>
@@ -769,8 +793,6 @@ service cloud.firestore {
         </div>
       </div>
 
-      <div class="ch-layout">
-      <div>
       <div class="ch-toolbar">
         <button class="fab-add" id="chFabBtn" title="投稿する">＋</button>
         <button class="ch-refresh" id="chRefreshBtn"><span class="ic">🔄</span> 更新</button>
@@ -800,42 +822,47 @@ service cloud.firestore {
       <div style="text-align:center; margin-top:14px;">
         <button class="btn-action" id="chMoreBtn" style="display:none;">さらに表示</button>
       </div>
-      </div>
-
-      <!-- カレンダー(チャッターの隣) -->
-      <div class="ch-side">
-        <div class="panel">
-          <div class="panel-head">
-            <div class="panel-title"><span class="mono">// SCHEDULE</span><span id="calTitle">—</span></div>
-            <div style="display:flex; gap:6px; align-items:center;">
-              <button class="fab-add" id="calAddBtn" title="予定を追加(アポ報告)" style="width:28px;height:28px;font-size:17px;">＋</button>
-            </div>
-          </div>
-          <div style="padding: 12px;">
-            <div class="cal-head" style="margin-bottom:10px;">
-              <div class="cal-view-toggle">
-                <button id="calWeekBtn" class="active">週</button>
-                <button id="calMonthBtn">月</button>
-              </div>
-              <div class="cal-nav">
-                <button id="calPrev">◀</button>
-                <button id="calToday">今日</button>
-                <button id="calNext">▶</button>
-              </div>
-            </div>
-            <div class="cal-week" id="calWeek"></div>
-            <div class="cal-grid" id="calGrid" style="display:none;"></div>
-            <div style="margin-top: 12px; display: flex; gap: 10px; flex-wrap: wrap; font-size: 10px; color: var(--text3);">
-              <span>🔵 商談</span><span>🟡 入金期限</span><span>🟣 月費</span><span>🟠 フォロー</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      </div>
     </section>
 
 
 
+
+    <!-- CALENDAR -->
+    <section class="view" id="view-calendar">
+      <div class="section-head">
+        <div>
+          <div class="section-title"><span class="eyebrow">// SCHEDULE</span></div>
+          <div style="font-size: 22px; font-weight: 700; margin-top: 6px;">カレンダー</div>
+          <p class="section-sub">商談予定・フォロー予定・入金期限</p>
+        </div>
+        <div class="section-actions">
+          <button class="btn-action primary" id="calAddBtn">＋ アポ報告</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title"><span class="mono">// </span><span id="calTitle">—</span></div>
+          <div class="cal-head" style="margin:0;">
+            <div class="cal-view-toggle">
+              <button id="calWeekBtn" class="active">週</button>
+              <button id="calMonthBtn">月</button>
+            </div>
+            <div class="cal-nav">
+              <button id="calPrev">◀</button>
+              <button id="calToday">今日</button>
+              <button id="calNext">▶</button>
+            </div>
+          </div>
+        </div>
+        <div style="padding: 14px;">
+          <div class="cal-week" id="calWeek"></div>
+          <div class="cal-grid" id="calGrid" style="display:none;"></div>
+          <div style="margin-top: 14px; display: flex; gap: 14px; flex-wrap: wrap; font-size: 11px; color: var(--text3);">
+            <span>🔵 商談</span><span>🟡 入金期限</span><span>🟣 月費</span><span>🟠 フォロー</span>
+          </div>
+        </div>
+      </div>
+    </section>
 
     <!-- LEAD LIST -->
     <section class="view" id="view-leadlist">
@@ -1505,9 +1532,14 @@ service cloud.firestore {
     <div class="modal-body">
       <div class="form-grid">
         <div class="form-group full">
-          <label for="a-target">対象</label>
-          <select id="a-target"></select>
-          <div class="hint">リード / 取引先から選択。「＋ 新規で登録」なら新しく作成します</div>
+          <label>対象</label>
+          <div class="picker">
+            <input type="text" class="picker-input" id="a-target-search" placeholder="🔍 屋号 / 電話 / 携帯 / URL で検索…" autocomplete="off" />
+            <button type="button" class="picker-clear" id="a-target-clear" title="クリア">×</button>
+            <div class="picker-list" id="a-target-list"></div>
+          </div>
+          <input type="hidden" id="a-target" />
+          <div class="hint">空欄のままなら新規で登録します</div>
         </div>
         <div class="form-group full">
           <label class="required" for="a-name">会社名 / 屋号</label>
@@ -1576,8 +1608,13 @@ service cloud.firestore {
     <div class="modal-body">
       <div class="form-grid">
         <div class="form-group full">
-          <label class="required" for="d-target">取引先</label>
-          <select id="d-target"></select>
+          <label class="required">取引先</label>
+          <div class="picker">
+            <input type="text" class="picker-input" id="d-target-search" placeholder="🔍 屋号 / 電話 / 携帯 / URL で検索…" autocomplete="off" />
+            <button type="button" class="picker-clear" id="d-target-clear" title="クリア">×</button>
+            <div class="picker-list" id="d-target-list"></div>
+          </div>
+          <input type="hidden" id="d-target" />
         </div>
         <div class="form-group full">
           <label class="required" for="d-name">商談名</label>
@@ -2223,7 +2260,7 @@ async function addActivity(rec, type, text) {
 }
 
 // ============== TAB SWITCH ==============
-const VIEW_NAMES = ['dashboard','chatter','leadlist','all','deals','payments','active','dup','reports','settings'];
+const VIEW_NAMES = ['dashboard','chatter','calendar','leadlist','all','deals','payments','active','dup','reports','settings'];
 function switchTab(name) {
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
   VIEW_NAMES.forEach(v => {
@@ -2237,7 +2274,8 @@ function switchTab(name) {
   else if (name === 'payments') renderPayments();
   else if (name === 'active') renderActive();
   else if (name === 'dup') renderDup();
-  else if (name === 'chatter') { renderChatter(); renderCalendar(); }
+  else if (name === 'chatter') renderChatter();
+  else if (name === 'calendar') renderCalendar();
   else if (name === 'reports') renderReports();
   else if (name === 'settings') renderSettings();
   try { window.scrollTo({top:0, behavior:'smooth'}); } catch { try { window.scrollTo(0, 0); } catch {} }
@@ -2277,17 +2315,18 @@ function renderAll() {
   else if (active === 'payments') renderPayments();
   else if (active === 'active') renderActive();
   else if (active === 'dup') renderDup();
-  else if (active === 'chatter') { renderChatter(); renderCalendar(); }
+  else if (active === 'chatter') renderChatter();
+  else if (active === 'calendar') renderCalendar();
   else if (active === 'reports') renderReports();
   else if (active === 'settings') renderSettings();
 }
 
 function updateBadges() {
   const leadBadgeEl = document.getElementById('leadBadge');
-  const leadN = state.records.filter(r => (r.kind || inferKind(r.phase)) === 'lead').length;
+  const leadN = state.records.filter(r => recKind(r) === 'lead').length;
   leadBadgeEl.textContent = leadN; leadBadgeEl.style.display = leadN ? '' : 'none';
   const acctBadgeEl = document.getElementById('acctBadge');
-  const acctN = state.records.filter(r => (r.kind || inferKind(r.phase)) !== 'lead').length;
+  const acctN = state.records.filter(r => recKind(r) !== 'lead').length;
   acctBadgeEl.textContent = acctN; acctBadgeEl.style.display = acctN ? '' : 'none';
   const dealBadgeEl = document.getElementById('dealBadge');
   dealBadgeEl.textContent = state.deals.length; dealBadgeEl.style.display = state.deals.length ? '' : 'none';
@@ -2594,6 +2633,10 @@ function chatterTimeLabel(iso) {
 function renderChatter() {
   updateMeLabels();
   const feedEl = document.getElementById('chFeed');
+  // 入力途中のコメントを保持
+  const draft = {};
+  feedEl.querySelectorAll('[data-cinput]').forEach(inp => { if (inp.value) draft[inp.dataset.cinput] = inp.value; });
+  const openIds = new Set([...feedEl.querySelectorAll('.ch-comments')].filter(c => c.style.display !== 'none').map(c => c.id));
   const me = getMe();
   let list = state.chatter;
   if (state.chatterFilter) list = list.filter(x => x.type === state.chatterFilter);
@@ -2647,6 +2690,11 @@ function renderChatter() {
     </div>`;
   }).join('');
 
+  Object.entries(draft).forEach(([pid, val]) => {
+    const inp = feedEl.querySelector(`[data-cinput="${pid}"]`);
+    if (inp) { inp.value = val; const box = document.getElementById('cmt-' + pid); if (box) box.style.display = ''; }
+  });
+  openIds.forEach(id => { const box = document.getElementById(id); if (box) box.style.display = ''; });
   bindChatterEvents();
 }
 
@@ -2703,11 +2751,24 @@ function updateChatterSyncLabel() {
                secs < 3600 ? `${Math.floor(secs / 60)}分前` : `${Math.floor(secs / 3600)}時間前`;
   el.textContent = `最終更新: ${when}`;
 }
+function refreshChatterTimestamps() {
+  document.querySelectorAll('#chFeed .ch-post').forEach(el => {
+    const post = state.chatter.find(x => x.id === el.dataset.pid);
+    if (!post) return;
+    const t = el.querySelector('.ch-time');
+    if (t) t.textContent = chatterTimeLabel(post.createdAt);
+    el.querySelectorAll('.ch-comment-meta').forEach((m, i) => {
+      const c = (post.comments || [])[i];
+      if (c) m.textContent = `${c.author || '匿名'} · ${chatterTimeLabel(c.at)}`;
+    });
+  });
+}
 function startChatterAutoRefresh() {
   if (state.chatterTimer) clearInterval(state.chatterTimer);
   state.chatterTimer = setInterval(() => {
     updateChatterSyncLabel();
-    if (document.querySelector('.nav-tab.active')?.dataset.tab === 'chatter') renderChatter();
+    // フィード全体を作り直すと入力中のコメントが消えるので、時刻表示だけ差し替える
+    refreshChatterTimestamps();
   }, 10000);
 }
 document.getElementById('chRefreshBtn').addEventListener('click', function () {
@@ -2717,7 +2778,6 @@ document.getElementById('chRefreshBtn').addEventListener('click', function () {
   state.chatterSyncedAt = new Date();
   updateChatterSyncLabel();
   renderChatter();
-  renderCalendar();
   toast('✓ 更新しました');
 });
 document.getElementById('chFabBtn').addEventListener('click', () => {
@@ -2777,7 +2837,7 @@ applyTheme(localStorage.getItem(STORAGE_KEY_THEME) || 'dark');
 // ======= リード / 取引先 / 商談 (Salesforce型・独立オブジェクト) =======
 // ==================================================================
 const LEAD_STATUSES = ['新規', '案件化', '完了'];
-const DEFAULT_PRODUCTS = ['HP制作', 'SNS運用', 'SEO', '広告運用', 'その他'];
+const DEFAULT_PRODUCTS = ['SNS広告', '口コミ', 'LP', 'チャットボット', 'その他'];
 
 const DEAL_PHASES = [
   { key: 'shodanka',  label: '商談化',                   cls: 'hot'  },
@@ -2801,11 +2861,15 @@ function leadStatusBadge(st) {
   const cls = st === '完了' ? 'done' : st === '案件化' ? 'conv' : '';
   return `<span class="lstatus ${cls}">${esc(st || '新規')}</span>`;
 }
-function recKind(r) { return r.kind || inferKind(r.phase); }
+function recKind(r) { return normalizeKind(r.kind, r.phase); }
 function inferKind(phase) {
-  if (phase === 'lead') return 'lead';
-  if (phase === 'appo' || phase === 'hold') return 'appo';
-  return 'deal';
+  return phase === 'lead' ? 'lead' : 'account';
+}
+// 過去バージョンが書いた 'appo' / 'deal' も取引先として扱う
+function normalizeKind(k, phase) {
+  if (k === 'lead') return 'lead';
+  if (k) return 'account';
+  return inferKind(phase);
 }
 
 // ================== メンバー / 商材 (共有設定) ==================
@@ -3040,22 +3104,117 @@ document.getElementById('leadNewSave').addEventListener('click', async () => {
 });
 document.getElementById('leadNewDelete').addEventListener('click', async () => {
   if (!state.editingLeadId) return;
-  if (!confirm('このリードを削除しますか?')) return;
-  try { await deleteRecordFromDb(state.editingLeadId); leadNewModal.classList.remove('open'); toast('✓ 削除しました'); }
-  catch (e) { toast('失敗: ' + e.message, true); }
+  const related = state.deals.filter(d => d.customerId === state.editingLeadId);
+  if (!confirm(`このリードを削除しますか?${related.length ? `\n紐づく商談 ${related.length}件 も削除されます。` : ''}`)) return;
+  try {
+    for (const d of related) { await deleteDoc(doc(state.db, DEALS_COLLECTION, d.id)); }
+    await deleteRecordFromDb(state.editingLeadId);
+    leadNewModal.classList.remove('open');
+    toast('✓ 削除しました');
+  } catch (e) { toast('失敗: ' + e.message, true); }
 });
+
+// ================== 検索できる会社ピッカー ==================
+const pickers = {};
+function initPicker(key, cfg) {
+  const hidden = document.getElementById(key);
+  const search = document.getElementById(key + '-search');
+  const list = document.getElementById(key + '-list');
+  const clear = document.getElementById(key + '-clear');
+  const p = { hidden, search, list, clear, getItems: cfg.getItems, onPick: cfg.onPick, onClear: cfg.onClear, cursor: -1 };
+  pickers[key] = p;
+
+  const show = () => { p.cursor = -1; renderPicker(key); list.classList.add('open'); };
+  search.addEventListener('focus', show);
+  search.addEventListener('input', () => { hidden.value = ''; search.classList.remove('chosen'); show(); });
+  search.addEventListener('keydown', e => {
+    const items = list.querySelectorAll('.picker-item');
+    if (e.key === 'ArrowDown') { e.preventDefault(); p.cursor = Math.min(p.cursor + 1, items.length - 1); }
+    else if (e.key === 'ArrowUp') { e.preventDefault(); p.cursor = Math.max(p.cursor - 1, 0); }
+    else if (e.key === 'Enter') {
+      e.preventDefault();
+      const target = items[p.cursor >= 0 ? p.cursor : 0];
+      if (target) target.click();
+      return;
+    } else if (e.key === 'Escape') { list.classList.remove('open'); return; }
+    else return;
+    items.forEach((el, i) => el.classList.toggle('active', i === p.cursor));
+    if (items[p.cursor]) items[p.cursor].scrollIntoView({ block: 'nearest' });
+  });
+  clear.addEventListener('click', () => {
+    hidden.value = ''; search.value = ''; search.classList.remove('chosen');
+    list.classList.remove('open');
+    if (p.onClear) p.onClear();
+  });
+  document.addEventListener('click', e => {
+    if (!search.closest('.picker').contains(e.target)) list.classList.remove('open');
+  });
+}
+function pickerItemsFromRecords(filterFn) {
+  return state.records.filter(filterFn || (() => true)).map(r => ({
+    id: r.id,
+    name: r.name || '',
+    tel: r.tel || '',
+    mobile: r.mobile || '',
+    url: r.url || '',
+    kindLabel: recKind(r) === 'lead' ? 'リード' : '取引先'
+  }));
+}
+function renderPicker(key) {
+  const p = pickers[key];
+  const raw = p.search.value.trim();
+  const q = normalText(raw);
+  const qt = normalTel(raw);
+  let items = p.getItems();
+  if (q) {
+    items = items.filter(it =>
+      normalText(it.name).includes(q) ||
+      normalText(it.url).includes(q) ||
+      (qt.length >= 2 && (normalTel(it.tel).includes(qt) || normalTel(it.mobile).includes(qt)))
+    );
+  }
+  items = items.slice(0, 60);
+  if (!items.length) {
+    p.list.innerHTML = `<div class="picker-empty">${raw ? '該当なし' : '登録がありません'}</div>`;
+    return;
+  }
+  p.list.innerHTML = items.map(it => {
+    const sub = [it.tel, it.mobile, it.url].filter(Boolean).join(' / ');
+    return `<div class="picker-item" data-pick="${esc(it.id)}">
+      <div class="pi-name">${esc(it.name)} <span style="font-weight:400;color:var(--text3);font-size:10px;">${esc(it.kindLabel || '')}</span></div>
+      ${sub ? `<div class="pi-sub">${esc(sub)}</div>` : ''}
+    </div>`;
+  }).join('');
+  p.list.querySelectorAll('[data-pick]').forEach(el => el.addEventListener('click', () => {
+    const id = el.dataset.pick;
+    const it = p.getItems().find(x => x.id === id);
+    p.hidden.value = id;
+    p.search.value = it ? it.name : '';
+    p.search.classList.add('chosen');
+    p.list.classList.remove('open');
+    if (p.onPick) p.onPick(id);
+  }));
+}
+function setPickerValue(key, id) {
+  const p = pickers[key];
+  if (!p) return;
+  const it = id ? p.getItems().find(x => x.id === id) : null;
+  p.hidden.value = it ? it.id : '';
+  p.search.value = it ? it.name : '';
+  p.search.classList.toggle('chosen', !!it);
+  p.list.classList.remove('open');
+}
 
 // ================== 2. アポ報告 ==================
 const apoModal = document.getElementById('apoModal');
-function fillApoTarget(selectedId) {
-  const sel = document.getElementById('a-target');
-  const list = [...state.records].sort((a, b) => String(a.name).localeCompare(String(b.name), 'ja'));
-  sel.innerHTML = '<option value="">＋ 新規で登録</option>' +
-    list.map(r => `<option value="${esc(r.id)}"${r.id === selectedId ? ' selected' : ''}>${esc(r.name)}（${recKind(r) === 'lead' ? 'リード' : '取引先'}）</option>`).join('');
-}
+initPicker('a-target', {
+  getItems: () => pickerItemsFromRecords().sort((a, b) => String(a.name).localeCompare(String(b.name), 'ja')),
+  onPick: id => applyApoTarget(id),
+  onClear: () => ['a-name','a-tel','a-industry','a-rep'].forEach(id => document.getElementById(id).value = '')
+});
 function openApoModal(recordId, prefillDate) {
   if (!ensureMe()) return;
-  fillApoTarget(recordId || '');
+  setPickerValue('a-target', recordId || '');
   refreshMemberSelects();
   ['a-name','a-rep','a-place','a-zoom','a-memo','a-industry','a-tel'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('a-date').value = prefillDate || '';
@@ -3074,10 +3233,6 @@ function applyApoTarget(id) {
   document.getElementById('a-industry').value = r.industry || '';
   document.getElementById('a-rep').value = r.rep_name || '';
 }
-document.getElementById('a-target').addEventListener('change', e => {
-  if (e.target.value) applyApoTarget(e.target.value);
-  else ['a-name','a-tel','a-industry','a-rep'].forEach(id => document.getElementById(id).value = '');
-});
 document.getElementById('apoReportBtn').addEventListener('click', () => openApoModal(null));
 document.getElementById('apoModalClose').addEventListener('click', () => apoModal.classList.remove('open'));
 document.getElementById('apoCancelBtn').addEventListener('click', () => apoModal.classList.remove('open'));
@@ -3171,12 +3326,6 @@ function openDealModal(dealId, customerId) {
   if (!ensureMe()) return;
   refreshMemberSelects();
   state.editingDealId = dealId || null;
-  const accounts = state.records.filter(r => recKind(r) !== 'lead')
-    .sort((a, b) => String(a.name).localeCompare(String(b.name), 'ja'));
-  const sel = document.getElementById('d-target');
-  sel.innerHTML = '<option value="">選択してください</option>' +
-    accounts.map(r => `<option value="${esc(r.id)}">${esc(r.name)}</option>`).join('');
-
   document.getElementById('shodanTitle').textContent = dealId ? '🤝 商談を編集' : '🤝 商談報告';
   document.getElementById('shodanDeleteBtn').style.display = dealId ? '' : 'none';
   ['d-name','d-init','d-monthly','d-memo','d-first','d-close'].forEach(id => document.getElementById(id).value = '');
@@ -3184,9 +3333,10 @@ function openDealModal(dealId, customerId) {
   document.getElementById('d-phase').value = 'shodanka';
   document.getElementById('d-sales').value = getMe();
 
+  setPickerValue('d-target', '');
   const d = dealId ? state.deals.find(x => x.id === dealId) : null;
   if (d) {
-    sel.value = d.customerId || '';
+    setPickerValue('d-target', d.customerId || '');
     document.getElementById('d-name').value = d.dealName || '';
     document.getElementById('d-phase').value = d.dealPhase || 'shodanka';
     document.getElementById('d-product').value = d.product || '';
@@ -3199,7 +3349,7 @@ function openDealModal(dealId, customerId) {
     document.getElementById('d-lost-reason').value = d.lostReason || '';
     document.getElementById('d-memo').value = d.memo || '';
   } else if (customerId) {
-    sel.value = customerId;
+    setPickerValue('d-target', customerId);
     const c = state.records.find(r => r.id === customerId);
     if (c) {
       document.getElementById('d-name').value = c.name || '';
@@ -3211,13 +3361,18 @@ function openDealModal(dealId, customerId) {
   updateDealFields();
   shodanModal.classList.add('open');
 }
-document.getElementById('d-target').addEventListener('change', e => {
-  const c = state.records.find(r => r.id === e.target.value);
+function applyDealTarget(id) {
+  const c = state.records.find(r => r.id === id);
   if (!c) return;
   if (!document.getElementById('d-name').value) document.getElementById('d-name').value = c.name || '';
   if (c.apo_owner) document.getElementById('d-apo-owner').value = c.apo_owner;
   if (c.product) document.getElementById('d-product').value = c.product;
   if (c.meetingDate && !document.getElementById('d-first').value) document.getElementById('d-first').value = c.meetingDate.slice(0, 10);
+}
+initPicker('d-target', {
+  getItems: () => pickerItemsFromRecords(r => recKind(r) !== 'lead').sort((a, b) => String(a.name).localeCompare(String(b.name), 'ja')),
+  onPick: id => applyDealTarget(id),
+  onClear: () => {}
 });
 document.getElementById('d-phase').addEventListener('change', updateDealFields);
 document.getElementById('shodanReportBtn').addEventListener('click', () => openDealModal(null, null));
@@ -3284,10 +3439,19 @@ document.getElementById('shodanConfirmBtn').addEventListener('click', async () =
       const upd = { ...customer, kind: 'account', updatedAt: isoNow() };
       const act = Array.isArray(customer.activity) ? [...customer.activity] : [];
       if (isWin) {
+        const startDay = closeDate || todayStr();
         upd.phase = 'order';
-        upd.orderDate = customer.orderDate || closeDate || todayStr();
+        upd.orderDate = customer.orderDate || startDay;
         upd.init_amount = init; upd.monthly_amount = monthly;
         upd.planType = (init && monthly) ? 'full' : init ? 'init_only' : monthly ? 'monthly_only' : 'none';
+        // 入金期限の基準日。未設定だと作成日基準になり即「期限超過」になるため必ず入れる
+        upd.contract_start = customer.contract_start || startDay;
+        if (init && !customer.init_due) upd.init_due = addDays(startDay, 14);
+        if (monthly) {
+          if (!customer.m1_due) upd.m1_due = addMonths(upd.contract_start, 1);
+          if (!customer.m2_due) upd.m2_due = addMonths(upd.contract_start, 2);
+          if (!customer.m3_due) upd.m3_due = addMonths(upd.contract_start, 3);
+        }
         act.unshift({ at: isoNow(), type: 'system', text: `🎉 受注 (${sales}) 初期¥${fmt(init)} / 月費¥${fmt(monthly)}` });
       } else if (isLost) {
         upd.phase = 'lost';
@@ -3375,7 +3539,7 @@ function migrationPreview() {
   const counts = { lead: 0, account: 0, already: 0 };
   state.records.forEach(r => {
     if (r.kind) { counts.already++; return; }
-    counts[inferKind(r.phase) === 'lead' ? 'lead' : 'account']++;
+    counts[inferKind(r.phase)]++;
   });
   return counts;
 }
@@ -3403,7 +3567,7 @@ document.getElementById('migrateRunBtn').addEventListener('click', async () => {
   } catch (e) { console.error('backup failed', e); }
   showLoading(true);
   try {
-    const updated = targets.map(r => ({ ...r, kind: inferKind(r.phase) === 'lead' ? 'lead' : 'account', leadStatus: r.leadStatus || (inferKind(r.phase) === 'lead' ? '新規' : '案件化') }));
+    const updated = targets.map(r => ({ ...r, kind: inferKind(r.phase), leadStatus: r.leadStatus || (inferKind(r.phase) === 'lead' ? '新規' : '案件化') }));
     await batchSaveRecords(updated);
     toast(`✓ ${updated.length}件を振り分けました`);
     document.getElementById('migrateResult').innerHTML =
@@ -4355,8 +4519,39 @@ function openDetail(id) {
       <div class="detail-row"><div class="label">電話</div><div class="value">${rec.tel ? `<a href="tel:${esc(rec.tel)}">${esc(rec.tel)}</a>` : '—'}</div></div>
       <div class="detail-row"><div class="label">メール</div><div class="value">${rec.email ? `<a href="mailto:${esc(rec.email)}">${esc(rec.email)}</a>` : '—'}</div></div>
       <div class="detail-row"><div class="label">URL</div><div class="value">${rec.url ? `<a href="${esc(rec.url)}" target="_blank" rel="noopener">${esc(rec.url)}</a>` : '—'}</div></div>
+      <div class="detail-row"><div class="label">携帯</div><div class="value">${rec.mobile ? `<a href="tel:${esc(rec.mobile)}">${esc(rec.mobile)}</a>` : '—'}</div></div>
+      <div class="detail-row"><div class="label">業種</div><div class="value">${esc(rec.industry || '—')}</div></div>
       <div class="detail-row"><div class="label">タグ</div><div class="value">${(rec.tags || []).map(t => `<span class="tag">${esc(t)}</span>`).join('') || '—'}</div></div>
     </div>
+
+    ${(rec.apo_memo || rec.meet_place || rec.apo_owner) ? `<div class="detail-section">
+      <div class="detail-section-title">// アポ報告</div>
+      <div class="detail-row"><div class="label">商談予定日</div><div class="value">${rec.meetingDate ? fmtDateTime(rec.meetingDate) : '—'}</div></div>
+      <div class="detail-row"><div class="label">商談相手</div><div class="value">${esc(rec.rep_name || '—')}</div></div>
+      <div class="detail-row"><div class="label">訪問先</div><div class="value">${esc(rec.meet_place || '—')}</div></div>
+      <div class="detail-row"><div class="label">Zoom送付</div><div class="value">${esc(rec.zoom_send || '—')}</div></div>
+      <div class="detail-row"><div class="label">商材</div><div class="value">${esc(rec.product || '—')}</div></div>
+      <div class="detail-row"><div class="label">アポ取得者</div><div class="value">${esc(rec.apo_owner || '—')}</div></div>
+      <div class="detail-row"><div class="label">営業者</div><div class="value">${esc(rec.sales_owner || '—')}</div></div>
+      <div class="detail-row"><div class="label">メモ</div><div class="value" style="white-space:pre-wrap;">${esc(rec.apo_memo || '—')}</div></div>
+    </div>` : ''}
+
+    ${(() => {
+      const ds = state.deals.filter(d => d.customerId === rec.id);
+      if (!ds.length) return '';
+      return `<div class="detail-section">
+        <div class="detail-section-title">// 商談 (${ds.length})</div>
+        ${ds.map(d => `<div class="detail-row">
+          <div class="label">${dealPhaseBadge(d.dealPhase)}</div>
+          <div class="value">
+            <strong>${esc(d.dealName)}</strong>
+            ${d.closeDate ? `<span style="color:var(--text3); font-size:11px;"> / ${fmtDate(d.closeDate)}</span>` : ''}
+            ${d.lostReason ? `<span style="color:var(--red); font-size:11px;"> / ${esc(LOST_REASONS[d.lostReason] || d.lostReason)}</span>` : ''}
+            ${d.memo ? `<div style="font-size:11px; color:var(--text2); margin-top:4px; white-space:pre-wrap;">${esc(String(d.memo).slice(0, 200))}</div>` : ''}
+          </div>
+        </div>`).join('')}
+      </div>`;
+    })()}
 
     ${rec.meetingDate ? `<div class="detail-section">
       <div class="detail-section-title">// 商談</div>
@@ -4497,9 +4692,16 @@ document.getElementById('detailCloneBtn').addEventListener('click', () => {
 });
 document.getElementById('detailDeleteBtn').addEventListener('click', async () => {
   if (!state.detailId) return;
-  if (!confirm('この顧客を削除しますか?\nこの操作は取り消せません。')) return;
+  const related = state.deals.filter(d => d.customerId === state.detailId);
+  const extra = related.length ? `\n紐づく商談 ${related.length}件 も一緒に削除されます。` : '';
+  if (!confirm(`この顧客を削除しますか?${extra}\nこの操作は取り消せません。`)) return;
   showLoading(true);
-  try { await deleteRecordFromDb(state.detailId); closeDetail(); toast('✓ 削除しました'); }
+  try {
+    for (const d of related) { await deleteDoc(doc(state.db, DEALS_COLLECTION, d.id)); }
+    await deleteRecordFromDb(state.detailId);
+    closeDetail();
+    toast(`✓ 削除しました${related.length ? `（商談${related.length}件も削除）` : ''}`);
+  }
   catch (e) { alert('削除失敗: ' + (e.message || '')); }
   finally { showLoading(false); }
 });
