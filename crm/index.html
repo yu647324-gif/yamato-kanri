@@ -10,29 +10,71 @@
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
 <style>
 :root {
-  --bg: #06080d;
-  --surface: #0d1017;
-  --surface2: #131820;
-  --surface3: #1a2030;
-  --border: #1e2535;
-  --border2: #252d40;
-  --accent: #00c8ff;
-  --accent-dim: rgba(0,200,255,0.12);
-  --accent-glow: 0 0 20px rgba(0,200,255,0.25);
-  --green: #00e676;
-  --green-dim: rgba(0,230,118,0.12);
-  --red: #ff3b3b;
-  --red-dim: rgba(255,59,59,0.12);
-  --orange: #ff7043;
-  --orange-dim: rgba(255,112,67,0.12);
-  --yellow: #ffc107;
-  --yellow-dim: rgba(255,193,7,0.12);
-  --purple: #b388ff;
-  --purple-dim: rgba(179,136,255,0.12);
-  --text: #dde4f0;
-  --text2: #8a94a8;
-  --text3: #4a5268;
+  /* ===== DARK THEME (default) — contrast raised, glow removed ===== */
+  --bg: #10141b;
+  --surface: #171c26;
+  --surface2: #1e242f;
+  --surface3: #262d3a;
+  --border: #2b3342;
+  --border2: #38414f;
+  --accent: #38bdf8;
+  --accent-dim: rgba(56,189,248,0.16);
+  --accent-glow: none;
+  --accent-on: #06121a;
+  --green: #34d399;
+  --green-dim: rgba(52,211,153,0.16);
+  --red: #f87171;
+  --red-dim: rgba(248,113,113,0.16);
+  --orange: #fb923c;
+  --orange-dim: rgba(251,146,60,0.16);
+  --yellow: #fbbf24;
+  --yellow-dim: rgba(251,191,36,0.16);
+  --purple: #c4b5fd;
+  --purple-dim: rgba(196,181,253,0.16);
+  --text: #e8edf5;
+  --text2: #a4b0c4;
+  --text3: #7e8b9f;
+  --shadow-card: 0 1px 3px rgba(0,0,0,0.4);
+  --accent-hover: #7dd3fc;
+  --shadow-modal: 0 24px 60px rgba(0,0,0,0.6);
+  --auth-glow1: #0b2b3f;
+  --auth-glow2: #171033;
+  --grid-line: rgba(56,189,248,0.05);
+  --scrim: rgba(0,0,0,0.68);
   --tap-min: 44px;
+}
+/* ===== LIGHT THEME ===== */
+[data-theme="light"] {
+  --bg: #f4f6fa;
+  --surface: #ffffff;
+  --surface2: #eef1f6;
+  --surface3: #e2e7ef;
+  --border: #d7dde7;
+  --border2: #c2cad8;
+  --accent: #0369a1;
+  --accent-dim: rgba(3,105,161,0.10);
+  --accent-glow: none;
+  --accent-on: #ffffff;
+  --green: #047857;
+  --green-dim: rgba(4,120,87,0.10);
+  --red: #b91c1c;
+  --red-dim: rgba(185,28,28,0.10);
+  --orange: #c2410c;
+  --orange-dim: rgba(194,65,12,0.10);
+  --yellow: #a16207;
+  --yellow-dim: rgba(161,98,7,0.12);
+  --purple: #6d28d9;
+  --purple-dim: rgba(109,40,217,0.10);
+  --text: #14203a;
+  --text2: #4a5876;
+  --text3: #6b7891;
+  --shadow-card: 0 1px 2px rgba(20,32,58,0.08);
+  --accent-hover: #075985;
+  --shadow-modal: 0 20px 50px rgba(20,32,58,0.20);
+  --auth-glow1: #dbeafe;
+  --auth-glow2: #ede9fe;
+  --grid-line: rgba(3,105,161,0.06);
+  --scrim: rgba(20,32,58,0.42);
 }
 * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 html, body {
@@ -52,13 +94,13 @@ button { font-family: inherit; cursor: pointer; }
 .fullscreen.active { display: flex; }
 .fullscreen::before {
   content: ''; position: absolute; inset: 0;
-  background: radial-gradient(ellipse 80% 60% at 20% 60%, #001a2e 0%, transparent 60%),
-              radial-gradient(ellipse 60% 40% at 80% 20%, #0d001f 0%, transparent 50%);
+  background: radial-gradient(ellipse 80% 60% at 20% 60%, var(--auth-glow1) 0%, transparent 60%),
+              radial-gradient(ellipse 60% 40% at 80% 20%, var(--auth-glow2) 0%, transparent 50%);
   pointer-events: none;
 }
 .fullscreen::after {
   content: ''; position: absolute; inset: 0;
-  background-image: linear-gradient(rgba(0,200,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(0,200,255,0.04) 1px, transparent 1px);
+  background-image: linear-gradient(var(--grid-line) 1px, transparent 1px), linear-gradient(90deg, var(--grid-line) 1px, transparent 1px);
   background-size: 48px 48px;
   mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
   -webkit-mask-image: radial-gradient(ellipse at center, black 30%, transparent 80%);
@@ -67,7 +109,7 @@ button { font-family: inherit; cursor: pointer; }
 .auth-card {
   position: relative; z-index: 1; width: 100%; max-width: 460px;
   background: var(--surface); border: 1px solid var(--border2);
-  padding: 40px 32px; box-shadow: 0 0 80px rgba(0,200,255,0.06), 0 24px 60px rgba(0,0,0,0.6);
+  padding: 40px 32px; box-shadow: var(--shadow-modal);
   border-radius: 4px;
 }
 .auth-card.wide { max-width: 620px; }
@@ -83,8 +125,8 @@ button { font-family: inherit; cursor: pointer; }
 .auth-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
 .auth-textarea { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 12px 14px; font-family: 'JetBrains Mono', monospace; font-size: 16px; outline: none; border-radius: 2px; min-height: 160px; line-height: 1.6; resize: vertical; }
 .auth-textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
-.btn-primary { width: 100%; background: var(--accent); color: #000; border: none; padding: 14px; font-weight: 700; font-size: 14px; letter-spacing: 2px; border-radius: 2px; transition: all 0.2s; min-height: var(--tap-min); }
-.btn-primary:hover { background: #33d6ff; box-shadow: var(--accent-glow); }
+.btn-primary { width: 100%; background: var(--accent); color: var(--accent-on); border: none; padding: 14px; font-weight: 700; font-size: 14px; letter-spacing: 2px; border-radius: 2px; transition: all 0.2s; min-height: var(--tap-min); }
+.btn-primary:hover { background: var(--accent-hover); box-shadow: var(--accent-glow); }
 .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
 .auth-error { color: var(--red); font-size: 12px; margin-top: 12px; min-height: 16px; line-height: 1.5; }
 .auth-foot { margin-top: 24px; font-size: 11px; color: var(--text3); text-align: center; line-height: 1.7; }
@@ -113,9 +155,9 @@ button { font-family: inherit; cursor: pointer; }
 .nav-tab { background: none; border: none; border-bottom: 2px solid transparent; color: var(--text2); padding: 0 14px; font-size: 13px; cursor: pointer; transition: all 0.2s; white-space: nowrap; display: flex; align-items: center; gap: 5px; min-height: var(--tap-min); }
 .nav-tab:hover { color: var(--text); }
 .nav-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
-.badge { background: var(--accent); color: #000; font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 10px; font-family: 'JetBrains Mono', monospace; }
+.badge { background: var(--accent); color: var(--accent-on); font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 10px; font-family: 'JetBrains Mono', monospace; }
 .badge.red { background: var(--red); color: #fff; }
-.badge.orange { background: var(--orange); color: #000; }
+.badge.orange { background: var(--orange); color: var(--accent-on); }
 .header-right { display: flex; align-items: center; gap: 10px; margin-left: auto; flex-shrink: 0; }
 .sync-pill { font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text3); letter-spacing: 1px; display: flex; align-items: center; gap: 6px; }
 .sync-pill .dot { width: 7px; height: 7px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
@@ -123,6 +165,48 @@ button { font-family: inherit; cursor: pointer; }
 .btn-icon { background: none; border: 1px solid var(--border2); color: var(--text3); padding: 6px 10px; font-size: 11px; border-radius: 2px; transition: all 0.2s; }
 .btn-icon:hover { border-color: var(--accent); color: var(--accent); }
 .btn-icon.logout:hover { border-color: var(--red); color: var(--red); }
+.me-pill { font-size: 11px; color: var(--text2); border: 1px solid var(--border); padding: 5px 9px; border-radius: 2px; cursor: pointer; white-space: nowrap; }
+.me-pill:hover { border-color: var(--accent); color: var(--accent); }
+.month-nav { display: flex; align-items: center; gap: 2px; border: 1px solid var(--border2); border-radius: 2px; overflow: hidden; }
+.month-nav button { background: var(--surface); border: none; color: var(--text2); padding: 0 12px; min-height: 36px; font-size: 13px; }
+.month-nav button:hover { background: var(--accent); color: var(--accent-on); }
+.month-nav button.tm { border-left: 1px solid var(--border2); font-size: 11px; }
+/* ==================== CHATTER ==================== */
+.ch-composer { background: var(--surface); border: 1px solid var(--border2); border-radius: 3px; padding: 14px 16px; margin-bottom: 16px; }
+.ch-composer textarea { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 11px 13px; font-size: 15px; border-radius: 2px; min-height: 78px; resize: vertical; outline: none; line-height: 1.6; font-family: inherit; }
+.ch-composer textarea:focus { border-color: var(--accent); }
+.ch-composer-foot { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; gap: 10px; flex-wrap: wrap; }
+.ch-filters { display: flex; gap: 6px; margin-bottom: 14px; flex-wrap: wrap; }
+.ch-filter { background: var(--surface); border: 1px solid var(--border2); color: var(--text2); padding: 7px 14px; font-size: 12px; border-radius: 100px; min-height: 34px; }
+.ch-filter.active { background: var(--accent); color: var(--accent-on); border-color: var(--accent); font-weight: 700; }
+.ch-post { background: var(--surface); border: 1px solid var(--border); border-radius: 3px; padding: 15px 17px; margin-bottom: 12px; box-shadow: var(--shadow-card); }
+.ch-post-head { display: flex; align-items: center; gap: 10px; margin-bottom: 9px; flex-wrap: wrap; }
+.ch-avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--accent-dim); color: var(--accent); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; flex-shrink: 0; }
+.ch-author { font-weight: 700; font-size: 13px; color: var(--text); }
+.ch-time { font-size: 11px; color: var(--text3); font-family: 'JetBrains Mono', monospace; }
+.ch-type { font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 100px; letter-spacing: 1px; }
+.ch-type.apo { background: var(--accent-dim); color: var(--accent); }
+.ch-type.shodan { background: var(--purple-dim); color: var(--purple); }
+.ch-type.juchu { background: var(--green-dim); color: var(--green); }
+.ch-type.shitsuchu { background: var(--red-dim); color: var(--red); }
+.ch-type.manual { background: var(--surface3); color: var(--text2); }
+.ch-body { font-size: 14px; line-height: 1.75; color: var(--text); white-space: pre-wrap; word-break: break-word; }
+.ch-link { display: inline-block; margin-top: 9px; font-size: 12px; color: var(--accent); cursor: pointer; text-decoration: underline; }
+.ch-actions { display: flex; gap: 16px; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--border); }
+.ch-act { background: none; border: none; color: var(--text3); font-size: 12px; display: flex; align-items: center; gap: 5px; padding: 4px 0; min-height: 32px; }
+.ch-act:hover { color: var(--accent); }
+.ch-act.liked { color: var(--accent); font-weight: 700; }
+.ch-comments { margin-top: 11px; padding-top: 11px; border-top: 1px solid var(--border); }
+.ch-comment { display: flex; gap: 9px; margin-bottom: 9px; }
+.ch-comment .ch-avatar { width: 26px; height: 26px; font-size: 11px; }
+.ch-comment-body { flex: 1; background: var(--surface2); border-radius: 3px; padding: 8px 11px; font-size: 13px; line-height: 1.6; color: var(--text); white-space: pre-wrap; word-break: break-word; }
+.ch-comment-meta { font-size: 10px; color: var(--text3); margin-bottom: 3px; font-weight: 700; }
+.ch-comment-input { display: flex; gap: 8px; margin-top: 9px; }
+.ch-comment-input input { flex: 1; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 9px 11px; font-size: 14px; border-radius: 2px; outline: none; min-height: 38px; }
+.ch-comment-input input:focus { border-color: var(--accent); }
+.ch-del { margin-left: auto; background: none; border: none; color: var(--text3); font-size: 15px; cursor: pointer; padding: 0 4px; }
+.ch-del:hover { color: var(--red); }
+.month-nav span { padding: 0 12px; font-family: 'JetBrains Mono', monospace; font-size: 13px; font-weight: 700; color: var(--text); white-space: nowrap; min-width: 92px; text-align: center; }
 
 /* MAIN */
 .main { flex: 1; padding: 20px 20px 80px; max-width: 1600px; margin: 0 auto; width: 100%; }
@@ -137,8 +221,8 @@ button { font-family: inherit; cursor: pointer; }
 .section-actions { display: flex; gap: 8px; flex-wrap: wrap; }
 .btn-action { background: var(--surface); border: 1px solid var(--border2); color: var(--text); padding: 9px 16px; font-size: 12px; font-weight: 500; border-radius: 2px; transition: all 0.2s; min-height: 36px; }
 .btn-action:hover { border-color: var(--accent); color: var(--accent); }
-.btn-action.primary { background: var(--accent); color: #000; border-color: var(--accent); font-weight: 700; }
-.btn-action.primary:hover { background: #33d6ff; box-shadow: var(--accent-glow); }
+.btn-action.primary { background: var(--accent); color: var(--accent-on); border-color: var(--accent); font-weight: 700; }
+.btn-action.primary:hover { background: var(--accent-hover); box-shadow: var(--accent-glow); }
 .btn-action.danger:hover { border-color: var(--red); color: var(--red); }
 
 /* STATS CARDS */
@@ -188,7 +272,7 @@ tbody tr:last-child td { border-bottom: none; }
 .pagination { padding: 12px 18px; border-top: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text3); }
 .page-ctrl { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
 .page-ctrl button { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 6px 10px; font-size: 11px; border-radius: 2px; min-height: 32px; min-width: 32px; font-family: 'JetBrains Mono', monospace; }
-.page-ctrl button:hover:not(:disabled) { background: var(--accent); color: #000; border-color: var(--accent); }
+.page-ctrl button:hover:not(:disabled) { background: var(--accent); color: var(--accent-on); border-color: var(--accent); }
 .page-ctrl button:disabled { opacity: 0.3; cursor: not-allowed; }
 .page-ctrl .current { padding: 6px 12px; background: var(--surface2); border: 1px solid var(--border); color: var(--text); }
 
@@ -235,25 +319,47 @@ tbody tr:last-child td { border-bottom: none; }
 .cal-title { font-family: 'JetBrains Mono', monospace; font-size: 14px; font-weight: 700; color: var(--accent); letter-spacing: 2px; }
 .cal-nav { display: flex; gap: 6px; }
 .cal-nav button { background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 6px 12px; border-radius: 2px; font-size: 12px; min-height: 32px; min-width: 32px; }
-.cal-nav button:hover { background: var(--accent); color: #000; border-color: var(--accent); }
+.cal-nav button:hover { background: var(--accent); color: var(--accent-on); border-color: var(--accent); }
 .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); }
 .cal-day-head { background: var(--surface2); padding: 8px 4px; text-align: center; font-family: 'JetBrains Mono', monospace; font-size: 10px; color: var(--text3); letter-spacing: 2px; }
 .cal-day-head.sat { color: var(--accent); }
 .cal-day-head.sun { color: var(--red); }
-.cal-cell { background: var(--bg); padding: 6px; min-height: 70px; position: relative; }
+.cal-cell { background: var(--bg); padding: 6px; min-height: 96px; max-height: 220px; overflow-y: auto; position: relative; }
+.cal-cell.sun { background: var(--red-dim); }
+.cal-cell.sat { background: var(--accent-dim); }
+/* ---- WEEK VIEW ---- */
+.cal-week { display: grid; grid-template-columns: repeat(7, minmax(0,1fr)); gap: 1px; background: var(--border); border: 1px solid var(--border); }
+.cal-wcol { background: var(--bg); display: flex; flex-direction: column; min-height: 340px; }
+.cal-wcol.sun { background: var(--red-dim); }
+.cal-wcol.sat { background: var(--accent-dim); }
+.cal-wcol.today { box-shadow: inset 0 0 0 2px var(--accent); }
+.cal-whead { background: var(--surface2); padding: 8px 4px; text-align: center; border-bottom: 1px solid var(--border); }
+.cal-whead .dw { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 2px; color: var(--text3); }
+.cal-whead .dn { font-size: 17px; font-weight: 700; color: var(--text); margin-top: 2px; }
+.cal-whead.sun .dw, .cal-whead.sun .dn { color: var(--red); }
+.cal-whead.sat .dw, .cal-whead.sat .dn { color: var(--accent); }
+.cal-whead.today { background: var(--accent); }
+.cal-whead.today .dw, .cal-whead.today .dn { color: var(--accent-on); }
+.cal-wbody { flex: 1; padding: 6px; display: flex; flex-direction: column; gap: 3px; overflow-y: auto; max-height: 60vh; }
+.cal-wbody .cal-empty { font-size: 10px; color: var(--text3); text-align: center; padding-top: 10px; }
+.cal-view-toggle { display: flex; border: 1px solid var(--border); border-radius: 2px; overflow: hidden; }
+.cal-view-toggle button { background: var(--bg); border: none; color: var(--text2); padding: 6px 14px; font-size: 12px; min-height: 32px; }
+.cal-view-toggle button.active { background: var(--accent); color: var(--accent-on); font-weight: 700; }
 .cal-cell.today { background: var(--surface2); border: 2px solid var(--accent); padding: 4px; }
 .cal-cell.other-month { opacity: 0.3; }
 .cal-cell .day-num { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text3); margin-bottom: 3px; }
 .cal-cell.today .day-num { color: var(--accent); font-weight: 700; }
-.cal-event { background: var(--accent-dim); color: var(--accent); font-size: 10px; padding: 2px 4px; margin-bottom: 2px; border-radius: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; }
-.cal-event.invoice { background: var(--yellow-dim); color: var(--yellow); }
-.cal-event.sub { background: var(--purple-dim); color: var(--purple); }
-.cal-event.followup { background: var(--orange-dim); color: var(--orange); }
+.cal-event { background: var(--accent-dim); color: var(--accent); font-size: 10px; padding: 3px 5px; margin-bottom: 2px; border-radius: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: pointer; border-left: 2px solid var(--accent); }
+.cal-wbody .cal-event { white-space: normal; font-size: 11px; line-height: 1.45; padding: 5px 6px; }
+.cal-event .ev-time { font-family: 'JetBrains Mono', monospace; font-weight: 700; opacity: 0.85; margin-right: 3px; }
+.cal-event.invoice { background: var(--yellow-dim); color: var(--yellow); border-left-color: var(--yellow); }
+.cal-event.sub { background: var(--purple-dim); color: var(--purple); border-left-color: var(--purple); }
+.cal-event.followup { background: var(--orange-dim); color: var(--orange); border-left-color: var(--orange); }
 
 /* MODAL */
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 500; padding: 20px; }
+.modal-overlay { position: fixed; inset: 0; background: var(--scrim); backdrop-filter: blur(4px); -webkit-backdrop-filter: blur(4px); display: none; align-items: center; justify-content: center; z-index: 500; padding: 20px; }
 .modal-overlay.open { display: flex; }
-.modal { background: var(--surface); border: 1px solid var(--border2); border-radius: 4px; max-width: 720px; width: 100%; max-height: 92vh; overflow-y: auto; box-shadow: 0 24px 60px rgba(0,0,0,0.6); }
+.modal { background: var(--surface); border: 1px solid var(--border2); border-radius: 4px; max-width: 720px; width: 100%; max-height: 92vh; overflow-y: auto; box-shadow: var(--shadow-modal); }
 .modal-head { padding: 16px 20px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; background: var(--surface); z-index: 1; }
 .modal-title { font-size: 16px; font-weight: 700; color: var(--text); }
 .modal-close { background: none; border: none; color: var(--text3); font-size: 22px; cursor: pointer; padding: 4px 8px; }
@@ -406,7 +512,7 @@ tbody tr:last-child td { border-bottom: none; }
 .timeline-add { padding: 14px 18px; border-bottom: 1px solid var(--border); display: flex; gap: 8px; align-items: flex-start; }
 .timeline-add textarea { flex: 1; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 8px 10px; font-size: 16px; outline: none; border-radius: 2px; min-height: 60px; font-family: inherit; resize: vertical; line-height: 1.5; }
 .timeline-add textarea:focus { border-color: var(--accent); }
-.timeline-add .btn { background: var(--accent); color: #000; border: none; padding: 8px 14px; font-weight: 700; font-size: 11px; border-radius: 2px; min-height: 36px; align-self: stretch; }
+.timeline-add .btn { background: var(--accent); color: var(--accent-on); border: none; padding: 8px 14px; font-weight: 700; font-size: 11px; border-radius: 2px; min-height: 36px; align-self: stretch; }
 
 /* Payment grid (4 columns: 初期/1ヶ月目/2ヶ月目/3ヶ月目) */
 .payment-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 10px 0; }
@@ -428,7 +534,7 @@ tbody tr:last-child td { border-bottom: none; }
 .funnel-step:last-child { border-bottom: none; }
 .funnel-step .label { font-size: 13px; min-width: 140px; }
 .funnel-step .bar { flex: 1; background: var(--bg); height: 24px; border-radius: 3px; overflow: hidden; position: relative; }
-.funnel-step .bar .fill { height: 100%; background: linear-gradient(90deg, var(--accent), rgba(0,200,255,0.5)); transition: width 0.5s; }
+.funnel-step .bar .fill { height: 100%; background: linear-gradient(90deg, var(--accent), var(--accent-dim)); transition: width 0.5s; }
 .funnel-step .bar .text { position: absolute; top: 0; left: 10px; height: 100%; display: flex; align-items: center; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text); font-weight: 700; }
 .funnel-step .pct { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--text3); min-width: 60px; text-align: right; }
 
@@ -444,7 +550,7 @@ tbody tr:last-child td { border-bottom: none; }
 /* View mode toggle */
 .view-mode-toggle { display: inline-flex; background: var(--surface2); border: 1px solid var(--border); border-radius: 2px; overflow: hidden; }
 .view-mode-toggle button { background: none; border: none; color: var(--text2); padding: 8px 14px; font-size: 11px; cursor: pointer; font-family: 'JetBrains Mono', monospace; letter-spacing: 1px; min-height: 36px; }
-.view-mode-toggle button.active { background: var(--accent); color: #000; }
+.view-mode-toggle button.active { background: var(--accent); color: var(--accent-on); }
 
 /* Cancellation form modal section */
 .cancel-form { background: var(--red-dim); border: 1px solid var(--red); border-radius: 2px; padding: 14px; }
@@ -522,6 +628,7 @@ service cloud.firestore {
     <div class="header-brand">YAMATO<span class="sub">CRM v3</span></div>
     <div class="nav-tabs" id="navTabs">
       <button class="nav-tab active" data-tab="dashboard">📊 ダッシュボード</button>
+      <button class="nav-tab" data-tab="chatter">💬 チャッター <span class="badge" id="chatterBadge" style="display:none;">0</span></button>
       <button class="nav-tab" data-tab="actions">⚡ アクション <span class="badge red" id="actionsBadge" style="display:none;">0</span></button>
       <button class="nav-tab" data-tab="kanban">🗂 カンバン</button>
       <button class="nav-tab" data-tab="leads">📋 リード <span class="badge" id="leadsBadge">0</span></button>
@@ -535,6 +642,8 @@ service cloud.firestore {
     </div>
     <div class="header-right">
       <span class="sync-pill" id="syncPill"><span class="dot"></span><span id="syncText">同期中</span></span>
+      <span class="me-pill" id="mePill" title="表示名を変更">👤 <span id="meName">—</span></span>
+      <button class="btn-icon" id="themeBtn" title="テーマ切替">🌙</button>
       <button class="btn-icon logout" id="logoutBtn">LOGOUT</button>
     </div>
   </header>
@@ -550,6 +659,12 @@ service cloud.firestore {
           <p class="section-sub" id="dashboardDate">—</p>
         </div>
         <div class="section-actions">
+          <div class="month-nav">
+            <button id="dashPrevMonth">◀</button>
+            <span id="dashMonthLabel">—</span>
+            <button id="dashNextMonth">▶</button>
+            <button id="dashThisMonth" class="tm">今月</button>
+          </div>
           <button class="btn-action primary" id="quickAddBtn">+ 新規リード</button>
         </div>
       </div>
@@ -561,12 +676,12 @@ service cloud.firestore {
           <div class="stat-meta">未対応・アポ取得</div>
         </div>
         <div class="stat-card green clickable" data-jump="reports">
-          <div class="stat-label">今月の受注</div>
+          <div class="stat-label"><span id="lblOrders">今月</span>の受注</div>
           <div class="stat-value" id="statMonthOrders">0<span class="unit">件</span></div>
           <div class="stat-meta" id="statMonthRevenue">¥0</div>
         </div>
         <div class="stat-card orange clickable" data-jump="payments">
-          <div class="stat-label">未入金合計</div>
+          <div class="stat-label"><span id="lblUnpaid">今月</span>の未入金</div>
           <div class="stat-value" id="statUnpaid">¥0</div>
           <div class="stat-meta" id="statUnpaidCount">0件</div>
         </div>
@@ -607,6 +722,43 @@ service cloud.firestore {
           <div class="panel-title"><span class="mono">// PIPELINE</span>パイプライン</div>
         </div>
         <div id="pipelineContent" style="padding: 16px 18px;"></div>
+      </div>
+    </section>
+
+    <!-- CHATTER -->
+    <section class="view" id="view-chatter">
+      <div class="section-head">
+        <div>
+          <div class="section-title"><span class="eyebrow">// FEED</span></div>
+          <div style="font-size: 22px; font-weight: 700; margin-top: 6px;">チャッター</div>
+          <p class="section-sub">アポ報告・商談報告・受注・失注が自動で流れる共有フィード</p>
+        </div>
+        <div class="section-actions">
+          <button class="btn-action primary" id="apoReportBtn">📞 アポ取得</button>
+          <button class="btn-action primary" id="shodanReportBtn">🤝 商談報告</button>
+        </div>
+      </div>
+
+      <div class="ch-composer">
+        <textarea id="chText" placeholder="チームに共有する内容を入力..." maxlength="5000"></textarea>
+        <div class="ch-composer-foot">
+          <span style="font-size:11px; color:var(--text3);">投稿者: <strong id="chMeLabel">—</strong></span>
+          <button class="btn-action primary" id="chPostBtn">共有</button>
+        </div>
+      </div>
+
+      <div class="ch-filters" id="chFilters">
+        <button class="ch-filter active" data-f="">すべて</button>
+        <button class="ch-filter" data-f="apo">アポ報告</button>
+        <button class="ch-filter" data-f="shodan">商談報告</button>
+        <button class="ch-filter" data-f="juchu">受注</button>
+        <button class="ch-filter" data-f="shitsuchu">失注</button>
+        <button class="ch-filter" data-f="manual">その他</button>
+      </div>
+
+      <div id="chFeed"></div>
+      <div style="text-align:center; margin-top:14px;">
+        <button class="btn-action" id="chMoreBtn" style="display:none;">さらに表示</button>
       </div>
     </section>
 
@@ -924,12 +1076,17 @@ service cloud.firestore {
         <div class="cal-head">
           <div class="cal-title" id="calTitle">2026.05</div>
           <div class="cal-nav">
+            <div class="cal-view-toggle">
+              <button id="calWeekBtn" class="active">週</button>
+              <button id="calMonthBtn">月</button>
+            </div>
             <button id="calPrev">◀</button>
             <button id="calToday">TODAY</button>
             <button id="calNext">▶</button>
           </div>
         </div>
-        <div class="cal-grid" id="calGrid"></div>
+        <div class="cal-week" id="calWeek"></div>
+        <div class="cal-grid" id="calGrid" style="display:none;"></div>
         <div style="margin-top: 16px; display: flex; gap: 14px; flex-wrap: wrap; font-size: 11px; color: var(--text3); font-family: 'JetBrains Mono', monospace;">
           <span><span style="display:inline-block; width:10px; height:10px; background: var(--accent-dim); border-left: 2px solid var(--accent);"></span> 商談</span>
           <span><span style="display:inline-block; width:10px; height:10px; background: var(--yellow-dim); border-left: 2px solid var(--yellow);"></span> 入金期限</span>
@@ -964,6 +1121,11 @@ service cloud.firestore {
       <div class="panel">
         <div class="panel-head"><div class="panel-title"><span class="mono">// MONTHLY</span>月次売上推移</div></div>
         <div id="monthlyReport" style="padding:18px;"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><div class="panel-title"><span class="mono">// LOST</span>失注理由分布</div></div>
+        <div id="lostReport" style="padding:18px;"></div>
       </div>
 
       <div class="panel">
@@ -1016,6 +1178,20 @@ service cloud.firestore {
       <div class="panel">
         <div class="panel-head"><div class="panel-title"><span class="mono">// STORAGE</span>データ容量</div></div>
         <div id="dataStorageInfo" style="padding: 16px 18px; font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--text2);"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><div class="panel-title"><span class="mono">// MIGRATE</span>リード / アポ / 商談 の振り分け</div></div>
+        <div style="padding: 16px 18px;">
+          <p style="font-size: 12px; color: var(--text2); line-height: 1.8; margin-bottom: 14px;">
+            既存データを現在のフェーズから <strong>リード / アポ / 商談</strong> に自動で振り分けます。<br>
+            未対応 → リード ／ アポ取得・保留 → アポ ／ 受注以降・失注・解約 → 商談<br>
+            <span style="color: var(--yellow);">実行前にバックアップJSONを自動ダウンロードします。</span>
+          </p>
+          <button class="btn-action" id="migratePreviewBtn">🔍 プレビュー</button>
+          <button class="btn-action primary" id="migrateRunBtn" style="margin-left:8px;">▶ 振り分けを実行</button>
+          <div id="migrateResult" style="margin-top:14px;"></div>
+        </div>
       </div>
 
       <div class="panel">
@@ -1121,6 +1297,35 @@ service cloud.firestore {
           <div class="hint">設定するとアクション一覧と通知に表示されます</div>
         </div>
 
+        <div class="form-group full collapse" id="grp-lost">
+          <div class="cancel-form">
+            <div class="cancel-form-title">✕ 失注情報</div>
+            <div class="form-grid" style="gap:10px;">
+              <div class="form-group">
+                <label for="f-lost-reason">失注理由</label>
+                <select id="f-lost-reason">
+                  <option value="">選択してください</option>
+                  <option value="content">内容（提案が刺さらなかった）</option>
+                  <option value="price">費用（予算が合わない）</option>
+                  <option value="instant">即決（その場で断り）</option>
+                  <option value="timing">時期（今じゃない）</option>
+                  <option value="competitor">他社決定</option>
+                  <option value="nocontact">連絡不通</option>
+                  <option value="other">その他</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label for="f-lost-date">失注日</label>
+                <input type="date" id="f-lost-date" />
+              </div>
+              <div class="form-group full">
+                <label for="f-lost-detail">詳細</label>
+                <textarea id="f-lost-detail" rows="3" maxlength="2000" placeholder="断られた理由の詳細"></textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <div class="form-group full collapse" id="grp-cancel">
           <div class="cancel-form">
             <div class="cancel-form-title">⚠ 解約情報</div>
@@ -1164,6 +1369,127 @@ service cloud.firestore {
 </div>
 
 <!-- ==================== DETAIL MODAL ==================== -->
+<!-- ==================== アポ取得 MODAL ==================== -->
+<div class="modal-overlay" id="apoModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">📞 アポ取得</div>
+      <button class="modal-close" id="apoModalClose">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group full">
+          <label for="a-target">対象</label>
+          <select id="a-target"></select>
+          <div class="hint">既存リードを選ぶか「＋新規で登録」を選択</div>
+        </div>
+        <div class="form-group full">
+          <label class="required" for="a-name">社名 / 屋号</label>
+          <input type="text" id="a-name" maxlength="200" placeholder="例: 株式会社サンプル" />
+        </div>
+        <div class="form-group">
+          <label class="required" for="a-date">商談日時</label>
+          <input type="datetime-local" id="a-date" />
+        </div>
+        <div class="form-group">
+          <label for="a-method">商談方法</label>
+          <select id="a-method">
+            <option value="Zoom">Zoom</option>
+            <option value="対面">対面</option>
+            <option value="電話">電話</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="a-industry">業種</label>
+          <input type="text" id="a-industry" maxlength="60" placeholder="例: 不動産系" />
+        </div>
+        <div class="form-group">
+          <label for="a-rep">代表者名</label>
+          <input type="text" id="a-rep" maxlength="60" placeholder="例: 山田 太郎 様" />
+        </div>
+        <div class="form-group">
+          <label for="a-tel">電話番号</label>
+          <input type="tel" id="a-tel" maxlength="20" inputmode="tel" placeholder="090-1234-5678" />
+        </div>
+        <div class="form-group">
+          <label for="a-url">HP</label>
+          <input type="url" id="a-url" maxlength="500" inputmode="url" placeholder="https://..." />
+        </div>
+        <div class="form-group full">
+          <label for="a-content">アポ内容</label>
+          <textarea id="a-content" rows="6" maxlength="5000" placeholder="課題 / 来意 / トーク内容など"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-action" id="apoCancelBtn">キャンセル</button>
+      <button class="btn-action primary" id="apoConfirmBtn">決定（チャッターに流す）</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 商談報告 MODAL ==================== -->
+<div class="modal-overlay" id="shodanModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">🤝 商談報告</div>
+      <button class="modal-close" id="shodanModalClose">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group full">
+          <label class="required" for="d-target">対象顧客</label>
+          <select id="d-target"></select>
+        </div>
+        <div class="form-group full">
+          <label class="required">結果</label>
+          <div class="checkbox-row">
+            <label><input type="radio" name="dResult" value="order" checked /> 受注</label>
+            <label><input type="radio" name="dResult" value="lost" /> 失注</label>
+            <label><input type="radio" name="dResult" value="hold" /> 保留 / 再商談</label>
+          </div>
+        </div>
+
+        <div class="form-group collapse" id="grp-d-init">
+          <label for="d-init">初期費用(円)</label>
+          <input type="number" id="d-init" min="0" step="1" inputmode="numeric" placeholder="0" />
+        </div>
+        <div class="form-group collapse" id="grp-d-monthly">
+          <label for="d-monthly">月費(円)</label>
+          <input type="number" id="d-monthly" min="0" step="1" inputmode="numeric" placeholder="0" />
+        </div>
+
+        <div class="form-group collapse" id="grp-d-lost">
+          <label class="required" for="d-lost-reason">失注理由</label>
+          <select id="d-lost-reason">
+            <option value="">選択してください</option>
+            <option value="content">内容（提案が刺さらなかった）</option>
+            <option value="price">費用（予算が合わない）</option>
+            <option value="instant">即決（その場で断り）</option>
+            <option value="timing">時期（今じゃない）</option>
+            <option value="competitor">他社決定</option>
+            <option value="nocontact">連絡不通</option>
+            <option value="other">その他</option>
+          </select>
+        </div>
+        <div class="form-group collapse" id="grp-d-next">
+          <label for="d-next">次回フォロー予定日</label>
+          <input type="date" id="d-next" />
+        </div>
+
+        <div class="form-group full">
+          <label class="required" for="d-content">商談内容</label>
+          <textarea id="d-content" rows="7" maxlength="5000" placeholder="話した内容 / 反応 / 課題 / 次アクション"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-action" id="shodanCancelBtn">キャンセル</button>
+      <button class="btn-action primary" id="shodanConfirmBtn">決定（チャッターに流す）</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="detailModal">
   <div class="modal">
     <div class="modal-head">
@@ -1210,6 +1536,10 @@ const PASSWORD_HASH = '34b87405a52f95ea5c888d255bb8aad4fc29061ab96734b3c1e288794
 const PAGE_SIZE = 30;
 const STORAGE_KEY_CONFIG = 'yamato-crm-firebase-config-v1';
 const STORAGE_KEY_NOTIF = 'yamato-crm-notif-pref-v1';
+const STORAGE_KEY_CALMODE = 'yamato-crm-cal-mode-v1';
+const STORAGE_KEY_THEME = 'yamato-crm-theme-v1';
+const STORAGE_KEY_ME = 'yamato-crm-me-v1';
+const CHATTER_COLLECTION = 'crm_chatter';
 const COLLECTION = 'crm_customers';
 
 // 全フェーズ定義(順序が大事)
@@ -1242,6 +1572,16 @@ const PLAN_TYPES = {
   'full_support': { label: 'フルサポート',           hasInit: true,  hasMonthly: true  }
 };
 
+const LOST_REASONS = {
+  'content':    '内容',
+  'price':      '費用',
+  'instant':    '即決',
+  'timing':     '時期',
+  'competitor': '他社決定',
+  'nocontact':  '連絡不通',
+  'other':      'その他'
+};
+
 const CANCEL_REASONS = {
   'price': '価格',
   'result': '効果不満',
@@ -1266,7 +1606,16 @@ const state = {
   activeFilter: 'active',
   paymentsPage: 1, activePage: 1,
   calYear: new Date().getFullYear(),
-  calMonth: new Date().getMonth()
+  calMonth: new Date().getMonth(),
+  chatter: [],
+  chatterUnsub: null,
+  chatterFilter: '',
+  chatterLimit: 20,
+  me: '',
+  dashYear: new Date().getFullYear(),
+  dashMonth: new Date().getMonth(),
+  calMode: 'week',
+  calWeekStart: null
 };
 
 // ============== UTILS ==============
@@ -1724,6 +2073,7 @@ function switchTab(name) {
   else if (name === 'active') renderActive();
   else if (name === 'dup') renderDup();
   else if (name === 'calendar') renderCalendar();
+  else if (name === 'chatter') renderChatter();
   else if (name === 'reports') renderReports();
   else if (name === 'settings') renderSettings();
   try { window.scrollTo({top:0, behavior:'smooth'}); } catch { try { window.scrollTo(0, 0); } catch {} }
@@ -1765,6 +2115,7 @@ function renderAll() {
   else if (active === 'active') renderActive();
   else if (active === 'dup') renderDup();
   else if (active === 'calendar') renderCalendar();
+  else if (active === 'chatter') renderChatter();
   else if (active === 'reports') renderReports();
   else if (active === 'settings') renderSettings();
 }
@@ -1872,11 +2223,26 @@ function bindActionClick(id) {
 }
 
 // ============== DASHBOARD ==============
+function dashMonthKey() {
+  return `${state.dashYear}-${String(state.dashMonth+1).padStart(2,'0')}`;
+}
+function isCurrentDashMonth() {
+  const n = new Date();
+  return state.dashYear === n.getFullYear() && state.dashMonth === n.getMonth();
+}
 function renderDashboard() {
   const today = new Date();
-  document.getElementById('dashboardDate').textContent = `${today.getFullYear()}年${today.getMonth()+1}月${today.getDate()}日 (${'日月火水木金土'[today.getDay()]})`;
+  const month = dashMonthKey();
+  const monthLabelShort = isCurrentDashMonth() ? '今月' : `${state.dashMonth+1}月`;
+  document.getElementById('dashMonthLabel').textContent = `${state.dashYear}年${state.dashMonth+1}月`;
+  document.getElementById('lblOrders').textContent = monthLabelShort;
+  document.getElementById('lblUnpaid').textContent = monthLabelShort;
+  document.getElementById('dashboardDate').textContent =
+    `${today.getFullYear()}年${today.getMonth()+1}月${today.getDate()}日 (${'日月火水木金土'[today.getDay()]}) — 集計対象: ${state.dashYear}年${state.dashMonth+1}月`;
+
   document.getElementById('statLeads').textContent = state.records.filter(r => isLeadPhase(r.phase)).length;
-  const month = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}`;
+
+  // === 受注(選択月) ===
   const monthOrders = state.records.filter(r => r.orderDate && r.orderDate.startsWith(month));
   document.getElementById('statMonthOrders').innerHTML = monthOrders.length + '<span class="unit">件</span>';
   const monthRev = monthOrders.reduce((s, r) => {
@@ -1887,12 +2253,12 @@ function renderDashboard() {
   }, 0);
   document.getElementById('statMonthRevenue').textContent = `¥${fmt(monthRev)}`;
 
-  // 未入金合計
+  // === 未入金(選択月に期限が来るもの) + 期限超過(全期間) ===
   const todayDate = new Date(today); todayDate.setHours(0,0,0,0);
   let unpaidTotal = 0, unpaidCount = 0, overdueCount = 0, overdueAmount = 0;
   state.records.forEach(r => paymentsOf(r).forEach(p => {
     if (p.isPaid) return;
-    unpaidTotal += p.amount; unpaidCount++;
+    if (p.due && p.due.startsWith(month)) { unpaidTotal += p.amount; unpaidCount++; }
     if (p.due && new Date(p.due) < todayDate) { overdueCount++; overdueAmount += p.amount; }
   }));
   document.getElementById('statUnpaid').textContent = `¥${fmt(unpaidTotal)}`;
@@ -1948,6 +2314,487 @@ function renderDashboard() {
 }
 
 // ============== ACTIONS VIEW ==============
+
+// ==================================================================
+// ==================== CHATTER (共有フィード) ======================
+// ==================================================================
+const CH_TYPES = {
+  apo:       { label: 'アポ報告', cls: 'apo' },
+  shodan:    { label: '商談報告', cls: 'shodan' },
+  juchu:     { label: '受注',     cls: 'juchu' },
+  shitsuchu: { label: '失注',     cls: 'shitsuchu' },
+  manual:    { label: '共有',     cls: 'manual' }
+};
+
+// ---- 表示名(誰が投稿したか) ----
+function getMe() {
+  if (!state.me) state.me = localStorage.getItem(STORAGE_KEY_ME) || '';
+  return state.me;
+}
+function setMe(name) {
+  state.me = (name || '').trim().slice(0, 30);
+  localStorage.setItem(STORAGE_KEY_ME, state.me);
+  updateMeLabels();
+}
+function updateMeLabels() {
+  const n = getMe() || '未設定';
+  const a = document.getElementById('meName'); if (a) a.textContent = n;
+  const b = document.getElementById('chMeLabel'); if (b) b.textContent = n;
+}
+function ensureMe() {
+  if (getMe()) return true;
+  const v = prompt('チャッターに表示するあなたの名前を入力してください（例: 山田）');
+  if (v && v.trim()) { setMe(v); return true; }
+  toast('表示名が未設定です', true);
+  return false;
+}
+function initial(name) { return (name || '?').trim().charAt(0) || '?'; }
+
+// ---- Firestore ----
+async function saveChatterPost(post) {
+  const clean = {};
+  Object.keys(post).forEach(k => { if (post[k] !== undefined) clean[k] = post[k]; });
+  clean._updatedServer = serverTimestamp();
+  await setDoc(doc(state.db, CHATTER_COLLECTION, post.id), clean);
+}
+async function deleteChatterPost(id) {
+  await deleteDoc(doc(state.db, CHATTER_COLLECTION, id));
+}
+function subscribeChatter() {
+  if (state.chatterUnsub) { try { state.chatterUnsub(); } catch {} }
+  const q = query(collection(state.db, CHATTER_COLLECTION));
+  state.chatterUnsub = onSnapshot(q, snap => {
+    const list = [];
+    snap.forEach(d => { const data = d.data(); if (data) list.push({ ...data, id: d.id }); });
+    list.sort((a, b) => String(b.createdAt || '').localeCompare(String(a.createdAt || '')));
+    state.chatter = list;
+    const badge = document.getElementById('chatterBadge');
+    if (badge) {
+      const todayCount = list.filter(x => String(x.createdAt || '').startsWith(todayStr())).length;
+      badge.textContent = todayCount;
+      badge.style.display = todayCount > 0 ? '' : 'none';
+    }
+    if (document.querySelector('.nav-tab.active')?.dataset.tab === 'chatter') renderChatter();
+  }, err => console.error('chatter onSnapshot:', err));
+}
+
+// ---- 投稿 ----
+async function postToChatter(type, text, opts) {
+  opts = opts || {};
+  const post = {
+    id: 'p_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8),
+    type: type,
+    author: getMe() || '匿名',
+    text: String(text || '').slice(0, 8000),
+    recordId: opts.recordId || '',
+    recordName: opts.recordName || '',
+    likes: [],
+    comments: [],
+    createdAt: isoNow()
+  };
+  try { await saveChatterPost(post); return true; }
+  catch (e) { console.error(e); toast('チャッター投稿に失敗: ' + (e.message || ''), true); return false; }
+}
+
+// ---- 描画 ----
+function chatterTimeLabel(iso) {
+  if (!iso) return '';
+  const then = new Date(iso), now = new Date();
+  const mins = Math.floor((now - then) / 60000);
+  if (mins < 1) return 'たった今';
+  if (mins < 60) return `${mins}分前`;
+  const hrs = Math.floor(mins / 60);
+  if (hrs < 24) return `${hrs}時間前`;
+  const days = Math.floor(hrs / 24);
+  if (days < 7) return `${days}日前`;
+  return fmtDateTime(iso);
+}
+
+function renderChatter() {
+  updateMeLabels();
+  const feedEl = document.getElementById('chFeed');
+  const me = getMe();
+  let list = state.chatter;
+  if (state.chatterFilter) list = list.filter(x => x.type === state.chatterFilter);
+  const shown = list.slice(0, state.chatterLimit);
+
+  document.getElementById('chMoreBtn').style.display = list.length > state.chatterLimit ? '' : 'none';
+
+  if (!shown.length) {
+    feedEl.innerHTML = `<div class="empty"><div class="empty-icon">💬</div><div class="empty-text">まだ投稿はありません</div></div>`;
+    return;
+  }
+
+  feedEl.innerHTML = shown.map(post => {
+    const t = CH_TYPES[post.type] || CH_TYPES.manual;
+    const likes = Array.isArray(post.likes) ? post.likes : [];
+    const comments = Array.isArray(post.comments) ? post.comments : [];
+    const liked = me && likes.includes(me);
+    return `<div class="ch-post" data-pid="${esc(post.id)}">
+      <div class="ch-post-head">
+        <div class="ch-avatar">${esc(initial(post.author))}</div>
+        <div>
+          <div class="ch-author">${esc(post.author || '匿名')}</div>
+          <div class="ch-time">${esc(chatterTimeLabel(post.createdAt))}</div>
+        </div>
+        <span class="ch-type ${t.cls}">${esc(t.label)}</span>
+        ${me && post.author === me ? `<button class="ch-del" data-del="${esc(post.id)}" title="削除">×</button>` : ''}
+      </div>
+      <div class="ch-body">${esc(post.text)}</div>
+      ${post.recordId ? `<span class="ch-link" data-open="${esc(post.recordId)}">🔗 ${esc(post.recordName || '顧客を開く')}</span>` : ''}
+      <div class="ch-actions">
+        <button class="ch-act ${liked ? 'liked' : ''}" data-like="${esc(post.id)}">👍 いいね${likes.length ? ' ' + likes.length : ''}</button>
+        <button class="ch-act" data-toggle="${esc(post.id)}">💬 コメント${comments.length ? ' ' + comments.length : ''}</button>
+      </div>
+      <div class="ch-comments" id="cmt-${esc(post.id)}" style="display:${comments.length ? '' : 'none'};">
+        ${comments.map(c => `<div class="ch-comment">
+          <div class="ch-avatar">${esc(initial(c.author))}</div>
+          <div class="ch-comment-body">
+            <div class="ch-comment-meta">${esc(c.author || '匿名')} · ${esc(chatterTimeLabel(c.at))}</div>
+            ${esc(c.text)}
+          </div>
+        </div>`).join('')}
+        <div class="ch-comment-input">
+          <input type="text" placeholder="コメントを入力..." data-cinput="${esc(post.id)}" maxlength="1000" />
+          <button class="btn-action" data-csend="${esc(post.id)}">送信</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+
+  bindChatterEvents();
+}
+
+function bindChatterEvents() {
+  document.querySelectorAll('[data-like]').forEach(el => el.addEventListener('click', async () => {
+    if (!ensureMe()) return;
+    const post = state.chatter.find(x => x.id === el.dataset.like); if (!post) return;
+    const likes = Array.isArray(post.likes) ? [...post.likes] : [];
+    const me = getMe();
+    const i = likes.indexOf(me);
+    if (i >= 0) likes.splice(i, 1); else likes.push(me);
+    try { await saveChatterPost({ ...post, likes }); } catch (e) { toast('失敗: ' + e.message, true); }
+  }));
+
+  document.querySelectorAll('[data-toggle]').forEach(el => el.addEventListener('click', () => {
+    const box = document.getElementById('cmt-' + el.dataset.toggle);
+    if (box) box.style.display = box.style.display === 'none' ? '' : 'none';
+  }));
+
+  const sendComment = async (pid, input) => {
+    if (!ensureMe()) return;
+    const text = (input.value || '').trim();
+    if (!text) return;
+    const post = state.chatter.find(x => x.id === pid); if (!post) return;
+    const comments = Array.isArray(post.comments) ? [...post.comments] : [];
+    comments.push({ author: getMe(), text: text.slice(0, 1000), at: isoNow() });
+    input.value = '';
+    try { await saveChatterPost({ ...post, comments }); } catch (e) { toast('失敗: ' + e.message, true); }
+  };
+  document.querySelectorAll('[data-csend]').forEach(el => el.addEventListener('click', () => {
+    const pid = el.dataset.csend;
+    sendComment(pid, document.querySelector(`[data-cinput="${pid}"]`));
+  }));
+  document.querySelectorAll('[data-cinput]').forEach(el => el.addEventListener('keydown', e => {
+    if (e.key === 'Enter') sendComment(el.dataset.cinput, el);
+  }));
+
+  document.querySelectorAll('[data-del]').forEach(el => el.addEventListener('click', async () => {
+    if (!confirm('この投稿を削除しますか?')) return;
+    try { await deleteChatterPost(el.dataset.del); toast('✓ 削除しました'); }
+    catch (e) { toast('失敗: ' + e.message, true); }
+  }));
+
+  document.querySelectorAll('[data-open]').forEach(el => el.addEventListener('click', () => openDetail(el.dataset.open)));
+}
+
+// ---- コントロール ----
+document.getElementById('chPostBtn').addEventListener('click', async () => {
+  if (!ensureMe()) return;
+  const ta = document.getElementById('chText');
+  const text = ta.value.trim();
+  if (!text) { toast('内容を入力してください', true); return; }
+  const btn = document.getElementById('chPostBtn');
+  btn.disabled = true;
+  if (await postToChatter('manual', text)) { ta.value = ''; toast('✓ 投稿しました'); }
+  btn.disabled = false;
+});
+document.querySelectorAll('.ch-filter').forEach(b => b.addEventListener('click', () => {
+  document.querySelectorAll('.ch-filter').forEach(x => x.classList.remove('active'));
+  b.classList.add('active');
+  state.chatterFilter = b.dataset.f;
+  state.chatterLimit = 20;
+  renderChatter();
+}));
+document.getElementById('chMoreBtn').addEventListener('click', () => { state.chatterLimit += 20; renderChatter(); });
+document.getElementById('mePill').addEventListener('click', () => {
+  const v = prompt('チャッターに表示する名前', getMe());
+  if (v !== null) { setMe(v); renderChatter(); toast('✓ 表示名を変更しました'); }
+});
+
+// ---- テーマ切替 ----
+function applyTheme(t) {
+  document.documentElement.setAttribute('data-theme', t);
+  localStorage.setItem(STORAGE_KEY_THEME, t);
+  const btn = document.getElementById('themeBtn');
+  if (btn) btn.textContent = t === 'light' ? '☀️' : '🌙';
+  const meta = document.querySelector('meta[name="theme-color"]');
+  if (meta) meta.setAttribute('content', t === 'light' ? '#f4f6fa' : '#10141b');
+}
+document.getElementById('themeBtn').addEventListener('click', () => {
+  const cur = document.documentElement.getAttribute('data-theme') === 'light' ? 'light' : 'dark';
+  applyTheme(cur === 'light' ? 'dark' : 'light');
+});
+applyTheme(localStorage.getItem(STORAGE_KEY_THEME) || 'dark');
+
+
+// ==================================================================
+// ============ アポ取得 / 商談報告 (チャッター自動投稿) ============
+// ==================================================================
+const apoModal = document.getElementById('apoModal');
+const shodanModal = document.getElementById('shodanModal');
+const openModal = el => el.classList.add('open');
+const closeModal = el => el.classList.remove('open');
+
+// 顧客セレクトを埋める
+function fillTargetSelect(selectId, opts) {
+  opts = opts || {};
+  const sel = document.getElementById(selectId);
+  const list = [...state.records].sort((a, b) => String(a.name).localeCompare(String(b.name), 'ja'));
+  const filtered = opts.filter ? list.filter(opts.filter) : list;
+  sel.innerHTML = (opts.allowNew ? '<option value="">＋ 新規で登録</option>' : '<option value="">選択してください</option>')
+    + filtered.map(r => `<option value="${esc(r.id)}">${esc(r.name)}（${esc(phaseInfo(r.phase).label)}）</option>`).join('');
+}
+
+// ---------- アポ取得 ----------
+document.getElementById('apoReportBtn').addEventListener('click', () => {
+  if (!ensureMe()) return;
+  fillTargetSelect('a-target', { allowNew: true });
+  ['a-name','a-industry','a-rep','a-tel','a-url','a-content'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('a-date').value = '';
+  document.getElementById('a-method').value = 'Zoom';
+  openModal(apoModal);
+});
+document.getElementById('a-target').addEventListener('change', e => {
+  const rec = state.records.find(r => r.id === e.target.value);
+  if (!rec) return;
+  document.getElementById('a-name').value = rec.name || '';
+  document.getElementById('a-tel').value = rec.tel || '';
+  document.getElementById('a-url').value = rec.url || '';
+});
+apoModal.addEventListener('click', e => { if (e.target === apoModal) closeModal(apoModal); });
+shodanModal.addEventListener('click', e => { if (e.target === shodanModal) closeModal(shodanModal); });
+document.getElementById('apoModalClose').addEventListener('click', () => closeModal(apoModal));
+document.getElementById('apoCancelBtn').addEventListener('click', () => closeModal(apoModal));
+
+document.getElementById('apoConfirmBtn').addEventListener('click', async () => {
+  const name = document.getElementById('a-name').value.trim();
+  const dt = document.getElementById('a-date').value;
+  if (!name) { toast('社名を入力してください', true); return; }
+  if (!dt) { toast('商談日時を入力してください', true); return; }
+
+  const targetId = document.getElementById('a-target').value;
+  const method = document.getElementById('a-method').value;
+  const industry = document.getElementById('a-industry').value.trim();
+  const rep_ = document.getElementById('a-rep').value.trim();
+  const tel = document.getElementById('a-tel').value.trim();
+  const url = document.getElementById('a-url').value.trim();
+  const content = document.getElementById('a-content').value.trim();
+
+  const btn = document.getElementById('apoConfirmBtn');
+  btn.disabled = true;
+  try {
+    const existing = targetId ? state.records.find(r => r.id === targetId) : null;
+    const base = existing ? { ...existing } : {
+      id: uid(), planType: 'none', tags: [], activity: [], createdAt: isoNow(),
+      init_amount: 0, monthly_amount: 0
+    };
+    const activity = Array.isArray(base.activity) ? [...base.activity] : [];
+    activity.unshift({ at: isoNow(), type: 'system', text: `📞 アポ取得: ${fmtDateTime(dt)} (${method}) / ${getMe()}` });
+
+    const rec = {
+      ...base,
+      name, tel: tel || base.tel || '', url: url || base.url || '',
+      kind: 'appo',
+      phase: 'appo',
+      meetingDate: dt,
+      industry: industry || base.industry || '',
+      rep_name: rep_ || base.rep_name || '',
+      meet_method: method,
+      apo_owner: getMe(),
+      apo_content: content,
+      memo: base.memo || '',
+      activity: activity.slice(0, 50),
+      updatedAt: isoNow()
+    };
+    await saveRecord(rec);
+
+    const body = `アポ報告です！\n\n【日時】${fmtDateTime(dt)}\n【社名】${name}\n【商談方法】${method}\n【業種】${industry || '—'}\n【代表者名】${rep_ || '—'}\n【HP】${url || '—'}\n【電話】${tel || '—'}\n\n【アポ内容】\n${content || '—'}`;
+    await postToChatter('apo', body, { recordId: rec.id, recordName: name });
+
+    closeModal(apoModal);
+    toast('✓ アポを登録してチャッターに流しました');
+    switchTab('chatter');
+  } catch (e) {
+    console.error(e);
+    toast('失敗: ' + (e.message || ''), true);
+  } finally { btn.disabled = false; }
+});
+
+// ---------- 商談報告 ----------
+function updateShodanFields() {
+  const v = document.querySelector('input[name="dResult"]:checked').value;
+  document.getElementById('grp-d-init').classList.toggle('show', v === 'order');
+  document.getElementById('grp-d-monthly').classList.toggle('show', v === 'order');
+  document.getElementById('grp-d-lost').classList.toggle('show', v === 'lost');
+  document.getElementById('grp-d-next').classList.toggle('show', v === 'hold');
+}
+document.getElementById('shodanReportBtn').addEventListener('click', () => {
+  if (!ensureMe()) return;
+  fillTargetSelect('d-target', {});
+  document.querySelector('input[name="dResult"][value="order"]').checked = true;
+  ['d-init','d-monthly','d-content','d-next'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('d-lost-reason').value = '';
+  updateShodanFields();
+  openModal(shodanModal);
+});
+document.querySelectorAll('input[name="dResult"]').forEach(r => r.addEventListener('change', updateShodanFields));
+document.getElementById('shodanModalClose').addEventListener('click', () => closeModal(shodanModal));
+document.getElementById('shodanCancelBtn').addEventListener('click', () => closeModal(shodanModal));
+
+document.getElementById('shodanConfirmBtn').addEventListener('click', async () => {
+  const targetId = document.getElementById('d-target').value;
+  const result = document.querySelector('input[name="dResult"]:checked').value;
+  const content = document.getElementById('d-content').value.trim();
+  const lostReason = document.getElementById('d-lost-reason').value;
+
+  if (!targetId) { toast('対象顧客を選択してください', true); return; }
+  if (!content) { toast('商談内容を入力してください', true); return; }
+  if (result === 'lost' && !lostReason) { toast('失注理由を選択してください', true); return; }
+
+  const existing = state.records.find(r => r.id === targetId);
+  if (!existing) { toast('顧客が見つかりません', true); return; }
+
+  const btn = document.getElementById('shodanConfirmBtn');
+  btn.disabled = true;
+  try {
+    const rec = { ...existing, kind: 'deal', updatedAt: isoNow() };
+    const activity = Array.isArray(existing.activity) ? [...existing.activity] : [];
+    let chType, header;
+
+    if (result === 'order') {
+      const init = Number(document.getElementById('d-init').value) || 0;
+      const monthly = Number(document.getElementById('d-monthly').value) || 0;
+      rec.phase = 'order';
+      rec.orderDate = existing.orderDate || todayStr();
+      rec.init_amount = init;
+      rec.monthly_amount = monthly;
+      if (init && monthly) rec.planType = 'full';
+      else if (init) rec.planType = 'init_only';
+      else if (monthly) rec.planType = 'monthly_only';
+      rec.deal_owner = getMe();
+      activity.unshift({ at: isoNow(), type: 'system', text: `🎉 受注 (${getMe()}) 初期¥${fmt(init)} / 月費¥${fmt(monthly)}` });
+      chType = 'juchu';
+      header = `🎉 受注報告！\n\n【社名】${existing.name}\n【初期費用】¥${fmt(init)}\n【月費】¥${fmt(monthly)}\n【担当】${getMe()}`;
+    } else if (result === 'lost') {
+      rec.phase = 'lost';
+      rec.lost_reason = lostReason;
+      rec.lost_date = todayStr();
+      rec.lost_detail = content.slice(0, 2000);
+      rec.deal_owner = getMe();
+      activity.unshift({ at: isoNow(), type: 'system', text: `✕ 失注: ${LOST_REASONS[lostReason]} (${getMe()})` });
+      chType = 'shitsuchu';
+      header = `失注報告です。\n\n【社名】${existing.name}\n【失注理由】${LOST_REASONS[lostReason]}\n【担当】${getMe()}`;
+    } else {
+      const next = document.getElementById('d-next').value;
+      rec.phase = 'hold';
+      if (next) rec.followupDate = next;
+      rec.deal_owner = getMe();
+      activity.unshift({ at: isoNow(), type: 'system', text: `⏸ 保留/再商談 (${getMe()})${next ? ' 次回: ' + fmtDate(next) : ''}` });
+      chType = 'shodan';
+      header = `商談報告です。\n\n【社名】${existing.name}\n【結果】保留 / 再商談${next ? `\n【次回フォロー】${fmtDate(next)}` : ''}\n【担当】${getMe()}`;
+    }
+
+    rec.activity = activity.slice(0, 50);
+    await saveRecord(rec);
+    await postToChatter(chType, `${header}\n\n【商談内容】\n${content}`, { recordId: rec.id, recordName: existing.name });
+
+    closeModal(shodanModal);
+    toast('✓ 商談報告をチャッターに流しました');
+    switchTab('chatter');
+  } catch (e) {
+    console.error(e);
+    toast('失敗: ' + (e.message || ''), true);
+  } finally { btn.disabled = false; }
+});
+
+// ==================================================================
+// ==================== データ移行 (kind 振り分け) ====================
+// ==================================================================
+function inferKind(phase) {
+  if (phase === 'lead') return 'lead';
+  if (phase === 'appo' || phase === 'hold') return 'appo';
+  return 'deal';
+}
+function migrationPreview() {
+  const counts = { lead: 0, appo: 0, deal: 0, already: 0 };
+  state.records.forEach(r => {
+    if (r.kind) { counts.already++; return; }
+    counts[inferKind(r.phase)]++;
+  });
+  return counts;
+}
+document.getElementById('migratePreviewBtn').addEventListener('click', () => {
+  const c = migrationPreview();
+  document.getElementById('migrateResult').innerHTML =
+    `<div style="font-size:13px; line-height:1.9; color:var(--text2);">
+      対象レコード: <strong style="color:var(--text)">${state.records.length}件</strong><br>
+      → 📋 リード: <strong style="color:var(--accent)">${c.lead}件</strong>（未対応）<br>
+      → 📞 アポ: <strong style="color:var(--accent)">${c.appo}件</strong>（アポ取得・保留）<br>
+      → 🤝 商談: <strong style="color:var(--accent)">${c.deal}件</strong>（受注以降・失注・解約）<br>
+      <span style="color:var(--text3)">振り分け済みでスキップ: ${c.already}件</span>
+    </div>`;
+});
+document.getElementById('migrateRunBtn').addEventListener('click', async () => {
+  const targets = state.records.filter(r => !r.kind);
+  if (!targets.length) { toast('振り分けが必要なレコードはありません'); return; }
+  if (!confirm(`${targets.length}件を リード / アポ / 商談 に振り分けます。\n実行前にバックアップJSONを自動ダウンロードします。続行しますか?`)) return;
+
+  // 自動バックアップ
+  try {
+    const blob = new Blob([JSON.stringify({ exportedAt: isoNow(), note: 'migration auto-backup', records: state.records }, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `crm-backup-before-migration-${todayStr()}.json`;
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  } catch (e) { console.error('backup failed', e); }
+
+  showLoading(true);
+  try {
+    const updated = targets.map(r => ({ ...r, kind: inferKind(r.phase) }));
+    await batchSaveRecords(updated);
+    toast(`✓ ${updated.length}件を振り分けました`);
+    document.getElementById('migrateResult').innerHTML =
+      `<div style="color:var(--green); font-size:13px;">✓ ${updated.length}件の振り分けが完了しました</div>`;
+  } catch (e) {
+    console.error(e);
+    alert('移行失敗: ' + (e.message || ''));
+  } finally { showLoading(false); }
+});
+
+function dashShiftMonth(dir) {
+  state.dashMonth += dir;
+  if (state.dashMonth < 0) { state.dashMonth = 11; state.dashYear--; }
+  if (state.dashMonth > 11) { state.dashMonth = 0; state.dashYear++; }
+  renderDashboard();
+}
+document.getElementById('dashPrevMonth').addEventListener('click', () => dashShiftMonth(-1));
+document.getElementById('dashNextMonth').addEventListener('click', () => dashShiftMonth(1));
+document.getElementById('dashThisMonth').addEventListener('click', () => {
+  const n = new Date(); state.dashYear = n.getFullYear(); state.dashMonth = n.getMonth(); renderDashboard();
+});
+
 function renderActions() {
   const actions = getActionItems();
   const overdue = actions.filter(a => a.urgency === 'overdue');
@@ -2305,34 +3152,92 @@ function renderDup() {
 }
 
 // ============== CALENDAR ==============
+// --- 日付ユーティリティ(週) ---
+function ymd(d) { return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`; }
+function startOfWeek(d) { const x = new Date(d); x.setHours(0,0,0,0); x.setDate(x.getDate() - x.getDay()); return x; }
+
+// 全レコードから日付キー -> イベント配列 を作る
+function buildCalendarEvents() {
+  const events = {};
+  const add = (date, ev) => { if (!date) return; (events[date] = events[date] || []).push(ev); };
+  state.records.forEach(r => {
+    if (r.meetingDate) {
+      const k = r.meetingDate.slice(0, 10);
+      const t = r.meetingDate.length > 10 ? r.meetingDate.slice(11, 16) : '';
+      add(k, { cls: '', time: t, label: `${r.name} 商談`, id: r.id, sort: t || '00:00' });
+    }
+    if (r.followupDate) add(r.followupDate.slice(0,10), { cls: 'followup', time: '', label: `📞 ${r.name} フォロー`, id: r.id, sort: '99:00' });
+    paymentsOf(r).forEach(p => {
+      if (p.isPaid || !p.due) return;
+      add(p.due.slice(0,10), { cls: p.key === 'init' ? 'invoice' : 'sub', time: '', label: `💰 ${r.name} ${p.kind}`, id: r.id, sort: '98:00' });
+    });
+  });
+  Object.values(events).forEach(list => list.sort((a,b) => a.sort.localeCompare(b.sort)));
+  return events;
+}
+function calEventHTML(ev) {
+  return `<div class="cal-event ${ev.cls}" data-id="${esc(ev.id)}" title="${esc(ev.label)}">` +
+         (ev.time ? `<span class="ev-time">${esc(ev.time)}</span>` : '') + esc(ev.label) + `</div>`;
+}
+function bindCalEvents() {
+  document.querySelectorAll('.cal-event').forEach(el =>
+    el.addEventListener('click', e => { e.stopPropagation(); openDetail(el.dataset.id); }));
+}
+
 function renderCalendar() {
+  const weekEl = document.getElementById('calWeek');
+  const gridEl = document.getElementById('calGrid');
+  const isWeek = state.calMode === 'week';
+  weekEl.style.display = isWeek ? 'grid' : 'none';
+  gridEl.style.display = isWeek ? 'none' : 'grid';
+  document.getElementById('calWeekBtn').classList.toggle('active', isWeek);
+  document.getElementById('calMonthBtn').classList.toggle('active', !isWeek);
+  if (isWeek) renderCalendarWeek(); else renderCalendarMonth();
+}
+
+// ===== 週表示: 件数無制限、日曜/土曜を色分け =====
+function renderCalendarWeek() {
+  if (!state.calWeekStart) state.calWeekStart = ymd(startOfWeek(new Date()));
+  const start = new Date(state.calWeekStart + 'T00:00:00');
+  const end = new Date(start); end.setDate(end.getDate() + 6);
+  document.getElementById('calTitle').textContent =
+    `${start.getFullYear()}.${String(start.getMonth()+1).padStart(2,'0')}.${String(start.getDate()).padStart(2,'0')} — ${String(end.getMonth()+1).padStart(2,'0')}.${String(end.getDate()).padStart(2,'0')}`;
+
+  const events = buildCalendarEvents();
+  const todayKey = todayStr();
+  const dowNames = ['日','月','火','水','木','金','土'];
+  let html = '';
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(start); d.setDate(d.getDate() + i);
+    const key = ymd(d);
+    const dayCls = i === 0 ? 'sun' : i === 6 ? 'sat' : '';
+    const isToday = key === todayKey;
+    const list = events[key] || [];
+    html += `<div class="cal-wcol ${dayCls} ${isToday ? 'today' : ''}">
+      <div class="cal-whead ${dayCls} ${isToday ? 'today' : ''}">
+        <div class="dw">${dowNames[i]}</div>
+        <div class="dn">${d.getDate()}</div>
+      </div>
+      <div class="cal-wbody">
+        ${list.length ? list.map(calEventHTML).join('') : '<div class="cal-empty">—</div>'}
+      </div>
+    </div>`;
+  }
+  document.getElementById('calWeek').innerHTML = html;
+  bindCalEvents();
+}
+
+// ===== 月表示: 件数無制限(セル内スクロール) =====
+function renderCalendarMonth() {
   const y = state.calYear, m = state.calMonth;
   document.getElementById('calTitle').textContent = `${y}.${String(m+1).padStart(2,'0')}`;
   const first = new Date(y, m, 1);
   const last = new Date(y, m+1, 0);
   const startDay = first.getDay();
   const totalDays = last.getDate();
+  const events = buildCalendarEvents();
+  const todayKey = todayStr();
 
-  const events = {};
-  function add(date, html) {
-    if (!events[date]) events[date] = [];
-    events[date].push(html);
-  }
-  state.records.forEach(r => {
-    if (r.meetingDate) {
-      const k = r.meetingDate.slice(0, 10);
-      const t = r.meetingDate.length > 10 ? r.meetingDate.slice(11, 16) : '';
-      add(k, `<div class="cal-event" data-id="${esc(r.id)}" title="${esc(r.name + ' 商談')}">${t} ${esc(r.name)}</div>`);
-    }
-    if (r.followupDate) add(r.followupDate.slice(0,10), `<div class="cal-event followup" data-id="${esc(r.id)}" title="${esc(r.name + ' フォロー')}">📞 ${esc(r.name)}</div>`);
-    paymentsOf(r).forEach(p => {
-      if (p.isPaid || !p.due) return;
-      const cls = p.key === 'init' ? 'invoice' : 'sub';
-      add(p.due.slice(0,10), `<div class="cal-event ${cls}" data-id="${esc(r.id)}" title="${esc(r.name + ' ' + p.kind)}">💰 ${esc(r.name)} ${esc(p.kind)}</div>`);
-    });
-  });
-
-  const today = new Date(); today.setHours(0,0,0,0);
   let html = '';
   ['日','月','火','水','木','金','土'].forEach((d, i) => {
     const cls = i === 0 ? 'sun' : i === 6 ? 'sat' : '';
@@ -2342,21 +3247,85 @@ function renderCalendar() {
   for (let d = 1; d <= totalDays; d++) {
     const cellDate = new Date(y, m, d);
     const dateStr = `${y}-${String(m+1).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
-    const isToday = cellDate.getTime() === today.getTime();
+    const dow = cellDate.getDay();
+    const dayCls = dow === 0 ? 'sun' : dow === 6 ? 'sat' : '';
+    const isToday = dateStr === todayKey;
     const evList = events[dateStr] || [];
-    const evHtml = evList.slice(0, 3).join('');
-    const more = evList.length > 3 ? `<div style="font-size:9px; color:var(--text3);">+${evList.length - 3}件</div>` : '';
-    html += `<div class="cal-cell ${isToday ? 'today' : ''}"><div class="day-num">${d}</div>${evHtml}${more}</div>`;
+    // 件数上限なし
+    html += `<div class="cal-cell ${dayCls} ${isToday ? 'today' : ''}"><div class="day-num">${d}</div>${evList.map(calEventHTML).join('')}</div>`;
   }
   document.getElementById('calGrid').innerHTML = html;
-  document.querySelectorAll('.cal-event').forEach(el => el.addEventListener('click', e => { e.stopPropagation(); openDetail(el.dataset.id); }));
+  bindCalEvents();
 }
-document.getElementById('calPrev').addEventListener('click', () => { state.calMonth--; if (state.calMonth < 0) { state.calMonth = 11; state.calYear--; } renderCalendar(); });
-document.getElementById('calNext').addEventListener('click', () => { state.calMonth++; if (state.calMonth > 11) { state.calMonth = 0; state.calYear++; } renderCalendar(); });
-document.getElementById('calToday').addEventListener('click', () => { const n = new Date(); state.calYear = n.getFullYear(); state.calMonth = n.getMonth(); renderCalendar(); });
+
+// ナビ: 週モードは1週ずつ、月モードは1ヶ月ずつ
+function calShift(dir) {
+  if (state.calMode === 'week') {
+    const d = new Date(state.calWeekStart + 'T00:00:00');
+    d.setDate(d.getDate() + dir * 7);
+    state.calWeekStart = ymd(d);
+  } else {
+    state.calMonth += dir;
+    if (state.calMonth < 0) { state.calMonth = 11; state.calYear--; }
+    if (state.calMonth > 11) { state.calMonth = 0; state.calYear++; }
+  }
+  renderCalendar();
+}
+document.getElementById('calPrev').addEventListener('click', () => calShift(-1));
+document.getElementById('calNext').addEventListener('click', () => calShift(1));
+document.getElementById('calToday').addEventListener('click', () => {
+  const n = new Date();
+  state.calYear = n.getFullYear(); state.calMonth = n.getMonth();
+  state.calWeekStart = ymd(startOfWeek(n));
+  renderCalendar();
+});
+document.getElementById('calWeekBtn').addEventListener('click', () => {
+  state.calMode = 'week';
+  if (!state.calWeekStart) state.calWeekStart = ymd(startOfWeek(new Date()));
+  localStorage.setItem(STORAGE_KEY_CALMODE, 'week');
+  renderCalendar();
+});
+document.getElementById('calMonthBtn').addEventListener('click', () => {
+  state.calMode = 'month';
+  localStorage.setItem(STORAGE_KEY_CALMODE, 'month');
+  renderCalendar();
+});
 
 // ============== REPORTS ==============
+function renderLostReport() {
+  const el = document.getElementById('lostReport');
+  const lost = state.records.filter(r => r.phase === 'lost');
+  if (!lost.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-text">失注データがありません</div></div>`;
+    return;
+  }
+  const counts = {};
+  Object.keys(LOST_REASONS).forEach(k => counts[k] = 0);
+  counts['_none'] = 0;
+  lost.forEach(r => {
+    const k = r.lost_reason && LOST_REASONS[r.lost_reason] ? r.lost_reason : '_none';
+    counts[k]++;
+  });
+  const rows = Object.keys(counts)
+    .filter(k => counts[k] > 0)
+    .sort((a, b) => counts[b] - counts[a]);
+  el.innerHTML = `<div style="font-size:12px; color:var(--text3); margin-bottom:12px;">失注 ${lost.length}件</div>` +
+    rows.map(k => {
+      const label = k === '_none' ? '未入力' : LOST_REASONS[k];
+      const c = counts[k];
+      const pct = (c / lost.length * 100).toFixed(0);
+      return `<div style="display:flex; align-items:center; gap:12px; margin-bottom:9px;">
+        <div style="width:110px; flex-shrink:0; font-size:13px; color:${k === '_none' ? 'var(--text3)' : 'var(--text)'};">${esc(label)}</div>
+        <div style="flex:1; background:var(--bg); height:9px; border-radius:100px; overflow:hidden;">
+          <div style="height:100%; width:${pct}%; background:var(--red); transition:width 0.4s;"></div>
+        </div>
+        <div style="width:88px; text-align:right; font-family:'JetBrains Mono', monospace; font-size:12px; color:var(--text2);">${c}件 (${pct}%)</div>
+      </div>`;
+    }).join('');
+}
+
 function renderReports() {
+  renderLostReport();
   document.getElementById('repTotal').textContent = state.records.length;
   let totalRev = 0;
   state.records.forEach(r => totalRev += totalReceived(r));
@@ -2560,6 +3529,9 @@ function openLeadModal(id, prefill) {
     const el = document.getElementById(fid); if (el) el.value = '';
   });
   document.getElementById('f-cancel-reason').value = '';
+  document.getElementById('f-lost-reason').value = '';
+  document.getElementById('f-lost-date').value = '';
+  document.getElementById('f-lost-detail').value = '';
   document.getElementById('f-phase').value = 'lead';
   const noneRadio = document.querySelector('input[name="planType"][value="none"]');
   if (noneRadio) noneRadio.checked = true;
@@ -2586,6 +3558,9 @@ function openLeadModal(id, prefill) {
     document.getElementById('f-memo').value = rec.memo || '';
     document.getElementById('f-cancel-date').value = rec.cancel_date || '';
     document.getElementById('f-cancel-reason').value = rec.cancel_reason || '';
+    document.getElementById('f-lost-reason').value = rec.lost_reason || '';
+    document.getElementById('f-lost-date').value = rec.lost_date || '';
+    document.getElementById('f-lost-detail').value = rec.lost_detail || '';
     document.getElementById('f-cancel-detail').value = rec.cancel_detail || '';
     const pt = rec.planType || 'none';
     const ptEl = document.querySelector(`input[name="planType"][value="${pt}"]`);
@@ -2610,7 +3585,8 @@ function updateFormVisibility() {
   document.getElementById('grp-init-paid').classList.toggle('show', plan.hasInit);
   document.getElementById('grp-monthly-amount').classList.toggle('show', plan.hasMonthly);
   document.getElementById('grp-monthly-day').classList.toggle('show', plan.hasMonthly);
-  document.getElementById('grp-cancel').classList.toggle('show', phase === 'cancelled' || phase === 'lost');
+  document.getElementById('grp-cancel').classList.toggle('show', phase === 'cancelled');
+  document.getElementById('grp-lost').classList.toggle('show', phase === 'lost');
 }
 document.getElementById('f-phase').addEventListener('change', updateFormVisibility);
 document.querySelectorAll('input[name="planType"]').forEach(el => el.addEventListener('change', updateFormVisibility));
@@ -2690,6 +3666,10 @@ document.getElementById('leadSaveBtn').addEventListener('click', async () => {
     followupDate: document.getElementById('f-followup').value || '',
     memo: document.getElementById('f-memo').value.trim().slice(0, 5000),
     cancel_date: document.getElementById('f-cancel-date').value || '',
+    kind: inferKind(phase),
+    lost_reason: document.getElementById('f-lost-reason').value || '',
+    lost_date: document.getElementById('f-lost-date').value || '',
+    lost_detail: document.getElementById('f-lost-detail').value.trim().slice(0, 2000),
     cancel_reason: document.getElementById('f-cancel-reason').value || '',
     cancel_detail: document.getElementById('f-cancel-detail').value.trim().slice(0, 2000)
   };
@@ -3086,6 +4066,10 @@ async function initApp() {
   state.isInitialLoad = true;
   showLoading(true);
   subscribeAll();
+  subscribeChatter();
+  updateMeLabels();
+  state.calWeekStart = ymd(startOfWeek(new Date()));
+  state.calMode = localStorage.getItem(STORAGE_KEY_CALMODE) || 'week';
   state.reminderTimer = setInterval(() => {
     checkReminders();
     const today = todayStr();
