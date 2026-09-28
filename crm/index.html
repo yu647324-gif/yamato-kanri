@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-<meta name="theme-color" content="#06080d" />
+<meta name="theme-color" content="#10141b" />
 <title>YAMATO CRM — 顧客管理システム</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -241,6 +241,41 @@ button { font-family: inherit; cursor: pointer; }
 .dphase.win { background: var(--green-dim); color: var(--green); }
 .dphase.lost { background: var(--red-dim); color: var(--red); }
 .dphase.hot { background: var(--accent-dim); color: var(--accent); }
+.tool-badge { display: inline-block; font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 3px; margin-left: 3px; background: var(--accent-dim); color: var(--accent); vertical-align: 1px; white-space: nowrap; }
+.tool-badge.meet { background: var(--green-dim); color: var(--green); }
+.tool-badge.offline { background: var(--surface3); color: var(--text2); }
+.mail-ok { color: var(--green); font-weight: 700; }
+.mail-ng { color: var(--red); font-weight: 700; }
+.conflict-box { display: none; margin-top: 8px; padding: 9px 12px; border-radius: 3px; font-size: 12px; line-height: 1.6; background: var(--red-dim); color: var(--red); border: 1px solid var(--red); }
+.conflict-box.show { display: block; }
+.conflict-box.ok { background: var(--green-dim); color: var(--green); border-color: var(--green); }
+.slot-table td, .slot-table th { font-size: 12px; }
+.slot-table tr.today td { background: var(--accent-dim); }
+.rank-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; padding: 16px 18px; }
+.rank-card { background: var(--surface2); border: 1px solid var(--border2); border-radius: 4px; padding: 14px 16px; }
+.rank-card .rk-label { font-size: 11px; color: var(--text3); font-weight: 700; letter-spacing: 1px; }
+.rank-card .rk-name { font-size: 20px; font-weight: 800; color: var(--text); margin-top: 6px; }
+.rank-card .rk-val { font-size: 12px; color: var(--accent); font-family: 'JetBrains Mono', monospace; margin-top: 2px; }
+.today-apo-row { display: flex; align-items: center; gap: 10px; padding: 9px 18px; border-bottom: 1px solid var(--border); font-size: 13px; cursor: pointer; flex-wrap: wrap; }
+.today-apo-row:hover { background: var(--surface2); }
+.ch-search { display: flex; gap: 8px; margin-bottom: 12px; }
+.ch-search input { flex: 1; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 10px 12px; font-size: 15px; border-radius: 2px; outline: none; min-height: 40px; }
+.ch-search input:focus { border-color: var(--accent); }
+.ch-body a, .detail-row a.ext, td a.ext { color: var(--accent); text-decoration: underline; word-break: break-all; }
+.cal-event.plan { background: var(--green-dim); color: var(--green); border-left-color: var(--green); }
+.cal-event.recall { background: var(--orange-dim); color: var(--orange); border-left-color: var(--orange); }
+.cal-wbody, .cal-cell { cursor: pointer; }
+.cal-wbody:hover, .cal-cell:hover { outline: 1px dashed var(--accent); outline-offset: -2px; }
+.callres { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 100px; white-space: nowrap; background: var(--surface3); color: var(--text2); }
+.callres.apo { background: var(--green-dim); color: var(--green); }
+.callres.refused { background: var(--red-dim); color: var(--red); }
+.callres.busy, .callres.schedule { background: var(--orange-dim); color: var(--orange); }
+.callres.noanswer { background: var(--surface3); color: var(--text3); }
+.perf-table th, .perf-table td { text-align: right; white-space: nowrap; }
+.perf-table th:first-child, .perf-table td:first-child { text-align: left; }
+.perf-table tr.total td { border-top: 2px solid var(--border2); font-weight: 700; background: var(--surface2); }
+.perf-table .pct { font-family: 'JetBrains Mono', monospace; }
+.perf-table .zero { color: var(--text3); }
 .lstatus { font-size: 10px; font-weight: 700; padding: 3px 9px; border-radius: 100px; background: var(--accent-dim); color: var(--accent); white-space: nowrap; }
 .lstatus.done { background: var(--surface3); color: var(--text3); }
 .lstatus.conv { background: var(--green-dim); color: var(--green); }
@@ -629,7 +664,7 @@ tbody tr:last-child td { border-bottom: none; }
   <div class="auth-card wide">
     <div class="auth-eyebrow">// SYSTEM SETUP</div>
     <h1 class="auth-title">YAMATO CRM — 初期設定</h1>
-    <p class="auth-sub">Firebase Firestore でデータを3人で共有します。無料で運用可能。下記手順で5分ほどで設定できます。</p>
+    <p class="auth-sub">Firebase Firestore でデータをチームで共有します。無料で運用可能。下記手順で5分ほどで設定できます。</p>
 
     <div class="setup-step"><strong>1.</strong> <a href="https://console.firebase.google.com/" target="_blank" rel="noopener">Firebase Console</a> でGoogleアカウントでログイン</div>
     <div class="setup-step"><strong>2.</strong> 「プロジェクトを追加」→ 名前(例: yamato-crm)で作成。Analyticsはオフでも可</div>
@@ -662,7 +697,7 @@ service cloud.firestore {
   <div class="auth-card">
     <div class="auth-eyebrow">// SECURE ACCESS</div>
     <h1 class="auth-title">YAMATO CRM</h1>
-    <p class="auth-sub">顧客管理システム · 3名共有 · リアルタイム同期</p>
+    <p class="auth-sub">顧客管理システム · チーム共有 · リアルタイム同期</p>
 
     <label class="auth-label" for="loginPass">PASSWORD</label>
     <input type="password" id="loginPass" class="auth-input" placeholder="••••••••" autocomplete="current-password" />
@@ -680,7 +715,7 @@ service cloud.firestore {
 <!-- ==================== APP ==================== -->
 <div class="app" id="app">
   <header class="header">
-    <div class="header-brand">YAMATO<span class="sub">CRM v3</span></div>
+    <div class="header-brand">YAMATO<span class="sub">CRM v8</span></div>
     <div class="nav-tabs" id="navTabs">
       <button class="nav-tab active" data-tab="dashboard">📊 ダッシュボード</button>
       <button class="nav-tab" data-tab="chatter">💬 チャッター <span class="badge" id="chatterBadge" style="display:none;">0</span></button>
@@ -727,7 +762,7 @@ service cloud.firestore {
         <div class="stat-card clickable" data-jump="leadlist">
           <div class="stat-label">アクティブリード</div>
           <div class="stat-value" id="statLeads">0</div>
-          <div class="stat-meta">未対応・アポ取得</div>
+          <div class="stat-meta">まだアポ前のリード</div>
         </div>
         <div class="stat-card green clickable" data-jump="reports">
           <div class="stat-label"><span id="lblOrders">今月</span>の受注</div>
@@ -744,10 +779,10 @@ service cloud.firestore {
           <div class="stat-value" id="statActive">0<span class="unit">件</span></div>
           <div class="stat-meta" id="statMrr">MRR ¥0</div>
         </div>
-        <div class="stat-card red clickable" data-jump="chatter">
-          <div class="stat-label">本日アクション要</div>
-          <div class="stat-value" id="statTodayActions">0</div>
-          <div class="stat-meta">リマインダー</div>
+        <div class="stat-card clickable" data-jump="calendar">
+          <div class="stat-label">今日のアポ獲得</div>
+          <div class="stat-value" id="statTodayApo">0</div>
+          <div class="stat-meta" id="statTodayApoMeta">—</div>
         </div>
         <div class="stat-card yellow clickable" data-jump="payments">
           <div class="stat-label">期限超過</div>
@@ -758,10 +793,39 @@ service cloud.firestore {
 
       <div class="panel">
         <div class="panel-head">
-          <div class="panel-title"><span class="mono">// TODAY</span>本日対応すべきアクション</div>
-          <div class="panel-meta"><span id="todayActionCount">0 items</span></div>
+          <div class="panel-title"><span class="mono">// TODAY</span>今日のアポ（誰が取ったか）</div>
+          <div class="panel-meta" id="todayApoCount">0件</div>
         </div>
-        <div id="todayActionList" class="action-list"></div>
+        <div id="todayApoList"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title"><span class="mono">// MONTH</span><span id="dashTeamTitle">今月の成績</span></div>
+        </div>
+        <div class="stats-grid" style="padding: 14px 18px 4px; margin:0;">
+          <div class="stat-card"><div class="stat-label">アポ数</div><div class="stat-value" id="dmApo">0</div></div>
+          <div class="stat-card green"><div class="stat-label">受注数</div><div class="stat-value" id="dmWon">0</div><div class="stat-meta" id="dmWonRate">受注率 —</div></div>
+          <div class="stat-card red"><div class="stat-label">失注数</div><div class="stat-value" id="dmLost">0</div></div>
+          <div class="stat-card orange"><div class="stat-label">アポ流れ数</div><div class="stat-value" id="dmNagare">0</div><div class="stat-meta" id="dmNagareRate">流れ率 —</div></div>
+        </div>
+        <div class="rank-grid" id="dashRanks"></div>
+        <div class="table-wrap">
+          <table class="perf-table">
+            <thead>
+              <tr>
+                <th>メンバー</th>
+                <th>今日のアポ</th>
+                <th>月アポ</th>
+                <th>受注</th>
+                <th>失注</th>
+                <th>アポ流れ</th>
+                <th>受注率<br><span style="font-weight:400;font-size:9px;">÷決着商談</span></th>
+              </tr>
+            </thead>
+            <tbody id="dashMemberTable"></tbody>
+          </table>
+        </div>
       </div>
 
       <div class="panel">
@@ -809,6 +873,12 @@ service cloud.firestore {
         </div>
       </div>
 
+      <div class="ch-search">
+        <input type="search" id="chSearch" placeholder="🔍 屋号・電話・内容でチャッターを検索（全期間）" maxlength="100" />
+        <button class="btn-action" id="chSearchClear">クリア</button>
+      </div>
+      <div style="font-size:11px; color:var(--text3); margin:-4px 0 10px;" id="chRangeNote">直近1ヶ月の投稿を表示中。それより前は検索、または取引先の詳細で見られます。</div>
+
       <div class="ch-filters" id="chFilters">
         <button class="ch-filter active" data-f="">すべて</button>
         <button class="ch-filter" data-f="apo">アポ報告</button>
@@ -836,7 +906,8 @@ service cloud.firestore {
           <p class="section-sub">商談予定・フォロー予定・入金期限</p>
         </div>
         <div class="section-actions">
-          <button class="btn-action primary" id="calAddBtn">＋ アポ報告</button>
+          <button class="btn-action" id="calApoBtn">📞 アポ報告</button>
+          <button class="btn-action primary" id="calAddBtn">＋ 予定を追加</button>
         </div>
       </div>
       <div class="panel">
@@ -858,8 +929,31 @@ service cloud.firestore {
           <div class="cal-week" id="calWeek"></div>
           <div class="cal-grid" id="calGrid" style="display:none;"></div>
           <div style="margin-top: 14px; display: flex; gap: 14px; flex-wrap: wrap; font-size: 11px; color: var(--text3);">
-            <span>🔵 商談</span><span>🟡 入金期限</span><span>🟣 月費</span><span>🟠 フォロー</span>
+            <span>🔵 商談</span><span>🟢 予定</span><span>🟠 再架電/フォロー</span><span>🟡 入金期限</span><span>🟣 月費</span><span style="margin-left:auto;">日付をクリックで予定追加</span>
           </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title"><span class="mono">// MEETINGS</span>商談スケジュール（表示中の期間）</div>
+          <div class="panel-meta" id="slotCapLabel">—</div>
+        </div>
+        <div class="table-wrap">
+          <table class="slot-table">
+            <thead>
+              <tr>
+                <th style="width:110px;">日付</th>
+                <th style="width:110px;">時間</th>
+                <th style="width:110px;">商談方法</th>
+                <th>取引先</th>
+                <th style="width:110px;">アポ取得者</th>
+                <th style="width:110px;">営業者</th>
+                <th style="width:100px;">メール送付</th>
+              </tr>
+            </thead>
+            <tbody id="slotTable"></tbody>
+          </table>
         </div>
       </div>
     </section>
@@ -897,7 +991,8 @@ service cloud.firestore {
                 <th style="width:110px;">携帯</th>
                 <th>Webサイト</th>
                 <th style="width:100px;">業種</th>
-                <th style="width:150px;" class="right">アクション</th>
+                <th style="width:120px;">直近の架電</th>
+                <th style="width:210px;" class="right">アクション</th>
               </tr>
             </thead>
             <tbody id="leadListTable"></tbody>
@@ -976,13 +1071,13 @@ service cloud.firestore {
             <thead>
               <tr>
                 <th style="width:140px;">フェーズ</th>
-                <th style="width:150px;">アクション</th>
                 <th>屋号</th>
                 <th>連絡先</th>
                 <th>プラン</th>
                 <th class="right">合計</th>
                 <th style="width:80px;">健康度</th>
                 <th class="right">更新</th>
+                <th style="width:150px;" class="right">アクション</th>
               </tr>
             </thead>
             <tbody id="allTable"></tbody>
@@ -1172,6 +1267,44 @@ service cloud.firestore {
       </div>
 
       <div class="panel">
+        <div class="panel-head">
+          <div class="panel-title"><span class="mono">// PERFORMANCE</span>月次成績（メンバー別）</div>
+          <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+            <div class="month-nav">
+              <button id="perfPrevMonth">◀</button>
+              <span id="perfMonthLabel">—</span>
+              <button id="perfNextMonth">▶</button>
+              <button id="perfThisMonth" class="tm">今月</button>
+            </div>
+            <button class="btn-action" id="perfCsvBtn">CSV</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table class="perf-table">
+            <thead>
+              <tr>
+                <th>メンバー</th>
+                <th>架電</th>
+                <th>アポ</th>
+                <th>アポ率</th>
+                <th>アポ流れ</th>
+                <th>流れ率</th>
+                <th>決着商談</th>
+                <th>受注</th>
+                <th>受注率<br><span style="font-weight:400;font-size:9px;">÷商談</span></th>
+                <th>受注率<br><span style="font-weight:400;font-size:9px;">÷アポ</span></th>
+              </tr>
+            </thead>
+            <tbody id="perfTable"></tbody>
+          </table>
+        </div>
+        <div style="padding: 10px 18px 14px; font-size: 11px; color: var(--text3); line-height: 1.7;">
+          架電＝架電チェックの件数 ／ アポ＝結果「アポ取得」＋アポ報告 ／ アポ流れ＝商談フェーズ「アポ流れ」（アポ取得者に計上）<br>
+          決着商談＝受注・回収待ち・失注・アポ流れ で決着した商談（営業者に計上、受注日・失注日の月）
+        </div>
+      </div>
+
+      <div class="panel">
         <div class="panel-head"><div class="panel-title"><span class="mono">// FUNNEL</span>継続率ファネル</div></div>
         <div id="funnelReport"></div>
       </div>
@@ -1249,6 +1382,23 @@ service cloud.firestore {
             <input type="text" id="newMemberName" placeholder="名前を入力" maxlength="30"
               style="flex:1; min-width:160px; background:var(--bg); border:1px solid var(--border); color:var(--text); padding:9px 12px; border-radius:2px; min-height:38px;" />
             <button class="btn-action primary" id="addMemberBtn">＋ 追加</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><div class="panel-title"><span class="mono">// TOOLS</span>会議ツールと同時枠</div></div>
+        <div style="padding: 16px 18px;">
+          <p style="font-size: 12px; color: var(--text2); line-height: 1.8; margin-bottom: 12px;">
+            同じ時間帯に使える件数です。枠を超える予約は保存できません（対面・電話は制限なし）。
+          </p>
+          <div id="toolList" style="margin-bottom:12px;"></div>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <input type="text" id="newToolName" placeholder="ツール名（例: Teams）" maxlength="30"
+              style="flex:1; min-width:140px; background:var(--bg); border:1px solid var(--border); color:var(--text); padding:9px 12px; border-radius:2px; min-height:38px;" />
+            <input type="number" id="newToolCap" value="1" min="1" max="20"
+              style="width:80px; background:var(--bg); border:1px solid var(--border); color:var(--text); padding:9px 12px; border-radius:2px; min-height:38px;" />
+            <button class="btn-action primary" id="addToolBtn">＋ 追加</button>
           </div>
         </div>
       </div>
@@ -1379,7 +1529,7 @@ service cloud.firestore {
         <div class="form-group full">
           <label for="f-followup">次回フォロー予定日</label>
           <input type="date" id="f-followup" />
-          <div class="hint">設定するとアクション一覧と通知に表示されます</div>
+          <div class="hint">設定するとカレンダーと通知に表示されます</div>
         </div>
 
         <div class="form-group full collapse" id="grp-lost">
@@ -1522,6 +1672,163 @@ service cloud.firestore {
   </div>
 </div>
 
+<!-- ==================== 架電チェック MODAL ==================== -->
+<div class="modal-overlay" id="callModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">☎ 架電チェック</div>
+      <button class="modal-close" id="callModalClose">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group full">
+          <label>対象</label>
+          <div style="font-size:16px; font-weight:700;" id="c-name">—</div>
+          <div class="mono" style="font-size:12px; color:var(--text2);" id="c-tel">—</div>
+          <div style="font-size:11px; color:var(--text3); margin-top:4px;" id="c-history"></div>
+        </div>
+        <div class="form-group full">
+          <label class="required">結果</label>
+          <div class="checkbox-row" style="flex-wrap:wrap; gap:8px 16px;">
+            <label><input type="radio" name="cResult" value="noanswer" checked /> 📵 不通</label>
+            <label><input type="radio" name="cResult" value="refused" /> ✕ 営業断り</label>
+            <label><input type="radio" name="cResult" value="busy" /> ⏳ 忙しい（再架電）</label>
+            <label><input type="radio" name="cResult" value="schedule" /> 📆 日程調整</label>
+            <label><input type="radio" name="cResult" value="apo" /> ✅ アポ取得</label>
+          </div>
+        </div>
+        <div class="form-group collapse" id="grp-c-next">
+          <label for="c-next">次回架電日</label>
+          <input type="date" id="c-next" />
+        </div>
+        <div class="form-group collapse" id="grp-c-time">
+          <label for="c-time">時刻</label>
+          <input type="time" id="c-time" step="900" />
+        </div>
+        <div class="form-group">
+          <label class="required" for="c-caller">架電者</label>
+          <select id="c-caller"></select>
+        </div>
+        <div class="form-group full">
+          <label for="c-memo">メモ</label>
+          <textarea id="c-memo" rows="3" maxlength="2000" placeholder="話した内容 / 担当者不在 / 折返し希望 など"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-action" id="callCancelBtn">キャンセル</button>
+      <button class="btn-action primary" id="callSaveBtn">保存</button>
+      <button class="btn-action primary" id="callSaveApoBtn" style="display:none;">保存してアポ報告へ →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 予定 MODAL ==================== -->
+<div class="modal-overlay" id="eventModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="eventTitle">📅 予定を追加</div>
+      <button class="modal-close" id="eventModalClose">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="required" for="e-date">日付</label>
+          <input type="date" id="e-date" />
+        </div>
+        <div class="form-group">
+          <label for="e-time">開始</label>
+          <input type="time" id="e-time" step="300" />
+        </div>
+        <div class="form-group">
+          <label for="e-end">終了</label>
+          <input type="time" id="e-end" step="300" />
+        </div>
+        <div class="form-group">
+          <label for="e-tool">商談方法</label>
+          <select id="e-tool"></select>
+        </div>
+        <div class="form-group full"><div class="conflict-box" id="e-conflict"></div></div>
+        <div class="form-group full">
+          <label class="required" for="e-title">内容</label>
+          <input type="text" id="e-title" maxlength="120" placeholder="例: ○○社 折返し / 資料送付 / 打合せ" />
+        </div>
+        <div class="form-group">
+          <label for="e-member">担当</label>
+          <select id="e-member"></select>
+        </div>
+        <div class="form-group">
+          <label>関連する会社（任意）</label>
+          <div class="picker">
+            <input type="text" class="picker-input" id="e-target-search" placeholder="🔍 屋号 / 電話 / URL" autocomplete="off" />
+            <button type="button" class="picker-clear" id="e-target-clear" title="クリア">×</button>
+            <div class="picker-list" id="e-target-list"></div>
+          </div>
+          <input type="hidden" id="e-target" />
+        </div>
+        <div class="form-group full">
+          <label for="e-memo">メモ</label>
+          <textarea id="e-memo" rows="3" maxlength="2000"></textarea>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-action danger" id="eventDeleteBtn" style="margin-right:auto; display:none;">削除</button>
+      <button class="btn-action" id="eventApoBtn" title="この日付でアポ報告を開く">→ アポ報告にする</button>
+      <button class="btn-action" id="eventCancelBtn">キャンセル</button>
+      <button class="btn-action primary" id="eventSaveBtn">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 商談予定 編集 MODAL ==================== -->
+<div class="modal-overlay" id="meetModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">🎥 商談予定</div>
+      <button class="modal-close" id="meetModalClose">×</button>
+    </div>
+    <div class="modal-body">
+      <div style="font-size:17px; font-weight:800;" id="m-name">—</div>
+      <div style="font-size:12px; color:var(--text2); margin:4px 0 12px;" id="m-sub">—</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="required" for="m-date">商談日</label>
+          <input type="date" id="m-date" />
+        </div>
+        <div class="form-group">
+          <label class="required" for="m-tool">商談方法</label>
+          <select id="m-tool"></select>
+        </div>
+        <div class="form-group">
+          <label class="required" for="m-start">開始</label>
+          <input type="time" id="m-start" step="300" />
+        </div>
+        <div class="form-group">
+          <label class="required" for="m-end">終了</label>
+          <input type="time" id="m-end" step="300" />
+        </div>
+        <div class="form-group full"><div class="conflict-box" id="m-conflict"></div></div>
+        <div class="form-group full">
+          <label for="m-zoom">会議URL送付方法</label>
+          <input type="text" id="m-zoom" maxlength="200" />
+        </div>
+        <div class="form-group full">
+          <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+            <input type="checkbox" id="m-mail-sent" style="width:18px; height:18px;" />
+            会議URLのメール送付済み
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-action" id="meetDetailBtn" style="margin-right:auto;">取引先を開く</button>
+      <button class="btn-action" id="meetCancelBtn">キャンセル</button>
+      <button class="btn-action primary" id="meetSaveBtn">保存</button>
+    </div>
+  </div>
+</div>
+
 <!-- ==================== アポ報告 MODAL ==================== -->
 <div class="modal-overlay" id="apoModal">
   <div class="modal">
@@ -1550,8 +1857,19 @@ service cloud.firestore {
           <input type="date" id="a-date" />
         </div>
         <div class="form-group">
-          <label class="required" for="a-time">時刻</label>
-          <input type="time" id="a-time" step="900" />
+          <label class="required" for="a-time">開始</label>
+          <input type="time" id="a-time" step="300" />
+        </div>
+        <div class="form-group">
+          <label class="required" for="a-end">終了 <span style="color:var(--text3); font-weight:400;">(初期値 開始+1時間半)</span></label>
+          <input type="time" id="a-end" step="300" />
+        </div>
+        <div class="form-group">
+          <label class="required" for="a-tool">商談方法</label>
+          <select id="a-tool"></select>
+        </div>
+        <div class="form-group full">
+          <div class="conflict-box" id="a-conflict"></div>
         </div>
         <div class="form-group">
           <label class="required" for="a-tel">電話番号</label>
@@ -1562,12 +1880,22 @@ service cloud.firestore {
           <input type="text" id="a-rep" maxlength="60" placeholder="例: 山田 太郎" />
         </div>
         <div class="form-group full">
-          <label class="required" for="a-place">住所情報 <span style="color:var(--text3); font-weight:400;">(Zoom商談の場合は「Zoom」と記載)</span></label>
+          <label for="a-place">住所情報 <span style="color:var(--text3); font-weight:400;">(対面の場合は必須。オンラインは空欄でOK)</span></label>
           <input type="text" id="a-place" maxlength="200" placeholder="Zoom / 福岡県福岡市..." />
         </div>
         <div class="form-group full">
-          <label for="a-zoom">ZoomURL送付方法 <span style="color:var(--text3); font-weight:400;">(メールで送る場合はメアドのみ記入)</span></label>
+          <label for="a-url">URL <span style="color:var(--text3); font-weight:400;">(HP / Googleマップ / SNS など)</span></label>
+          <input type="url" id="a-url" maxlength="500" inputmode="url" placeholder="https://..." />
+        </div>
+        <div class="form-group full">
+          <label for="a-zoom">会議URL送付方法 <span style="color:var(--text3); font-weight:400;">(メールで送る場合はメアドのみ記入)</span></label>
           <input type="text" id="a-zoom" maxlength="200" placeholder="info@example.com / SMS など" />
+        </div>
+        <div class="form-group full">
+          <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+            <input type="checkbox" id="a-mail-sent" style="width:18px; height:18px;" />
+            会議URLのメール送付済み
+          </label>
         </div>
         <div class="form-group">
           <label for="a-product">商材</label>
@@ -1718,7 +2046,7 @@ window.addEventListener('unhandledrejection', e => console.error('[Unhandled Rej
 import { initializeApp, getApps, deleteApp } from 'https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js';
 import {
   getFirestore, collection, doc, setDoc, getDoc, getDocs, deleteDoc,
-  query, onSnapshot, serverTimestamp, writeBatch
+  query, where, onSnapshot, serverTimestamp, writeBatch
 } from 'https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js';
 
 'use strict';
@@ -1775,6 +2103,7 @@ const LOST_REASONS = {
 };
 
 const CANCEL_REASONS = {
+  'nopay': '未入金（自動キャンセル）',
   'price': '価格',
   'result': '効果不満',
   'competitor': '他社乗換',
@@ -1807,12 +2136,23 @@ const state = {
   lastSeenPostId: null,
   deals: [],
   dealsUnsub: null,
+  calls: [],
+  callsUnsub: null,
+  events: [],
+  eventsUnsub: null,
+  editingEventId: null,
+  callTargetId: null,
+  skipAutoCallLog: false,
+  perfYear: new Date().getFullYear(),
+  perfMonth: new Date().getMonth(),
   dealFilter: { search: '', phase: '', page: 1 },
   editingDealId: null,
   editingLeadId: null,
   leadListFilter: { search: '', status: '', page: 1 },
   members: [],
   products: [],
+  tools: [],
+  chatterSearch: '',
   metaUnsub: null,
   me: '',
   dashYear: new Date().getFullYear(),
@@ -1834,8 +2174,9 @@ const isoNow = () => {
 };
 const uid = () => 'c_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2,8);
 const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-const normalTel = t => (t || '').toString().replace(/[^0-9]/g, '');
-const normalText = t => (t || '').toString().toLowerCase().trim();
+// 全角英数・全角数字も半角に揃えてから比較する（NFKC）
+const normalTel = t => (t || '').toString().normalize('NFKC').replace(/[^0-9]/g, '');
+const normalText = t => (t || '').toString().normalize('NFKC').toLowerCase().trim();
 
 function daysBetween(d1, d2) {
   const ms = new Date(d2).setHours(0,0,0,0) - new Date(d1).setHours(0,0,0,0);
@@ -2024,6 +2365,8 @@ function paymentsOf(rec) {
       });
     }
   }
+  // 解約・失注の案件は「これから払われる予定」ではないので未入金から外す（入金済みの履歴は残す）
+  if (rec.phase === 'cancelled' || rec.phase === 'lost') return list.filter(p => p.isPaid);
   return list;
 }
 
@@ -2162,6 +2505,14 @@ passwordInput.addEventListener('keydown', e => { if (e.key === 'Enter') tryLogin
 document.getElementById('logoutBtn').addEventListener('click', () => {
   if (state.unsubscribe) { try { state.unsubscribe(); } catch {} state.unsubscribe = null; }
   if (state.reminderTimer) { clearInterval(state.reminderTimer); state.reminderTimer = null; }
+  ['chatterUnsub', 'dealsUnsub', 'callsUnsub', 'eventsUnsub', 'metaUnsub'].forEach(k => {
+    if (state[k]) { try { state[k](); } catch {} state[k] = null; }
+  });
+  if (state.chatterTimer) { clearInterval(state.chatterTimer); state.chatterTimer = null; }
+  if (state.autoCancelInterval) { clearInterval(state.autoCancelInterval); state.autoCancelInterval = null; }
+  clearTimeout(autoCancelTimer);
+  state.chatter = []; state.deals = []; state.calls = []; state.events = [];
+  document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
   state.records = []; state.isInitialLoad = true; state.notifiedIds.clear();
   showScreen('login'); passwordInput.focus();
 });
@@ -2217,6 +2568,7 @@ function subscribeAll() {
     if (state.isInitialLoad) { state.isInitialLoad = false; showLoading(false); }
     renderAll();
     checkReminders();
+    scheduleAutoCancel();
   }, err => {
     console.error('onSnapshot error:', err);
     state.online = false;
@@ -2444,7 +2796,7 @@ function renderDashboard() {
   document.getElementById('dashboardDate').textContent =
     `${today.getFullYear()}年${today.getMonth()+1}月${today.getDate()}日 (${'日月火水木金土'[today.getDay()]}) — 集計対象: ${state.dashYear}年${state.dashMonth+1}月`;
 
-  document.getElementById('statLeads').textContent = state.records.filter(r => isLeadPhase(r.phase)).length;
+  document.getElementById('statLeads').textContent = state.records.filter(r => recKind(r) === 'lead').length;
 
   // === 受注(選択月) ===
   const monthOrders = state.records.filter(r => r.orderDate && r.orderDate.startsWith(month));
@@ -2475,19 +2827,7 @@ function renderDashboard() {
   document.getElementById('statMrr').textContent = `MRR ¥${fmt(getMonthlyMRR())}`;
 
   const actions = getActionItems();
-  const todayActions = actions.filter(a => a.urgency === 'today' || a.urgency === 'overdue');
-  document.getElementById('statTodayActions').textContent = todayActions.length;
-
-  // 今日のアクション
-  const todayList = todayActions.slice(0, 10);
-  const tEl = document.getElementById('todayActionList');
-  document.getElementById('todayActionCount').textContent = `${todayList.length} items`;
-  if (todayList.length === 0) {
-    tEl.innerHTML = `<div class="empty"><div class="empty-icon">✓</div><div class="empty-text">今日のタスクはありません</div></div>`;
-  } else {
-    tEl.innerHTML = todayList.map(actionItemHTML).join('');
-    bindActionClick('todayActionList');
-  }
+  renderDashTeam();
 
   // 3ヶ月アラート
   const m3Alerts = actions.filter(a => a.type === 'm3confirm');
@@ -2522,7 +2862,9 @@ function renderDashboard() {
 // ==================================================================
 // ==================== CHATTER (共有フィード) ======================
 // ==================================================================
+const CHATTER_FEED_DAYS = 30;
 const CH_TYPES = {
+  cancel:    { label: '自動キャンセル', cls: 'shitsuchu' },
   apo:       { label: 'アポ報告', cls: 'apo' },
   shodan:    { label: '商談報告', cls: 'shodan' },
   juchu:     { label: '受注',     cls: 'juchu' },
@@ -2639,13 +2981,35 @@ function renderChatter() {
   const openIds = new Set([...feedEl.querySelectorAll('.ch-comments')].filter(c => c.style.display !== 'none').map(c => c.id));
   const me = getMe();
   let list = state.chatter;
+  const q = (state.chatterSearch || '').trim();
+  const note = document.getElementById('chRangeNote');
+  if (q) {
+    // 検索は全期間が対象（1ヶ月より前の投稿も出す）
+    const nq = normalText(q), nt = normalTel(q);
+    list = list.filter(post => {
+      const rec = post.recordId ? state.records.find(r => r.id === post.recordId) : null;
+      const hay = normalText([post.text, post.recordName, post.author, ...(post.comments || []).map(c => c.text)].join(' '));
+      if (hay.includes(nq)) return true;
+      if (nt.length >= 3) {
+        const telLike = (String(post.text || '').normalize('NFKC').match(/[0-9][0-9\-()（） ]{5,}[0-9]/g) || []).map(normalTel);
+        if (telLike.some(x => x.includes(nt))) return true;
+        if (rec && (normalTel(rec.tel).includes(nt) || normalTel(rec.mobile).includes(nt))) return true;
+      }
+      return rec ? normalText([rec.name, rec.url].join(' ')).includes(nq) : false;
+    });
+    if (note) note.textContent = `「${q}」の検索結果：全期間から ${list.length}件`;
+  } else {
+    const cutoff = Date.now() - CHATTER_FEED_DAYS * 86400000;
+    list = list.filter(post => (Number(post.createdMs) || Date.parse(post.createdAt || '') || 0) >= cutoff);
+    if (note) note.textContent = `直近${CHATTER_FEED_DAYS}日の投稿を表示中。それより前は検索、または取引先の詳細で見られます（データは消えません）。`;
+  }
   if (state.chatterFilter) list = list.filter(x => x.type === state.chatterFilter);
   const shown = list.slice(0, state.chatterLimit);
 
   document.getElementById('chMoreBtn').style.display = list.length > state.chatterLimit ? '' : 'none';
 
   if (!shown.length) {
-    feedEl.innerHTML = `<div class="empty"><div class="empty-icon">💬</div><div class="empty-text">まだ投稿はありません</div></div>`;
+    feedEl.innerHTML = `<div class="empty"><div class="empty-icon">💬</div><div class="empty-text">${q ? '該当する投稿がありません' : `直近${CHATTER_FEED_DAYS}日の投稿はありません`}</div></div>`;
     return;
   }
 
@@ -2668,7 +3032,7 @@ function renderChatter() {
         <span class="ch-type ${t.cls}">${esc(t.label)}</span>
         ${me && post.author === me ? `<button class="ch-del" data-del="${esc(post.id)}" title="削除">×</button>` : ''}
       </div>
-      <div class="ch-body">${esc(post.text)}</div>
+      <div class="ch-body">${linkifyText(post.text)}</div>
       ${post.recordId ? `<span class="ch-link" data-open="${esc(post.recordId)}">🔗 ${esc(post.recordName || '顧客を開く')}</span>` : ''}
       <div class="ch-actions">
         <button class="ch-act ${liked ? 'liked' : ''}" data-like="${esc(post.id)}">👍 いいね${likes.length ? ' ' + likes.length : ''}</button>
@@ -2679,7 +3043,7 @@ function renderChatter() {
           <div class="ch-avatar">${esc(initial(c.author))}</div>
           <div class="ch-comment-body">
             <div class="ch-comment-meta">${esc(c.author || '匿名')} · ${esc(chatterTimeLabel(c.at))}</div>
-            ${esc(c.text)}
+            ${linkifyText(c.text)}
           </div>
         </div>`).join('')}
         <div class="ch-comment-input">
@@ -2785,7 +3149,8 @@ document.getElementById('chFabBtn').addEventListener('click', () => {
   document.getElementById('chComposer').scrollIntoView({ behavior: 'smooth', block: 'center' });
   ta.focus();
 });
-document.getElementById('calAddBtn').addEventListener('click', () => {
+document.getElementById('calAddBtn').addEventListener('click', () => openEventModal(null, todayStr()));
+document.getElementById('calApoBtn').addEventListener('click', () => {
   openApoModal(null, state.calMode === 'week' ? (state.calWeekStart || todayStr()) : todayStr());
 });
 document.getElementById('chAuthorSel').addEventListener('change', e => {
@@ -2812,6 +3177,16 @@ document.querySelectorAll('.ch-filter').forEach(b => b.addEventListener('click',
   renderChatter();
 }));
 document.getElementById('chMoreBtn').addEventListener('click', () => { state.chatterLimit += 20; renderChatter(); });
+let chSearchTimer = null;
+document.getElementById('chSearch').addEventListener('input', e => {
+  clearTimeout(chSearchTimer);
+  const v = e.target.value;
+  chSearchTimer = setTimeout(() => { state.chatterSearch = v; state.chatterLimit = 20; renderChatter(); }, 200);
+});
+document.getElementById('chSearchClear').addEventListener('click', () => {
+  document.getElementById('chSearch').value = '';
+  state.chatterSearch = ''; state.chatterLimit = 20; renderChatter();
+});
 document.getElementById('mePill').addEventListener('click', () => {
   const v = prompt('チャッターに表示する名前', getMe());
   if (v !== null) { setMe(v); renderChatter(); toast('✓ 表示名を変更しました'); }
@@ -2886,19 +3261,23 @@ function subscribeMeta() {
       if (!data || !Array.isArray(data.list)) return;
       if (d.id === 'members') state.members = data.list;
       if (d.id === 'products') state.products = data.list;
+      if (d.id === 'tools') state.tools = data.list.filter(t => t && t.name).map(t => ({ name: String(t.name).slice(0, 30), cap: Math.max(1, Math.min(20, Number(t.cap) || 1)) }));
     });
     if (!state.products.length) state.products = [...DEFAULT_PRODUCTS];
     refreshMemberSelects();
     renderSettingsMembers();
+    if (document.querySelector('.nav-tab.active')?.dataset.tab === 'calendar') renderCalendar();
   }, err => console.error('meta onSnapshot:', err));
 }
 function memberOptions(selected) {
-  const list = state.members.length ? state.members : (getMe() ? [getMe()] : []);
+  // 自分の名前がメンバー一覧に無くても必ず選べるようにする
+  const me = getMe();
+  const list = [...new Set([...(me ? [me] : []), ...state.members])];
   return list.map(m => `<option value="${esc(m)}"${m === selected ? ' selected' : ''}>${esc(m)}</option>`).join('');
 }
 function refreshMemberSelects() {
   const me = getMe();
-  [['a-owner', me], ['a-sales', me], ['d-apo-owner', ''], ['d-sales', me], ['chAuthorSel', me]].forEach(([id, def]) => {
+  [['a-owner', me], ['a-sales', me], ['d-apo-owner', ''], ['d-sales', me], ['chAuthorSel', me], ['c-caller', me]].forEach(([id, def]) => {
     const el = document.getElementById(id);
     if (!el) return;
     const cur = el.value;
@@ -2920,7 +3299,38 @@ function refreshMemberSelects() {
     dpf.innerHTML = '<option value="">全フェーズ</option>' + DEAL_PHASES.map(d => `<option value="${d.key}">${esc(d.label)}</option>`).join('');
   }
 }
+function renderSettingsTools() {
+  const el = document.getElementById('toolList');
+  if (!el) return;
+  const tools = toolsList();
+  el.innerHTML = tools.map((t, i) => `<div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+      <span style="min-width:120px; font-weight:700;">${esc(t.name)}</span>
+      <span style="font-size:12px; color:var(--text3);">同時</span>
+      <input type="number" min="1" max="20" value="${t.cap}" data-toolcap="${i}"
+        style="width:70px; background:var(--bg); border:1px solid var(--border); color:var(--text); padding:6px 8px; border-radius:2px;" />
+      <span style="font-size:12px; color:var(--text3);">件まで</span>
+      <button class="btn-action" style="padding:4px 10px; min-height:30px; font-size:11px;" data-toolrm="${i}">削除</button>
+    </div>`).join('');
+  el.querySelectorAll('[data-toolcap]').forEach(inp => inp.addEventListener('change', async () => {
+    const v = Math.max(1, Math.min(20, Number(inp.value) || 1));
+    const next = tools.map((t, i) => i === Number(inp.dataset.toolcap) ? { ...t, cap: v } : t);
+    try {
+      await saveMeta('tools', next);
+      state.tools = next;
+      const n = overCapacityKeys().size;
+      toast(n ? `⚠ 同時${v}件に変更。枠を超えて重なっている予約が ${n}件あります（カレンダー下の一覧で赤表示）` : `✓ ${next[Number(inp.dataset.toolcap)].name} を同時${v}件に変更`, !!n);
+    } catch (e) { toast('失敗: ' + e.message, true); }
+  }));
+  el.querySelectorAll('[data-toolrm]').forEach(b => b.addEventListener('click', async () => {
+    const t = tools[Number(b.dataset.toolrm)];
+    if (tools.length <= 1) { toast('ツールは最低1つ必要です', true); return; }
+    if (!confirm(`「${t.name}」を削除しますか?\n既存の予約は残りますが、枠の制限はかからなくなります。`)) return;
+    try { await saveMeta('tools', tools.filter((_, i) => i !== Number(b.dataset.toolrm))); toast('✓ 削除しました'); }
+    catch (e) { toast('失敗: ' + e.message, true); }
+  }));
+}
 function renderSettingsMembers() {
+  renderSettingsTools();
   const el = document.getElementById('memberList');
   if (!el) return;
   el.innerHTML = state.members.length
@@ -2968,6 +3378,8 @@ function subscribeDeals() {
     updateBadges();
     const active = document.querySelector('.nav-tab.active')?.dataset.tab;
     if (active === 'deals') renderDealList();
+    else if (active === 'dashboard') renderDashboard();
+    else if (active === 'reports') renderPerformance();
   }, err => console.error('deals onSnapshot:', err));
 }
 
@@ -2994,7 +3406,7 @@ function renderLeadList() {
   const start = (state.leadListFilter.page - 1) * PAGE_SIZE;
   const page = list.slice(start, start + PAGE_SIZE);
   if (!list.length) {
-    tbody.innerHTML = `<tr><td colspan="7"><div class="empty"><div class="empty-icon">📇</div><div class="empty-text">リードがありません</div></div></td></tr>`;
+    tbody.innerHTML = `<tr><td colspan="8"><div class="empty"><div class="empty-icon">📇</div><div class="empty-text">リードがありません</div></div></td></tr>`;
     document.getElementById('leadListPagination').innerHTML = '';
     return;
   }
@@ -3003,16 +3415,23 @@ function renderLeadList() {
     <td><strong>${esc(r.name)}</strong>${r.pref ? `<br><span style="font-size:11px;color:var(--text3);">${esc(r.pref)}</span>` : ''}</td>
     <td class="mono">${esc(r.tel || '—')}</td>
     <td class="mono">${esc(r.mobile || '—')}</td>
-    <td style="font-size:11px; max-width:220px; overflow:hidden; text-overflow:ellipsis;">${esc(r.url || '—')}</td>
+    <td style="font-size:11px; max-width:220px; overflow:hidden; text-overflow:ellipsis;">${r.url ? extLink(r.url) : '—'}</td>
     <td style="font-size:11px;">${esc(r.industry || '—')}</td>
-    <td class="right"><button class="btn-action primary" style="padding:5px 9px; font-size:11px; min-height:30px;" data-apo="${esc(r.id)}">📞 アポ報告</button></td>
+    <td>${callResultBadge(r.lastCallResult)}${r.callCount ? `<span style="font-size:10px;color:var(--text3);margin-left:4px;">×${r.callCount}</span>` : ''}${r.lastCallAt ? `<div style="font-size:10px;color:var(--text3);">${esc(relativeDate(r.lastCallAt.slice(0,10)))}</div>` : ''}</td>
+    <td class="right">
+      <button class="btn-action" style="padding:5px 9px; font-size:11px; min-height:30px;" data-call="${esc(r.id)}">☎ 架電</button>
+      <button class="btn-action primary" style="padding:5px 9px; font-size:11px; min-height:30px;" data-apo="${esc(r.id)}">📞 アポ報告</button>
+    </td>
   </tr>`).join('');
   tbody.querySelectorAll('tr').forEach(tr => tr.addEventListener('click', e => {
-    if (e.target.closest('[data-apo]')) return;
+    if (e.target.closest('[data-apo],[data-call],a')) return;
     openLeadNewModal(tr.dataset.id);
   }));
   tbody.querySelectorAll('[data-apo]').forEach(b => b.addEventListener('click', e => {
     e.stopPropagation(); openApoModal(b.dataset.apo);
+  }));
+  tbody.querySelectorAll('[data-call]').forEach(b => b.addEventListener('click', e => {
+    e.stopPropagation(); openCallModal(b.dataset.call);
   }));
   renderPagination('leadListPagination', list.length, state.leadListFilter.page, pg => { state.leadListFilter.page = pg; renderLeadList(); });
 }
@@ -3113,6 +3532,223 @@ document.getElementById('leadNewDelete').addEventListener('click', async () => {
     toast('✓ 削除しました');
   } catch (e) { toast('失敗: ' + e.message, true); }
 });
+
+// ================== 自動キャンセル ==================
+// 受注から2ヶ月、入金が1回もなければ「解約」扱いにする。
+// 一度自動キャンセルした案件は auto_cancel_done=true を持つので、手動で戻した後は二度と自動では触らない。
+const AUTO_CANCEL_MONTHS = 2;
+const PAID_PHASES = ['init_paid', 'm1_paid', 'm2_paid', 'm3_paid', 'continuing'];
+function hasAnyPayment(r) {
+  return !!(r.init_paid_date || r.m1_paid_date || r.m2_paid_date || r.m3_paid_date) || PAID_PHASES.includes(r.phase);
+}
+function autoCancelTargets(today) {
+  const t = today || todayStr();
+  return state.records.filter(r => {
+    if (r.auto_cancel_done) return false;
+    if (!PHASE_MAP[r.phase] || PHASE_MAP[r.phase].group !== 'active') return false;
+    const od = String(r.orderDate || '').slice(0, 10);
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(od)) return false;
+    if (addMonths(od, AUTO_CANCEL_MONTHS) > t) return false;
+    return !hasAnyPayment(r);
+  });
+}
+let autoCancelRunning = false;
+// サーバー側の最新時刻（Firestoreが付けた時刻）。端末の時計がズレていないかの確認に使う
+function serverTimeEstimate() {
+  let max = 0;
+  const pick = t => {
+    if (!t) return 0;
+    if (typeof t.toMillis === 'function') return t.toMillis();
+    if (typeof t.seconds === 'number') return t.seconds * 1000;
+    return 0;
+  };
+  state.records.forEach(r => { max = Math.max(max, pick(r._updatedServer)); });
+  state.chatter.forEach(c => { max = Math.max(max, pick(c._updatedServer)); });
+  return max;
+}
+async function runAutoCancel() {
+  if (autoCancelRunning || !state.db || !state.records.length) return;
+  // 端末の日付が進みすぎている（3日以上先）場合は誤キャンセル防止のため実行しない
+  const sv = serverTimeEstimate();
+  if (sv && Date.now() > sv + 3 * 86400000) {
+    console.warn('autoCancel skipped: device clock is ahead of server time');
+    return;
+  }
+  const targets = autoCancelTargets();
+  if (!targets.length) return;
+  autoCancelRunning = true;
+  let done = 0;
+  try {
+    for (const r of targets) {
+      const od = String(r.orderDate).slice(0, 10);
+      const act = Array.isArray(r.activity) ? [...r.activity] : [];
+      act.unshift({ at: isoNow(), type: 'system', text: `⛔ 自動キャンセル: 受注(${fmtDate(od)})から${AUTO_CANCEL_MONTHS}ヶ月入金なし` });
+      await saveRecord({
+        ...r, phase: 'cancelled', cancel_date: todayStr(), cancel_reason: 'nopay',
+        cancel_detail: `受注日 ${od} から${AUTO_CANCEL_MONTHS}ヶ月間入金が1回もなかったため自動キャンセル`,
+        auto_cancel_done: true, auto_cancelled_at: isoNow(), auto_cancel_prev_phase: r.phase,
+        activity: act.slice(0, 50), updatedAt: isoNow()
+      });
+      // 決まったIDで投稿するので、2台同時に動いても投稿は1件にしかならない
+      await saveChatterPost({
+        id: 'autocancel_' + r.id, type: 'cancel', author: 'システム',
+        text: `⛔ 自動キャンセル\n\n【屋号】${r.name}\n【電話番号】${r.tel || r.mobile || '—'}\n【受注日】${fmtDate(od)}\n受注から${AUTO_CANCEL_MONTHS}ヶ月間、入金が1回もなかったため自動でキャンセル扱いにしました。\n入金済みの場合は取引先の編集からフェーズと入金日を戻してください（以後、自動キャンセルはされません）。`,
+        recordId: r.id, recordName: r.name, likes: [], comments: [],
+        createdAt: isoNow(), createdMs: Date.now()
+      });
+      done++;
+    }
+  } catch (e) { console.error('autoCancel', e); }
+  finally {
+    autoCancelRunning = false;
+    if (done) toast(`⛔ ${done}件を自動キャンセルしました（受注から${AUTO_CANCEL_MONTHS}ヶ月入金なし）`);
+  }
+}
+let autoCancelTimer = null;
+function scheduleAutoCancel() {
+  clearTimeout(autoCancelTimer);
+  autoCancelTimer = setTimeout(runAutoCancel, 1500);
+}
+
+// ================== URL: 安全にリンク化 ==================
+// http/https だけ許可。javascript: などは絶対にリンクにしない。スキーム無しのドメインは https:// を補う
+function safeUrl(u) {
+  const v = String(u == null ? '' : u).trim();
+  if (!v) return '';
+  if (/^https?:\/\/[^\s]+$/i.test(v)) return v;
+  if (/^[a-z][a-z0-9+.\-]*:/i.test(v)) return '';
+  if (/^[\w\-]+(\.[\w\-]+)+([\/?#][^\s]*)?$/i.test(v)) return 'https://' + v;
+  return '';
+}
+function extLink(u, label) {
+  const href = safeUrl(u);
+  if (!href) return esc(u || '—');
+  return `<a class="ext" href="${esc(href)}" target="_blank" rel="noopener noreferrer">${esc(label || u)}</a>`;
+}
+// 生テキスト中のURLだけをリンクにする（それ以外は全部エスケープ）
+function linkifyText(raw) {
+  const str = String(raw == null ? '' : raw);
+  const re = /https?:\/\/[^\s<>"'（）「」【】、。]+/g;
+  let out = '', last = 0, m;
+  while ((m = re.exec(str))) {
+    out += esc(str.slice(last, m.index));
+    const h = safeUrl(m[0]);
+    out += h ? `<a class="ext" href="${esc(h)}" target="_blank" rel="noopener noreferrer">${esc(m[0])}</a>` : esc(m[0]);
+    last = m.index + m[0].length;
+  }
+  return out + esc(str.slice(last));
+}
+
+// ================== 会議ツールと同時枠 ==================
+const DEFAULT_TOOLS = [{ name: 'Zoom', cap: 1 }, { name: 'Google Meet', cap: 1 }];
+const OFFLINE_TOOLS = ['対面', '電話'];
+const MEETING_DEFAULT_MIN = 90;
+function toolsList() { return (state.tools && state.tools.length) ? state.tools : DEFAULT_TOOLS; }
+function isOnlineTool(name) { return !!name && toolsList().some(t => t.name === name); }
+function toolCap(name) { const t = toolsList().find(x => x.name === name); return t ? Math.max(1, Number(t.cap) || 1) : Infinity; }
+function toolOptions(selected) {
+  const names = [...toolsList().map(t => t.name), ...OFFLINE_TOOLS];
+  if (selected && !names.includes(selected)) names.unshift(selected);
+  return names.map(n => `<option value="${esc(n)}"${n === selected ? ' selected' : ''}>${esc(n)}</option>`).join('');
+}
+function toolBadge(name) {
+  if (!name) return '';
+  const cls = /meet/i.test(name) ? 'meet' : isOnlineTool(name) ? '' : 'offline';
+  return `<span class="tool-badge ${cls}">${esc(name)}</span>`;
+}
+// 旧データ: meet_tool が無ければ 住所情報 の記載から推定（「Zoom」と書いてあれば Zoom 扱いで枠を消費させる）
+function inferTool(r) {
+  if (r.meet_tool) return r.meet_tool;
+  const p = String(r.meet_place || '');
+  if (/zoom/i.test(p)) return 'Zoom';
+  if (/meet/i.test(p)) return 'Google Meet';
+  return '';
+}
+function hhmmToMin(t) { const m = /^(\d{1,2}):(\d{2})/.exec(t || ''); return m ? Number(m[1]) * 60 + Number(m[2]) : NaN; }
+function minToHHMM(n) { n = Math.max(0, Math.min(23 * 60 + 59, n)); return `${String(Math.floor(n / 60)).padStart(2, '0')}:${String(n % 60).padStart(2, '0')}`; }
+function addMinHHMM(t, add) { const v = hhmmToMin(t); return isNaN(v) ? '' : minToHHMM(v + add); }
+
+// 全ての商談予定（取引先のアポ + カレンダーの打ち込み予定）
+let _meetCache = { rec: null, ev: null, list: null };
+function allMeetings() {
+  if (_meetCache.rec === state.records && _meetCache.ev === state.events && _meetCache.list) return _meetCache.list;
+  const list = [];
+  state.records.forEach(r => {
+    if (!r.meetingDate || r.meetingDate.length < 16) return;
+    if (r.phase === 'lost' || r.phase === 'cancelled') return;
+    const start = r.meetingDate.slice(11, 16);
+    list.push({
+      key: 'record:' + r.id, src: 'record', id: r.id, name: r.name || '',
+      date: r.meetingDate.slice(0, 10), start,
+      end: r.meetingEnd || addMinHHMM(start, MEETING_DEFAULT_MIN),
+      tool: inferTool(r), mailSent: !!r.mail_sent,
+      apoOwner: r.apo_owner || '', sales: r.sales_owner || ''
+    });
+  });
+  state.events.forEach(ev => {
+    if (!ev.date || !ev.time) return;
+    list.push({
+      key: 'event:' + ev.id, src: 'event', id: ev.id, name: ev.title || '',
+      date: ev.date, start: ev.time,
+      end: ev.endTime || addMinHHMM(ev.time, MEETING_DEFAULT_MIN),
+      tool: ev.tool || '', mailSent: !!ev.mail_sent,
+      apoOwner: '', sales: ev.member || ''
+    });
+  });
+  _meetCache = { rec: state.records, ev: state.events, list };
+  return list;
+}
+// 同じツールの同時利用数が枠を超えないか（最大同時数で判定）
+function checkConflict(tool, date, start, end, excludeKey) {
+  if (!isOnlineTool(tool)) return { ok: true, online: false };
+  const s0 = hhmmToMin(start), e0 = hhmmToMin(end);
+  if (isNaN(s0) || isNaN(e0) || e0 <= s0) return { ok: false, invalid: true };
+  const cap = toolCap(tool);
+  const others = allMeetings().filter(m =>
+    m.tool === tool && m.date === date && m.key !== excludeKey &&
+    hhmmToMin(m.start) < e0 && s0 < hhmmToMin(m.end));
+  const points = [s0, ...others.map(m => Math.max(s0, hhmmToMin(m.start)))];
+  let peak = 1;
+  points.forEach(t => {
+    const n = 1 + others.filter(m => hhmmToMin(m.start) <= t && t < hhmmToMin(m.end)).length;
+    if (n > peak) peak = n;
+  });
+  const alternatives = toolsList().map(t => t.name).filter(n => n !== tool && checkConflictSimple(n, date, s0, e0, excludeKey));
+  return { ok: peak <= cap, online: true, cap, peak, others, alternatives };
+}
+function checkConflictSimple(tool, date, s0, e0, excludeKey) {
+  const cap = toolCap(tool);
+  const others = allMeetings().filter(m => m.tool === tool && m.date === date && m.key !== excludeKey &&
+    hhmmToMin(m.start) < e0 && s0 < hhmmToMin(m.end));
+  const points = [s0, ...others.map(m => Math.max(s0, hhmmToMin(m.start)))];
+  return points.every(t => 1 + others.filter(m => hhmmToMin(m.start) <= t && t < hhmmToMin(m.end)).length <= cap);
+}
+// 今日以降で、枠を超えて重なっている予約（枠を減らした時などに発生）
+function overCapacityKeys() {
+  const today = todayStr();
+  const keys = new Set();
+  allMeetings().filter(m => m.date >= today && isOnlineTool(m.tool)).forEach(m => {
+    const res = checkConflict(m.tool, m.date, m.start, m.end, m.key);
+    if (res.online && !res.ok) keys.add(m.key);
+  });
+  return keys;
+}
+function renderConflictBox(boxId, res, tool) {
+  const box = document.getElementById(boxId);
+  if (!box) return;
+  box.classList.remove('ok');
+  if (!res || (res.ok && !res.online)) { box.classList.remove('show'); box.innerHTML = ''; return; }
+  if (res.invalid) { box.classList.add('show'); box.innerHTML = '⚠ 終了時刻は開始より後にしてください'; return; }
+  if (res.ok) {
+    box.classList.add('show', 'ok');
+    box.innerHTML = `✓ ${esc(tool)} 空きあり（この時間帯 ${res.peak}/${res.cap}）`;
+    return;
+  }
+  box.classList.add('show');
+  box.innerHTML = `✕ ${esc(tool)} の枠が埋まっています（同時${res.cap}件まで）<br>` +
+    res.others.map(m => `・${esc(m.start)}〜${esc(m.end)} ${esc(m.name)}`).join('<br>') +
+    (res.alternatives.length ? `<br><strong>→ ${res.alternatives.map(esc).join(' / ')} なら空いています</strong>` : '<br><strong>→ 他のツールも埋まっています。時間をずらしてください</strong>');
+}
 
 // ================== 検索できる会社ピッカー ==================
 const pickers = {};
@@ -3216,9 +3852,14 @@ function openApoModal(recordId, prefillDate) {
   if (!ensureMe()) return;
   setPickerValue('a-target', recordId || '');
   refreshMemberSelects();
-  ['a-name','a-rep','a-place','a-zoom','a-memo','a-industry','a-tel'].forEach(id => document.getElementById(id).value = '');
+  ['a-name','a-rep','a-place','a-zoom','a-memo','a-industry','a-tel','a-url'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('a-date').value = prefillDate || '';
   document.getElementById('a-time').value = '';
+  document.getElementById('a-end').value = '';
+  document.getElementById('a-end').dataset.auto = '1';
+  document.getElementById('a-tool').innerHTML = toolOptions(toolsList()[0].name);
+  document.getElementById('a-mail-sent').checked = false;
+  renderConflictBox('a-conflict', null, '');
   document.getElementById('a-product').value = '';
   document.getElementById('a-owner').value = getMe();
   document.getElementById('a-sales').value = getMe();
@@ -3232,11 +3873,34 @@ function applyApoTarget(id) {
   document.getElementById('a-tel').value = r.tel || r.mobile || '';
   document.getElementById('a-industry').value = r.industry || '';
   document.getElementById('a-rep').value = r.rep_name || '';
+  document.getElementById('a-url').value = r.url || '';
+  if (r.zoom_send) document.getElementById('a-zoom').value = r.zoom_send;
 }
+function apoCheckConflict() {
+  const date = document.getElementById('a-date').value;
+  const start = document.getElementById('a-time').value;
+  const end = document.getElementById('a-end').value;
+  const tool = document.getElementById('a-tool').value;
+  if (!date || !start || !end) { renderConflictBox('a-conflict', null, tool); return null; }
+  const targetId = document.getElementById('a-target').value;
+  const res = checkConflict(tool, date, start, end, targetId ? 'record:' + targetId : '');
+  renderConflictBox('a-conflict', res, tool);
+  return res;
+}
+document.getElementById('a-time').addEventListener('change', () => {
+  const endEl = document.getElementById('a-end');
+  const start = document.getElementById('a-time').value;
+  if (start && (endEl.dataset.auto === '1' || !endEl.value)) { endEl.value = addMinHHMM(start, MEETING_DEFAULT_MIN); endEl.dataset.auto = '1'; }
+  apoCheckConflict();
+});
+document.getElementById('a-end').addEventListener('change', () => { document.getElementById('a-end').dataset.auto = '0'; apoCheckConflict(); });
+document.getElementById('a-date').addEventListener('change', apoCheckConflict);
+document.getElementById('a-tool').addEventListener('change', apoCheckConflict);
 document.getElementById('apoReportBtn').addEventListener('click', () => openApoModal(null));
-document.getElementById('apoModalClose').addEventListener('click', () => apoModal.classList.remove('open'));
-document.getElementById('apoCancelBtn').addEventListener('click', () => apoModal.classList.remove('open'));
-apoModal.addEventListener('click', e => { if (e.target === apoModal) apoModal.classList.remove('open'); });
+const closeApoModal = () => { apoModal.classList.remove('open'); state.skipAutoCallLog = false; };
+document.getElementById('apoModalClose').addEventListener('click', closeApoModal);
+document.getElementById('apoCancelBtn').addEventListener('click', closeApoModal);
+apoModal.addEventListener('click', e => { if (e.target === apoModal) closeApoModal(); });
 
 document.getElementById('apoConfirmBtn').addEventListener('click', async () => {
   const name = document.getElementById('a-name').value.trim();
@@ -3247,12 +3911,22 @@ document.getElementById('apoConfirmBtn').addEventListener('click', async () => {
   const memo = document.getElementById('a-memo').value.trim();
   const owner = document.getElementById('a-owner').value;
 
+  const endTime = document.getElementById('a-end').value;
+  const tool = document.getElementById('a-tool').value;
   if (!name) { toast('会社名を入力してください', true); return; }
-  if (!date || !time) { toast('商談日と時刻を入力してください', true); return; }
+  if (!date || !time) { toast('商談日と開始時刻を入力してください', true); return; }
+  if (!endTime) { toast('終了時刻を入力してください', true); return; }
+  if (hhmmToMin(endTime) <= hhmmToMin(time)) { toast('終了時刻は開始より後にしてください', true); return; }
+  if (!tool) { toast('商談方法を選択してください', true); return; }
   if (!tel) { toast('電話番号を入力してください', true); return; }
-  if (!place) { toast('住所情報を入力してください（Zoomなら「Zoom」）', true); return; }
+  if (tool === '対面' && !place) { toast('対面の場合は住所情報を入力してください', true); return; }
   if (!memo) { toast('アポ報告用メモを入力してください', true); return; }
   if (!owner) { toast('アポ取得者を選択してください', true); return; }
+  const conflict = apoCheckConflict();
+  const tgt = document.getElementById('a-target').value ? state.records.find(r => r.id === document.getElementById('a-target').value) : null;
+  const sameSlot = tgt && tgt.meetingDate === `${date}T${time}` &&
+    (tgt.meetingEnd || addMinHHMM(time, MEETING_DEFAULT_MIN)) === endTime && inferTool(tgt) === tool;
+  if (conflict && !conflict.ok && !sameSlot) { toast(`${tool} の枠が埋まっています。ツールか時間を変えてください`, true); return; }
 
   const targetId = document.getElementById('a-target').value;
   const rep_ = document.getElementById('a-rep').value.trim();
@@ -3261,6 +3935,9 @@ document.getElementById('apoConfirmBtn').addEventListener('click', async () => {
   const industry = document.getElementById('a-industry').value.trim();
   const sales = document.getElementById('a-sales').value;
   const dt = `${date}T${time}`;
+  const url = document.getElementById('a-url').value.trim().slice(0, 500);
+  const mailSent = document.getElementById('a-mail-sent').checked;
+  const placeFinal = place || tool;
 
   const btn = document.getElementById('apoConfirmBtn');
   btn.disabled = true;
@@ -3268,7 +3945,7 @@ document.getElementById('apoConfirmBtn').addEventListener('click', async () => {
     const existing = targetId ? state.records.find(r => r.id === targetId) : null;
     const base = existing || { id: uid(), planType: 'none', tags: [], init_amount: 0, monthly_amount: 0, createdAt: isoNow(), activity: [] };
     const activity = Array.isArray(base.activity) ? [...base.activity] : [];
-    activity.unshift({ at: isoNow(), type: 'system', text: `📞 アポ報告: ${fmtDateTime(dt)} / ${place} (取得: ${owner})` });
+    activity.unshift({ at: isoNow(), type: 'system', text: `📞 アポ報告: ${fmtDateTime(dt)}〜${endTime} / ${tool}${place && place !== tool ? ' ' + place : ''} (取得: ${owner})` });
 
     const rec = {
       ...base,
@@ -3277,8 +3954,12 @@ document.getElementById('apoConfirmBtn').addEventListener('click', async () => {
       phase: (base.phase && base.phase !== 'lead') ? base.phase : 'appo',
       leadStatus: '案件化',
       meetingDate: dt,
+      meetingEnd: endTime,
+      meet_tool: tool,
+      mail_sent: mailSent,
+      url: url || base.url || '',
       rep_name: rep_,
-      meet_place: place,
+      meet_place: placeFinal,
       zoom_send: zoom,
       product: product,
       industry: industry || base.industry || '',
@@ -3291,12 +3972,15 @@ document.getElementById('apoConfirmBtn').addEventListener('click', async () => {
     await saveRecord(rec);
 
     const body =
-`【日時】${fmtDateTime(dt)}
+`【日時】${fmtDateTime(dt)}〜${endTime}
+【商談方法】${tool}
 【屋号】${name}
 【電話番号】${tel}
+【URL】${url || base.url || '—'}
 【代表者名】${rep_ || '—'}
-【訪問先/住所】${place}
-【ZoomURL送付方法】${zoom || '—'}
+【訪問先/住所】${placeFinal}
+【会議URL送付方法】${zoom || '—'}
+【メール送付】${mailSent ? '送付済み' : '未送付'}
 【商材】${product || '—'}
 【業種】${industry || '—'}
 【アポ取得者】${owner}
@@ -3305,6 +3989,7 @@ document.getElementById('apoConfirmBtn').addEventListener('click', async () => {
 【メモ】
 ${memo}`;
     const ok = await postToChatter('apo', body, { recordId: rec.id, recordName: name, author: owner });
+    await autoLogApoCall(rec, owner, memo);
     apoModal.classList.remove('open');
     toast(ok ? '✓ アポ報告をチャッターに流しました' : '⚠ 保存しましたがチャッター投稿に失敗', !ok);
     switchTab('chatter');
@@ -3558,7 +4243,7 @@ document.getElementById('migrateRunBtn').addEventListener('click', async () => {
   if (!targets.length) { toast('振り分けが必要なレコードはありません'); return; }
   if (!confirm(`${targets.length}件を リード / 取引先 に振り分けます。\n実行前にバックアップJSONを自動ダウンロードします。続行しますか?`)) return;
   try {
-    const blob = new Blob([JSON.stringify({ exportedAt: isoNow(), records: state.records, deals: state.deals }, null, 2)], { type: 'application/json' });
+    const blob = new Blob([JSON.stringify({ exportedAt: isoNow(), records: state.records, deals: state.deals, calls: state.calls, events: state.events }, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url; a.download = `crm-backup-before-migration-${todayStr()}.json`;
@@ -3585,6 +4270,18 @@ document.getElementById('addMemberBtn').addEventListener('click', async () => {
   try { await saveMeta('members', [...state.members, name]); input.value = ''; toast('✓ 追加しました'); }
   catch (e) { toast('失敗: ' + e.message, true); }
 });
+document.getElementById('addToolBtn').addEventListener('click', async () => {
+  const name = document.getElementById('newToolName').value.trim().slice(0, 30);
+  const cap = Math.max(1, Math.min(20, Number(document.getElementById('newToolCap').value) || 1));
+  if (!name) { toast('ツール名を入力してください', true); return; }
+  if (OFFLINE_TOOLS.includes(name)) { toast(`「${name}」は枠制限なしの方法として既にあります`, true); return; }
+  if (toolsList().some(t => t.name === name)) { toast('すでに登録されています', true); return; }
+  try {
+    await saveMeta('tools', [...toolsList(), { name, cap }]);
+    document.getElementById('newToolName').value = '';
+    toast(`✓ ${name}（同時${cap}件）を追加しました`);
+  } catch (e) { toast('失敗: ' + e.message, true); }
+});
 document.getElementById('addProductBtn').addEventListener('click', async () => {
   const input = document.getElementById('newProductName');
   const name = input.value.trim().slice(0, 40);
@@ -3594,6 +4291,605 @@ document.getElementById('addProductBtn').addEventListener('click', async () => {
   try { await saveMeta('products', [...cur, name]); input.value = ''; toast('✓ 追加しました'); }
   catch (e) { toast('失敗: ' + e.message, true); }
 });
+
+
+// ==================================================================
+// ==================== 架電チェック (コールログ) ====================
+// ==================================================================
+const CALLS_COLLECTION = 'crm_calls';
+const CALL_RESULTS = {
+  noanswer: { label: '不通',      icon: '📵' },
+  refused:  { label: '営業断り',  icon: '✕'  },
+  busy:     { label: '忙しい',    icon: '⏳' },
+  schedule: { label: '日程調整',  icon: '📆' },
+  apo:      { label: 'アポ取得',  icon: '✅' }
+};
+function callResultBadge(k) {
+  if (!k || !CALL_RESULTS[k]) return '<span style="font-size:11px;color:var(--text3);">未架電</span>';
+  const r = CALL_RESULTS[k];
+  return `<span class="callres ${esc(k)}">${r.icon} ${esc(r.label)}</span>`;
+}
+// 直近3ヶ月分（今月 + 前2ヶ月）だけ購読。件数が増えてもFirestoreの読み取り量が膨らまないようにする
+const CALLS_WINDOW_MONTHS = 3;
+function callsCutoffMs() { const d = new Date(); d.setMonth(d.getMonth() - (CALLS_WINDOW_MONTHS - 1)); d.setDate(1); d.setHours(0,0,0,0); return d.getTime(); }
+function perfMonthInWindow() { return new Date(state.perfYear, state.perfMonth, 1).getTime() >= callsCutoffMs(); }
+async function saveCall(c) {
+  const clean = {};
+  Object.keys(c).forEach(k => { if (c[k] !== undefined) clean[k] = c[k]; });
+  clean._updatedServer = serverTimestamp();
+  await setDoc(doc(state.db, CALLS_COLLECTION, c.id), clean);
+}
+function subscribeCalls() {
+  if (state.callsUnsub) { try { state.callsUnsub(); } catch {} }
+  const q = query(collection(state.db, CALLS_COLLECTION), where('atMs', '>=', callsCutoffMs()));
+  state.callsUnsub = onSnapshot(q, snap => {
+    const list = [];
+    snap.forEach(d => { const data = d.data(); if (data && data.result) list.push({ ...data, id: d.id }); });
+    list.sort((a, b) => (Number(b.atMs) || 0) - (Number(a.atMs) || 0));
+    state.calls = list;
+    const active = document.querySelector('.nav-tab.active')?.dataset.tab;
+    if (active === 'leadlist') renderLeadList();
+    else if (active === 'calendar') renderCalendar();
+    else if (active === 'reports') renderPerformance();
+    else if (active === 'dashboard') renderDashboard();
+  }, err => console.error('calls onSnapshot:', err));
+}
+
+const callModal = document.getElementById('callModal');
+function updateCallFields() {
+  const v = document.querySelector('input[name="cResult"]:checked').value;
+  const needNext = v === 'busy' || v === 'schedule';
+  document.getElementById('grp-c-next').classList.toggle('show', needNext);
+  document.getElementById('grp-c-time').classList.toggle('show', needNext);
+  document.getElementById('callSaveApoBtn').style.display = v === 'apo' ? '' : 'none';
+  document.getElementById('callSaveBtn').style.display = v === 'apo' ? 'none' : '';
+}
+function openCallModal(customerId) {
+  if (!ensureMe()) return;
+  const r = state.records.find(x => x.id === customerId);
+  if (!r) { toast('対象が見つかりません', true); return; }
+  state.callTargetId = customerId;
+  refreshMemberSelects();
+  document.getElementById('c-name').textContent = r.name || '—';
+  document.getElementById('c-tel').textContent = [r.tel, r.mobile].filter(Boolean).join(' / ') || '電話番号なし';
+  const hist = state.calls.filter(c => c.customerId === customerId).slice(0, 3);
+  document.getElementById('c-history').innerHTML = hist.length
+    ? '直近: ' + hist.map(c => `${esc(fmtDate(c.at.slice(0,10)))} ${esc(CALL_RESULTS[c.result]?.label || c.result)}(${esc(c.caller || '—')})`).join(' ／ ')
+    : '架電履歴なし';
+  document.querySelector('input[name="cResult"][value="noanswer"]').checked = true;
+  ['c-next','c-time','c-memo'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('c-caller').value = getMe();
+  updateCallFields();
+  callModal.classList.add('open');
+}
+document.querySelectorAll('input[name="cResult"]').forEach(r => r.addEventListener('change', updateCallFields));
+document.getElementById('callModalClose').addEventListener('click', () => callModal.classList.remove('open'));
+document.getElementById('callCancelBtn').addEventListener('click', () => callModal.classList.remove('open'));
+callModal.addEventListener('click', e => { if (e.target === callModal) callModal.classList.remove('open'); });
+
+async function submitCall(thenApo) {
+  const r = state.records.find(x => x.id === state.callTargetId);
+  if (!r) { toast('対象が見つかりません', true); return; }
+  const result = document.querySelector('input[name="cResult"]:checked').value;
+  const caller = document.getElementById('c-caller').value;
+  const nextDate = document.getElementById('c-next').value;
+  const nextTime = document.getElementById('c-time').value;
+  const memo = document.getElementById('c-memo').value.trim();
+  if (!caller) { toast('架電者を選択してください', true); return; }
+  if ((result === 'busy' || result === 'schedule') && !nextDate) { toast('次回架電日を入力してください', true); return; }
+
+  const btns = [document.getElementById('callSaveBtn'), document.getElementById('callSaveApoBtn')];
+  btns.forEach(b => b.disabled = true);
+  try {
+    const now = new Date();
+    const call = {
+      id: 'c_' + now.getTime().toString(36) + '_' + Math.random().toString(36).slice(2, 6),
+      customerId: r.id, customerName: r.name || '',
+      result, caller, memo: memo.slice(0, 2000),
+      nextDate: (result === 'busy' || result === 'schedule') ? nextDate : '',
+      nextTime: (result === 'busy' || result === 'schedule') ? nextTime : '',
+      at: isoNow(), atMs: now.getTime()
+    };
+    await saveCall(call);
+
+    const activity = Array.isArray(r.activity) ? [...r.activity] : [];
+    activity.unshift({ at: isoNow(), type: 'system', text: `☎ 架電: ${CALL_RESULTS[result].label} (${caller})${nextDate ? ' 次回 ' + fmtDate(nextDate) : ''}${memo ? ' — ' + memo.slice(0, 60) : ''}` });
+    const upd = {
+      ...r,
+      lastCallResult: result,
+      lastCallAt: isoNow(),
+      callCount: (Number(r.callCount) || 0) + 1,
+      activity: activity.slice(0, 50),
+      updatedAt: isoNow()
+    };
+    if (result === 'refused' && recKind(r) === 'lead') upd.leadStatus = '完了';
+    if (result === 'busy' || result === 'schedule') { upd.followupDate = nextDate; upd.followupTime = nextTime || ''; }
+    else if (result === 'refused' || result === 'apo') { upd.followupDate = ''; upd.followupTime = ''; }
+    await saveRecord(upd);
+
+    callModal.classList.remove('open');
+    if (thenApo) {
+      // 架電チェック側で既にアポ取得を記録したので、アポ報告側での自動記録は抑止
+      state.skipAutoCallLog = true;
+      openApoModal(r.id, nextDate || todayStr());
+      if (nextTime) {
+        document.getElementById('a-time').value = nextTime;
+        document.getElementById('a-time').dispatchEvent(new Event('change'));
+      }
+      document.getElementById('a-owner').value = caller;
+      if (memo) document.getElementById('a-memo').value = memo;
+    } else {
+      toast(`✓ 架電を記録しました（${CALL_RESULTS[result].label}）`);
+    }
+  } catch (e) { console.error(e); toast('失敗: ' + (e.message || ''), true); }
+  finally { btns.forEach(b => b.disabled = false); }
+}
+document.getElementById('callSaveBtn').addEventListener('click', () => submitCall(false));
+document.getElementById('callSaveApoBtn').addEventListener('click', () => submitCall(true));
+
+// アポ報告が保存されたときに、架電チェックを経由していなければアポ取得として自動記録
+async function autoLogApoCall(rec, owner, memo) {
+  if (state.skipAutoCallLog) { state.skipAutoCallLog = false; return; }
+  const now = new Date();
+  try {
+    await saveCall({
+      id: 'c_' + now.getTime().toString(36) + '_' + Math.random().toString(36).slice(2, 6),
+      customerId: rec.id, customerName: rec.name || '',
+      result: 'apo', caller: owner, memo: (memo || '').slice(0, 200),
+      nextDate: '', nextTime: '', at: isoNow(), atMs: now.getTime(), auto: true
+    });
+  } catch (e) { console.error('autoLogApoCall', e); }
+}
+
+// ==================================================================
+// ==================== 打ち込み式の予定 (カレンダー) ====================
+// ==================================================================
+const EVENTS_COLLECTION = 'crm_events';
+async function saveEvent(ev) {
+  const clean = {};
+  Object.keys(ev).forEach(k => { if (ev[k] !== undefined) clean[k] = ev[k]; });
+  clean.updatedAt = isoNow();
+  clean._updatedServer = serverTimestamp();
+  await setDoc(doc(state.db, EVENTS_COLLECTION, ev.id), clean);
+}
+function subscribeEvents() {
+  if (state.eventsUnsub) { try { state.eventsUnsub(); } catch {} }
+  const q = query(collection(state.db, EVENTS_COLLECTION));
+  state.eventsUnsub = onSnapshot(q, snap => {
+    const list = [];
+    snap.forEach(d => { const data = d.data(); if (data && data.date && data.title) list.push({ ...data, id: d.id }); });
+    state.events = list;
+    const act = document.querySelector('.nav-tab.active')?.dataset.tab;
+    if (act === 'calendar') renderCalendar();
+  }, err => console.error('events onSnapshot:', err));
+}
+const eventModal = document.getElementById('eventModal');
+initPicker('e-target', {
+  getItems: () => pickerItemsFromRecords().sort((a, b) => String(a.name).localeCompare(String(b.name), 'ja')),
+  onPick: id => {
+    const r = state.records.find(x => x.id === id);
+    const t = document.getElementById('e-title');
+    if (r && !t.value) t.value = r.name;
+  },
+  onClear: () => {}
+});
+function openEventModal(eventId, prefillDate) {
+  if (!ensureMe()) return;
+  state.editingEventId = eventId || null;
+  const memSel = document.getElementById('e-member');
+  memSel.innerHTML = '<option value="">—</option>' + memberOptions(getMe());
+  ['e-time','e-end','e-title','e-memo'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('e-end').dataset.auto = '1';
+  document.getElementById('e-tool').innerHTML = '<option value="">なし（打合せ以外）</option>' + toolOptions('');
+  document.getElementById('e-tool').value = '';
+  renderConflictBox('e-conflict', null, '');
+  document.getElementById('e-date').value = prefillDate || todayStr();
+  memSel.value = getMe();
+  setPickerValue('e-target', '');
+  document.getElementById('eventDeleteBtn').style.display = eventId ? '' : 'none';
+  document.getElementById('eventTitle').textContent = eventId ? '📅 予定を編集' : '📅 予定を追加';
+  if (eventId) {
+    const ev = state.events.find(x => x.id === eventId);
+    if (ev) {
+      document.getElementById('e-date').value = ev.date || '';
+      document.getElementById('e-time').value = ev.time || '';
+      document.getElementById('e-end').value = ev.endTime || '';
+      document.getElementById('e-end').dataset.auto = ev.endTime ? '0' : '1';
+      document.getElementById('e-tool').innerHTML = '<option value="">なし（打合せ以外）</option>' + toolOptions(ev.tool || '');
+      document.getElementById('e-tool').value = ev.tool || '';
+      document.getElementById('e-title').value = ev.title || '';
+      document.getElementById('e-memo').value = ev.memo || '';
+      memSel.value = ev.member || '';
+      if (ev.customerId) setPickerValue('e-target', ev.customerId);
+    }
+  }
+  eventModal.classList.add('open');
+}
+function eventCheckConflict() {
+  const tool = document.getElementById('e-tool').value;
+  const date = document.getElementById('e-date').value;
+  const st = document.getElementById('e-time').value;
+  const en = document.getElementById('e-end').value;
+  if (!tool || !date || !st || !en) { renderConflictBox('e-conflict', null, tool); return null; }
+  const res = checkConflict(tool, date, st, en, state.editingEventId ? 'event:' + state.editingEventId : '');
+  renderConflictBox('e-conflict', res, tool);
+  return res;
+}
+document.getElementById('e-time').addEventListener('change', () => {
+  const endEl = document.getElementById('e-end');
+  const st = document.getElementById('e-time').value;
+  if (st && (endEl.dataset.auto === '1' || !endEl.value)) { endEl.value = addMinHHMM(st, MEETING_DEFAULT_MIN); endEl.dataset.auto = '1'; }
+  eventCheckConflict();
+});
+document.getElementById('e-end').addEventListener('change', () => { document.getElementById('e-end').dataset.auto = '0'; eventCheckConflict(); });
+['e-date','e-tool'].forEach(id => document.getElementById(id).addEventListener('change', eventCheckConflict));
+document.getElementById('eventModalClose').addEventListener('click', () => eventModal.classList.remove('open'));
+document.getElementById('eventCancelBtn').addEventListener('click', () => eventModal.classList.remove('open'));
+eventModal.addEventListener('click', e => { if (e.target === eventModal) eventModal.classList.remove('open'); });
+document.getElementById('eventSaveBtn').addEventListener('click', async () => {
+  const date = document.getElementById('e-date').value;
+  const title = document.getElementById('e-title').value.trim();
+  if (!date) { toast('日付を入力してください', true); return; }
+  if (!title) { toast('内容を入力してください', true); return; }
+  const eTool = document.getElementById('e-tool').value;
+  const eStart = document.getElementById('e-time').value;
+  const eEnd = document.getElementById('e-end').value;
+  if (eEnd && !eStart) { toast('終了を入れる場合は開始も入力してください', true); return; }
+  if (eStart && eEnd && hhmmToMin(eEnd) <= hhmmToMin(eStart)) { toast('終了時刻は開始より後にしてください', true); return; }
+  if (isOnlineTool(eTool)) {
+    if (!eStart) { toast(`${eTool} を使う場合は開始時刻を入力してください`, true); return; }
+    const res = eventCheckConflict();
+    if (res && !res.ok) { toast(`${eTool} の枠が埋まっています`, true); return; }
+  }
+  const btn = document.getElementById('eventSaveBtn');
+  btn.disabled = true;
+  try {
+    const prev = state.editingEventId ? state.events.find(x => x.id === state.editingEventId) : null;
+    const cid = document.getElementById('e-target').value;
+    const c = cid ? state.records.find(r => r.id === cid) : null;
+    await saveEvent({
+      ...(prev || { id: 'e_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 6), createdAt: isoNow(), createdBy: getMe() }),
+      date, time: eStart || '',
+      endTime: eStart ? (eEnd || addMinHHMM(eStart, MEETING_DEFAULT_MIN)) : '',
+      tool: eTool || '',
+      title: title.slice(0, 120),
+      memo: document.getElementById('e-memo').value.trim().slice(0, 2000),
+      member: document.getElementById('e-member').value || '',
+      customerId: cid || '', customerName: c ? c.name : ''
+    });
+    eventModal.classList.remove('open');
+    toast(prev ? '✓ 予定を更新しました' : '✓ 予定を追加しました');
+    if (document.querySelector('.nav-tab.active')?.dataset.tab !== 'calendar') switchTab('calendar');
+  } catch (e) { console.error(e); toast('失敗: ' + (e.message || ''), true); }
+  finally { btn.disabled = false; }
+});
+document.getElementById('eventDeleteBtn').addEventListener('click', async () => {
+  if (!state.editingEventId) return;
+  if (!confirm('この予定を削除しますか?')) return;
+  try {
+    await deleteDoc(doc(state.db, EVENTS_COLLECTION, state.editingEventId));
+    eventModal.classList.remove('open');
+    toast('✓ 削除しました');
+  } catch (e) { toast('失敗: ' + e.message, true); }
+});
+document.getElementById('eventApoBtn').addEventListener('click', () => {
+  const date = document.getElementById('e-date').value || todayStr();
+  const time = document.getElementById('e-time').value;
+  const endT = document.getElementById('e-end').value;
+  const tool = document.getElementById('e-tool').value;
+  const cid = document.getElementById('e-target').value;
+  eventModal.classList.remove('open');
+  openApoModal(cid || null, date);
+  if (tool && [...document.getElementById('a-tool').options].some(o => o.value === tool)) document.getElementById('a-tool').value = tool;
+  if (time) {
+    document.getElementById('a-time').value = time;
+    document.getElementById('a-time').dispatchEvent(new Event('change'));
+    if (endT) {
+      document.getElementById('a-end').value = endT;
+      document.getElementById('a-end').dispatchEvent(new Event('change'));
+    }
+  }
+});
+
+// ==================================================================
+// ==================== 商談予定の編集（カレンダーから） ====================
+// ==================================================================
+const meetModal = document.getElementById('meetModal');
+let meetEditingId = null;
+function meetCheckConflict() {
+  const res = checkConflict(document.getElementById('m-tool').value, document.getElementById('m-date').value,
+    document.getElementById('m-start').value, document.getElementById('m-end').value, 'record:' + meetEditingId);
+  renderConflictBox('m-conflict', res, document.getElementById('m-tool').value);
+  return res;
+}
+function openMeetModal(recordId) {
+  const r = state.records.find(x => x.id === recordId);
+  if (!r) { toast('この取引先は削除されています', true); return; }
+  meetEditingId = recordId;
+  const start = r.meetingDate ? r.meetingDate.slice(11, 16) : '';
+  document.getElementById('m-name').textContent = r.name || '—';
+  document.getElementById('m-sub').innerHTML = [
+    r.tel ? esc(r.tel) : '', r.url ? extLink(r.url) : '',
+    r.apo_owner ? `アポ: ${esc(r.apo_owner)}` : '', r.sales_owner ? `営業: ${esc(r.sales_owner)}` : ''
+  ].filter(Boolean).join(' ／ ') || '—';
+  document.getElementById('m-date').value = r.meetingDate ? r.meetingDate.slice(0, 10) : '';
+  document.getElementById('m-start').value = start;
+  document.getElementById('m-end').value = r.meetingEnd || addMinHHMM(start, MEETING_DEFAULT_MIN);
+  document.getElementById('m-tool').innerHTML = toolOptions(inferTool(r) || toolsList()[0].name);
+  document.getElementById('m-zoom').value = r.zoom_send || '';
+  document.getElementById('m-mail-sent').checked = !!r.mail_sent;
+  meetCheckConflict();
+  meetModal.classList.add('open');
+}
+['m-date','m-start','m-end','m-tool'].forEach(id => document.getElementById(id).addEventListener('change', meetCheckConflict));
+document.getElementById('meetModalClose').addEventListener('click', () => meetModal.classList.remove('open'));
+document.getElementById('meetCancelBtn').addEventListener('click', () => meetModal.classList.remove('open'));
+meetModal.addEventListener('click', e => { if (e.target === meetModal) meetModal.classList.remove('open'); });
+document.getElementById('meetDetailBtn').addEventListener('click', () => { meetModal.classList.remove('open'); openDetail(meetEditingId); });
+document.getElementById('meetSaveBtn').addEventListener('click', async () => {
+  const r = state.records.find(x => x.id === meetEditingId);
+  if (!r) { toast('この取引先は削除されています', true); return; }
+  const date = document.getElementById('m-date').value;
+  const start = document.getElementById('m-start').value;
+  const end = document.getElementById('m-end').value;
+  const tool = document.getElementById('m-tool').value;
+  if (!date || !start || !end) { toast('日付・開始・終了を入力してください', true); return; }
+  if (hhmmToMin(end) <= hhmmToMin(start)) { toast('終了時刻は開始より後にしてください', true); return; }
+  const res = meetCheckConflict();
+  const unchanged = r.meetingDate === `${date}T${start}` &&
+    (r.meetingEnd || addMinHHMM(r.meetingDate.slice(11, 16), MEETING_DEFAULT_MIN)) === end && inferTool(r) === tool;
+  // 既に入っている予約の「メール送付」などだけ直す場合は、枠を減らした後でも保存できるようにする
+  if (!res.ok && !unchanged) { toast(`${tool} の枠が埋まっています`, true); return; }
+  const btn = document.getElementById('meetSaveBtn');
+  btn.disabled = true;
+  try {
+    const mailSent = document.getElementById('m-mail-sent').checked;
+    const newDt = `${date}T${start}`;
+    const changes = [];
+    if (r.meetingDate !== newDt || (r.meetingEnd || '') !== end) changes.push(`日時 ${fmtDateTime(newDt)}〜${end}`);
+    if (inferTool(r) !== tool) changes.push(`方法 ${tool}`);
+    if (!!r.mail_sent !== mailSent) changes.push(mailSent ? 'メール送付済み' : 'メール未送付に戻す');
+    const act = Array.isArray(r.activity) ? [...r.activity] : [];
+    if (changes.length) act.unshift({ at: isoNow(), type: 'system', text: `🎥 商談予定を更新: ${changes.join(' / ')} (${getMe()})` });
+    await saveRecord({
+      ...r, meetingDate: newDt, meetingEnd: end, meet_tool: tool,
+      zoom_send: document.getElementById('m-zoom').value.trim().slice(0, 200),
+      mail_sent: mailSent, mail_sent_at: mailSent ? (r.mail_sent_at || isoNow()) : '',
+      activity: act.slice(0, 50), updatedAt: isoNow()
+    });
+    meetModal.classList.remove('open');
+    toast('✓ 商談予定を更新しました');
+  } catch (e) { console.error(e); toast('失敗: ' + (e.message || ''), true); }
+  finally { btn.disabled = false; }
+});
+
+// カレンダーの下: 表示期間の商談一覧（メール送付をその場で切替）
+function calVisibleRange() {
+  if (state.calMode === 'week') {
+    const s0 = new Date((state.calWeekStart || todayStr()) + 'T00:00:00');
+    const e0 = new Date(s0); e0.setDate(e0.getDate() + 6);
+    return [ymd(s0), ymd(e0)];
+  }
+  const y = state.calYear, m = state.calMonth;
+  return [`${y}-${String(m + 1).padStart(2, '0')}-01`, ymd(new Date(y, m + 1, 0))];
+}
+function renderSlotTable() {
+  const tbody = document.getElementById('slotTable');
+  if (!tbody) return;
+  document.getElementById('slotCapLabel').textContent = toolsList().map(t => `${t.name} ${t.cap}枠`).join(' / ');
+  const [from, to] = calVisibleRange();
+  const list = allMeetings().filter(m => m.date >= from && m.date <= to && (m.src === 'record' || m.tool))
+    .sort((a, b) => (a.date + a.start).localeCompare(b.date + b.start));
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty"><div class="empty-text">この期間の商談はありません</div></div></td></tr>`;
+    return;
+  }
+  const today = todayStr();
+  const over = overCapacityKeys();
+  tbody.innerHTML = list.map(m => {
+    const online = isOnlineTool(m.tool);
+    const isOver = over.has(m.key);
+    const mailCell = online || (m.src === 'record' && m.tool === '')
+      ? `<button class="btn-action" style="padding:3px 8px; font-size:11px; min-height:26px;" data-mailtoggle="${esc(m.key)}"><span class="${m.mailSent ? 'mail-ok' : 'mail-ng'}">${m.mailSent ? '✓ 送付済' : '✕ 未送付'}</span></button>`
+      : '<span style="color:var(--text3);">—</span>';
+    return `<tr class="${m.date === today ? 'today' : ''}" data-slot="${esc(m.key)}" style="cursor:pointer;${isOver ? ' background:var(--red-dim);' : ''}">
+      <td class="mono">${esc(fmtDate(m.date))}</td>
+      <td class="mono">${esc(m.start)}〜${esc(m.end)}</td>
+      <td>${m.tool ? toolBadge(m.tool) : '<span style="color:var(--text3);">未設定</span>'}${isOver ? '<div style="color:var(--red); font-size:10px; font-weight:700;">⚠ 枠オーバー</div>' : ''}</td>
+      <td><strong>${esc(m.name)}</strong>${m.src === 'event' ? ' <span style="font-size:10px;color:var(--text3);">(予定)</span>' : ''}</td>
+      <td>${esc(m.apoOwner || '—')}</td>
+      <td>${esc(m.sales || '—')}</td>
+      <td>${mailCell}</td>
+    </tr>`;
+  }).join('');
+  tbody.querySelectorAll('tr[data-slot]').forEach(tr => tr.addEventListener('click', e => {
+    if (e.target.closest('[data-mailtoggle]')) return;
+    const [src, id] = tr.dataset.slot.split(':');
+    if (src === 'record') openMeetModal(id); else openEventModal(id, null);
+  }));
+  tbody.querySelectorAll('[data-mailtoggle]').forEach(b => b.addEventListener('click', async e => {
+    e.stopPropagation();
+    const [src, id] = b.dataset.mailtoggle.split(':');
+    b.disabled = true;
+    try {
+      if (src === 'record') {
+        const r = state.records.find(x => x.id === id); if (!r) return;
+        const v = !r.mail_sent;
+        const act = Array.isArray(r.activity) ? [...r.activity] : [];
+        act.unshift({ at: isoNow(), type: 'system', text: `✉ 会議URLメール: ${v ? '送付済み' : '未送付に戻す'} (${getMe()})` });
+        await saveRecord({ ...r, mail_sent: v, mail_sent_at: v ? isoNow() : '', activity: act.slice(0, 50), updatedAt: isoNow() });
+      } else {
+        const ev = state.events.find(x => x.id === id); if (!ev) return;
+        await saveEvent({ ...ev, mail_sent: !ev.mail_sent });
+      }
+      toast('✓ メール送付状況を更新しました');
+    } catch (err) { toast('失敗: ' + (err.message || ''), true); }
+    finally { b.disabled = false; }
+  }));
+}
+
+// ==================================================================
+// ==================== 月次成績（メンバー別） ====================
+// ==================================================================
+function perfMonthKey() { return `${state.perfYear}-${String(state.perfMonth + 1).padStart(2, '0')}`; }
+function computePerformance(monthKey) {
+  const rows = {};
+  const row = name => {
+    const k = name || '（未設定）';
+    if (!rows[k]) rows[k] = { name: k, calls: 0, apo: 0, nagare: 0, decided: 0, won: 0, lost: 0 };
+    return rows[k];
+  };
+  state.members.forEach(m => row(m));
+  state.calls.forEach(c => {
+    if (!c.at || !c.at.startsWith(monthKey)) return;
+    const r = row(c.caller);
+    r.calls++;
+    if (c.result === 'apo') r.apo++;
+  });
+  state.deals.forEach(d => {
+    const decidedPhases = ['juchu', 'kaishu', 'lost', 'nagare_r', 'nagare_o'];
+    if (!decidedPhases.includes(d.dealPhase)) return;
+    if (!d.closeDate || !d.closeDate.startsWith(monthKey)) return;
+    if (d.dealPhase === 'nagare_r' || d.dealPhase === 'nagare_o') row(d.apoOwner).nagare++;
+    const s = row(d.salesOwner);
+    s.decided++;
+    if (d.dealPhase === 'juchu' || d.dealPhase === 'kaishu') s.won++;
+    if (d.dealPhase === 'lost') s.lost++;
+  });
+  const list = Object.values(rows).sort((a, b) => a.name.localeCompare(b.name, 'ja'));
+  const total = list.reduce((t, r) => ({ name: '全体', calls: t.calls + r.calls, apo: t.apo + r.apo, nagare: t.nagare + r.nagare, decided: t.decided + r.decided, won: t.won + r.won, lost: t.lost + r.lost }),
+    { name: '全体', calls: 0, apo: 0, nagare: 0, decided: 0, won: 0, lost: 0 });
+  return { list, total };
+}
+function pct(n, d) { return d ? `${(n / d * 100).toFixed(1)}%` : '—'; }
+function perfRowHTML(r, isTotal) {
+  const z = v => v ? v : `<span class="zero">0</span>`;
+  return `<tr class="${isTotal ? 'total' : ''}">
+    <td>${esc(r.name)}</td>
+    <td>${z(r.calls)}</td>
+    <td>${z(r.apo)}</td>
+    <td class="pct">${pct(r.apo, r.calls)}</td>
+    <td>${z(r.nagare)}</td>
+    <td class="pct">${pct(r.nagare, r.apo)}</td>
+    <td>${z(r.decided)}</td>
+    <td>${z(r.won)}</td>
+    <td class="pct">${pct(r.won, r.decided)}</td>
+    <td class="pct">${pct(r.won, r.apo)}</td>
+  </tr>`;
+}
+function renderPerformance() {
+  const label = document.getElementById('perfMonthLabel');
+  if (!label) return;
+  label.textContent = `${state.perfYear}年${state.perfMonth + 1}月`;
+  const { list, total } = computePerformance(perfMonthKey());
+  const tbody = document.getElementById('perfTable');
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="10"><div class="empty"><div class="empty-text">メンバーを設定タブで登録すると表示されます</div></div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = list.map(r => perfRowHTML(r, false)).join('') + perfRowHTML(total, true)
+    + (perfMonthInWindow() ? '' : `<tr><td colspan="10" style="text-align:left; color:var(--yellow); font-size:11px;">⚠ この月の架電・アポ数は集計対象外です（直近${CALLS_WINDOW_MONTHS}ヶ月分のみ読み込み）。商談・受注は全期間集計です。</td></tr>`);
+}
+function perfShift(dir) {
+  state.perfMonth += dir;
+  if (state.perfMonth < 0) { state.perfMonth = 11; state.perfYear--; }
+  if (state.perfMonth > 11) { state.perfMonth = 0; state.perfYear++; }
+  renderPerformance();
+}
+document.getElementById('perfPrevMonth').addEventListener('click', () => perfShift(-1));
+document.getElementById('perfNextMonth').addEventListener('click', () => perfShift(1));
+document.getElementById('perfThisMonth').addEventListener('click', () => { const n = new Date(); state.perfYear = n.getFullYear(); state.perfMonth = n.getMonth(); renderPerformance(); });
+document.getElementById('perfCsvBtn').addEventListener('click', () => {
+  const { list, total } = computePerformance(perfMonthKey());
+  const head = ['メンバー','架電','アポ','アポ率','アポ流れ','流れ率','決着商談','受注','受注率(÷商談)','受注率(÷アポ)'];
+  const line = r => [r.name, r.calls, r.apo, pct(r.apo, r.calls), r.nagare, pct(r.nagare, r.apo), r.decided, r.won, pct(r.won, r.decided), pct(r.won, r.apo)]
+    .map(v => `"${String(v).replace(/"/g, '""')}"`).join(',');
+  const csv = '\uFEFF' + [head.join(','), ...list.map(line), line(total)].join('\r\n');
+  const blob = new Blob([csv], { type: 'text/csv;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = `performance-${perfMonthKey()}.csv`;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+});
+
+// ---- ダッシュボード: 今日のアポ / 月次（全体・人別）/ No.1 ----
+function todayApoCalls() {
+  const t = todayStr();
+  return state.calls.filter(c => c.result === 'apo' && String(c.at || '').startsWith(t))
+    .sort((a, b) => (Number(a.atMs) || 0) - (Number(b.atMs) || 0));
+}
+function rankOf(list, key) {
+  const max = Math.max(0, ...list.map(r => r[key]));
+  if (!max) return { names: '—', val: 0 };
+  return { names: list.filter(r => r[key] === max).map(r => r.name).join('・'), val: max };
+}
+function renderDashTeam() {
+  const monthKey = dashMonthKey();
+  const isThisMonth = isCurrentDashMonth();
+  const label = isThisMonth ? '今月' : `${state.dashYear}年${state.dashMonth + 1}月`;
+  document.getElementById('dashTeamTitle').textContent = `${label}の成績（全体 / メンバー別）`;
+
+  // 今日のアポ
+  const today = todayApoCalls();
+  const byMember = {};
+  today.forEach(c => { const k = c.caller || '（未設定）'; byMember[k] = (byMember[k] || 0) + 1; });
+  document.getElementById('statTodayApo').innerHTML = today.length + '<span class="unit">件</span>';
+  document.getElementById('statTodayApoMeta').textContent = Object.entries(byMember).map(([k, v]) => `${k} ${v}`).join(' / ') || '—';
+  document.getElementById('todayApoCount').textContent = `${today.length}件`;
+  const listEl = document.getElementById('todayApoList');
+  if (!today.length) {
+    listEl.innerHTML = `<div class="empty"><div class="empty-text">今日はまだアポがありません</div></div>`;
+  } else {
+    listEl.innerHTML = today.map(c => {
+      const r = state.records.find(x => x.id === c.customerId);
+      const meet = r && r.meetingDate ? `${fmtDateTime(r.meetingDate)}${r.meetingEnd ? '〜' + esc(r.meetingEnd) : ''} ${toolBadge(inferTool(r))}` : '<span style="color:var(--text3);">商談日未設定</span>';
+      return `<div class="today-apo-row" data-rid="${esc(c.customerId)}">
+        <span class="mono" style="color:var(--text3); min-width:44px;">${esc(String(c.at).slice(11, 16))}</span>
+        <strong style="min-width:70px;">${esc(c.caller || '—')}</strong>
+        <span style="flex:1; min-width:140px;">${esc(c.customerName || (r && r.name) || '—')}</span>
+        <span style="font-size:12px;">${meet}</span>
+      </div>`;
+    }).join('');
+    listEl.querySelectorAll('[data-rid]').forEach(el => el.addEventListener('click', () => openDetail(el.dataset.rid)));
+  }
+
+  // 月次（全体）
+  const { list, total } = computePerformance(monthKey);
+  document.getElementById('dmApo').innerHTML = total.apo + '<span class="unit">件</span>';
+  document.getElementById('dmWon').innerHTML = total.won + '<span class="unit">件</span>';
+  document.getElementById('dmLost').innerHTML = total.lost + '<span class="unit">件</span>';
+  document.getElementById('dmNagare').innerHTML = total.nagare + '<span class="unit">件</span>';
+  document.getElementById('dmWonRate').textContent = `受注率 ${pct(total.won, total.decided)}`;
+  document.getElementById('dmNagareRate').textContent = `流れ率 ${pct(total.nagare, total.apo)}`;
+
+  // No.1
+  const ranks = [
+    ['🏆 受注数 No.1', rankOf(list, 'won'), '件'],
+    ['📞 アポ数 No.1', rankOf(list, 'apo'), '件'],
+    ['☎ 架電数 No.1', rankOf(list, 'calls'), '件']
+  ];
+  document.getElementById('dashRanks').innerHTML = ranks.map(([lbl, r, u]) => `<div class="rank-card">
+      <div class="rk-label">${esc(lbl)}</div>
+      <div class="rk-name">${esc(r.names)}</div>
+      <div class="rk-val">${r.val ? r.val + u : 'まだ実績なし'}</div>
+    </div>`).join('');
+
+  // 人別
+  const tbody = document.getElementById('dashMemberTable');
+  if (!list.length) {
+    tbody.innerHTML = `<tr><td colspan="7"><div class="empty"><div class="empty-text">設定タブでメンバーを登録すると表示されます</div></div></td></tr>`;
+    return;
+  }
+  const z = v => v ? v : `<span class="zero">0</span>`;
+  const row = (r, isTotal, todayN) => `<tr class="${isTotal ? 'total' : ''}">
+      <td>${esc(r.name)}</td><td>${z(todayN)}</td><td>${z(r.apo)}</td><td>${z(r.won)}</td>
+      <td>${z(r.lost)}</td><td>${z(r.nagare)}</td><td class="pct">${pct(r.won, r.decided)}</td>
+    </tr>`;
+  tbody.innerHTML = list.map(r => row(r, false, byMember[r.name] || 0)).join('') + row(total, true, today.length)
+    + (monthInCallsWindow(state.dashYear, state.dashMonth) ? '' : `<tr><td colspan="7" style="text-align:left; color:var(--yellow); font-size:11px;">⚠ この月のアポ・架電は集計対象外（直近${CALLS_WINDOW_MONTHS}ヶ月分のみ読み込み）。受注・失注・アポ流れは全期間集計です。</td></tr>`);
+}
+function monthInCallsWindow(y, m) { return new Date(y, m, 1).getTime() >= callsCutoffMs(); }
 
 function dashShiftMonth(dir) {
   state.dashMonth += dir;
@@ -3652,7 +4948,7 @@ function renderAllTable() {
     return `<tr data-id="${esc(r.id)}">
       <td>${phaseBadge(r.phase)}</td>
       <td><strong>${esc(r.name)}</strong></td>
-      <td class="mono">${esc(r.tel || '—')}<br><span style="color:var(--text3); font-size:11px;">${esc(r.email || '')}</span></td>
+      <td class="mono">${esc(r.tel || '—')}<br><span style="color:var(--text3); font-size:11px;">${esc(r.email || '')}</span>${r.url ? `<div style="font-size:11px; max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${extLink(r.url)}</div>` : ''}</td>
       <td style="font-size:11px;">${esc(planLabel)}</td>
       <td class="right mono">¥${fmt(total)}</td>
       <td>${healthHTML(r)}</td>
@@ -3661,7 +4957,7 @@ function renderAllTable() {
     </tr>`;
   }).join('');
   tbody.querySelectorAll('tr').forEach(tr => tr.addEventListener('click', e => {
-    if (e.target.closest('[data-deal]')) return;
+    if (e.target.closest('[data-deal],a')) return;
     openDetail(tr.dataset.id);
   }));
   tbody.querySelectorAll('[data-deal]').forEach(b => b.addEventListener('click', e => {
@@ -3879,27 +5175,53 @@ function buildCalendarEvents() {
   const events = {};
   const add = (date, ev) => { if (!date) return; (events[date] = events[date] || []).push(ev); };
   state.records.forEach(r => {
-    if (r.meetingDate) {
+    if (r.meetingDate && r.phase !== 'lost' && r.phase !== 'cancelled') {
       const k = r.meetingDate.slice(0, 10);
       const t = r.meetingDate.length > 10 ? r.meetingDate.slice(11, 16) : '';
-      add(k, { cls: '', time: t, label: `${r.name} 商談`, id: r.id, sort: t || '00:00' });
+      const end = r.meetingEnd || (t ? addMinHHMM(t, MEETING_DEFAULT_MIN) : '');
+      const tool = inferTool(r);
+      const mail = isOnlineTool(tool) ? (r.mail_sent ? ' ✉済' : ' ✉未') : '';
+      add(k, { cls: '', time: t ? `${t}-${end}` : '', label: `${r.name}${tool ? ' [' + tool + ']' : ''}${mail}`, id: r.id, kind: 'meet', sort: t || '00:00' });
     }
-    if (r.followupDate) add(r.followupDate.slice(0,10), { cls: 'followup', time: '', label: `📞 ${r.name} フォロー`, id: r.id, sort: '99:00' });
+    if (r.followupDate) {
+      const isRecall = r.lastCallResult === 'busy' || r.lastCallResult === 'schedule';
+      add(r.followupDate.slice(0,10), isRecall
+        ? { cls: 'recall', time: r.followupTime || '', label: `☎ ${r.name} 再架電`, id: r.id, kind: 'call', sort: r.followupTime || '51:00' }
+        : { cls: 'followup', time: '', label: `📞 ${r.name} フォロー`, id: r.id, kind: 'record', sort: '99:00' });
+    }
     paymentsOf(r).forEach(p => {
       if (p.isPaid || !p.due) return;
       add(p.due.slice(0,10), { cls: p.key === 'init' ? 'invoice' : 'sub', time: '', label: `💰 ${r.name} ${p.kind}`, id: r.id, sort: '98:00' });
     });
   });
+  // 打ち込み式の予定
+  state.events.forEach(ev => {
+    if (!ev.date) return;
+    add(ev.date.slice(0,10), { cls: 'plan', time: ev.time || '', label: `${ev.member ? ev.member + ': ' : ''}${ev.title}`, id: ev.id, kind: 'event', sort: ev.time || '50:00' });
+  });
   Object.values(events).forEach(list => list.sort((a,b) => a.sort.localeCompare(b.sort)));
   return events;
 }
 function calEventHTML(ev) {
-  return `<div class="cal-event ${ev.cls}" data-id="${esc(ev.id)}" title="${esc(ev.label)}">` +
+  return `<div class="cal-event ${ev.cls}" data-id="${esc(ev.id)}" data-kind="${esc(ev.kind || 'record')}" title="${esc(ev.label)}">` +
          (ev.time ? `<span class="ev-time">${esc(ev.time)}</span>` : '') + esc(ev.label) + `</div>`;
 }
 function bindCalEvents() {
   document.querySelectorAll('.cal-event').forEach(el =>
-    el.addEventListener('click', e => { e.stopPropagation(); openDetail(el.dataset.id); }));
+    el.addEventListener('click', e => {
+      e.stopPropagation();
+      const kind = el.dataset.kind;
+      if (kind === 'event') openEventModal(el.dataset.id, null);
+      else if (kind === 'call') openCallModal(el.dataset.id);
+      else if (kind === 'meet') openMeetModal(el.dataset.id);
+      else openDetail(el.dataset.id);
+    }));
+  // 日付クリックで予定追加
+  document.querySelectorAll('[data-caldate]').forEach(el =>
+    el.addEventListener('click', e => {
+      if (e.target.closest('.cal-event')) return;
+      openEventModal(null, el.dataset.caldate);
+    }));
 }
 
 function renderCalendar() {
@@ -3908,9 +5230,12 @@ function renderCalendar() {
   const isWeek = state.calMode === 'week';
   weekEl.style.display = isWeek ? 'grid' : 'none';
   gridEl.style.display = isWeek ? 'none' : 'grid';
+  // 非表示側に古い日付セルを残さない（クリック判定の混線防止）
+  if (isWeek) gridEl.innerHTML = ''; else weekEl.innerHTML = '';
   document.getElementById('calWeekBtn').classList.toggle('active', isWeek);
   document.getElementById('calMonthBtn').classList.toggle('active', !isWeek);
   if (isWeek) renderCalendarWeek(); else renderCalendarMonth();
+  renderSlotTable();
 }
 
 // ===== 週表示: 件数無制限、日曜/土曜を色分け =====
@@ -3936,8 +5261,8 @@ function renderCalendarWeek() {
         <div class="dw">${dowNames[i]}</div>
         <div class="dn">${d.getDate()}</div>
       </div>
-      <div class="cal-wbody">
-        ${list.length ? list.map(calEventHTML).join('') : '<div class="cal-empty">—</div>'}
+      <div class="cal-wbody" data-caldate="${key}">
+        ${list.length ? list.map(calEventHTML).join('') : '<div class="cal-empty">＋</div>'}
       </div>
     </div>`;
   }
@@ -3970,7 +5295,7 @@ function renderCalendarMonth() {
     const isToday = dateStr === todayKey;
     const evList = events[dateStr] || [];
     // 件数上限なし
-    html += `<div class="cal-cell ${dayCls} ${isToday ? 'today' : ''}"><div class="day-num">${d}</div>${evList.map(calEventHTML).join('')}</div>`;
+    html += `<div class="cal-cell ${dayCls} ${isToday ? 'today' : ''}" data-caldate="${dateStr}"><div class="day-num">${d}</div>${evList.map(calEventHTML).join('')}</div>`;
   }
   document.getElementById('calGrid').innerHTML = html;
   bindCalEvents();
@@ -4043,6 +5368,7 @@ function renderLostReport() {
 }
 
 function renderReports() {
+  renderPerformance();
   renderLostReport();
   document.getElementById('repTotal').textContent = state.records.length;
   let totalRev = 0;
@@ -4432,9 +5758,33 @@ document.getElementById('leadSaveBtn').addEventListener('click', async () => {
     rec.createdAt = isoNow();
   }
 
+  // フォームに無い項目（アポ報告・架電・URL2/3・携帯・担当者など）を消さないよう、既存データの上に重ねる
+  const merged = existing ? { ...existing, ...rec } : rec;
+
+  // 商談日時を動かしたら、元の商談の長さを保ったまま終了時刻もずらす
+  if (existing && merged.meetingDate && merged.meetingDate !== existing.meetingDate) {
+    const oldStart = existing.meetingDate ? hhmmToMin(existing.meetingDate.slice(11, 16)) : NaN;
+    const oldEnd = hhmmToMin(existing.meetingEnd || '');
+    const dur = (!isNaN(oldStart) && !isNaN(oldEnd) && oldEnd > oldStart) ? oldEnd - oldStart : MEETING_DEFAULT_MIN;
+    merged.meetingEnd = addMinHHMM(merged.meetingDate.slice(11, 16), dur);
+  }
+  if (!merged.meetingDate) merged.meetingEnd = '';
+  // 編集フォームで日時を動かす場合も、Zoom/Meet の枠を超えるなら保存しない
+  if (merged.meetingDate && merged.meetingDate.length >= 16 && (!existing || merged.meetingDate !== existing.meetingDate)
+      && merged.phase !== 'lost' && merged.phase !== 'cancelled') {
+    const tool = inferTool(merged);
+    const st = merged.meetingDate.slice(11, 16);
+    const res = checkConflict(tool, merged.meetingDate.slice(0, 10), st, merged.meetingEnd || addMinHHMM(st, MEETING_DEFAULT_MIN), existing ? 'record:' + existing.id : '');
+    if (res.online && !res.ok) {
+      alert(`${tool} の枠が埋まっています（同時${res.cap}件まで）\n` + res.others.map(m => `・${m.start}〜${m.end} ${m.name}`).join('\n') +
+        (res.alternatives.length ? `\n\n→ ${res.alternatives.join(' / ')} なら空いています。カレンダーの商談から方法を変えてください。` : ''));
+      return;
+    }
+  }
+
   showLoading(true);
   try {
-    await saveRecord(rec);
+    await saveRecord(merged);
     closeLeadModal();
     toast(`✓ ${state.editingId ? '更新' : '追加'}しました`);
   } catch (e) { alert('保存失敗: ' + (e.message || '')); }
@@ -4456,7 +5806,7 @@ document.getElementById('leadDeleteBtn').addEventListener('click', async () => {
 // ============== DETAIL MODAL ==============
 function openDetail(id) {
   const rec = state.records.find(r => r.id === id);
-  if (!rec) return;
+  if (!rec) { toast('この顧客は削除されています', true); return; }
   state.detailId = id;
   document.getElementById('detailTitle').textContent = rec.name;
   const body = document.getElementById('detailBody');
@@ -4518,7 +5868,10 @@ function openDetail(id) {
       <div class="detail-row"><div class="label">屋号</div><div class="value">${esc(rec.name)}</div></div>
       <div class="detail-row"><div class="label">電話</div><div class="value">${rec.tel ? `<a href="tel:${esc(rec.tel)}">${esc(rec.tel)}</a>` : '—'}</div></div>
       <div class="detail-row"><div class="label">メール</div><div class="value">${rec.email ? `<a href="mailto:${esc(rec.email)}">${esc(rec.email)}</a>` : '—'}</div></div>
-      <div class="detail-row"><div class="label">URL</div><div class="value">${rec.url ? `<a href="${esc(rec.url)}" target="_blank" rel="noopener">${esc(rec.url)}</a>` : '—'}</div></div>
+      <div class="detail-row"><div class="label">URL</div><div class="value">${rec.url ? extLink(rec.url) : '—'}</div></div>
+      ${rec.url2 ? `<div class="detail-row"><div class="label">URL2</div><div class="value">${extLink(rec.url2)}</div></div>` : ''}
+      ${rec.url3 ? `<div class="detail-row"><div class="label">URL3</div><div class="value">${extLink(rec.url3)}</div></div>` : ''}
+      ${rec.mapUrl ? `<div class="detail-row"><div class="label">Googleマップ</div><div class="value">${extLink(rec.mapUrl, '地図を開く')}</div></div>` : ''}
       <div class="detail-row"><div class="label">携帯</div><div class="value">${rec.mobile ? `<a href="tel:${esc(rec.mobile)}">${esc(rec.mobile)}</a>` : '—'}</div></div>
       <div class="detail-row"><div class="label">業種</div><div class="value">${esc(rec.industry || '—')}</div></div>
       <div class="detail-row"><div class="label">タグ</div><div class="value">${(rec.tags || []).map(t => `<span class="tag">${esc(t)}</span>`).join('') || '—'}</div></div>
@@ -4526,15 +5879,37 @@ function openDetail(id) {
 
     ${(rec.apo_memo || rec.meet_place || rec.apo_owner) ? `<div class="detail-section">
       <div class="detail-section-title">// アポ報告</div>
-      <div class="detail-row"><div class="label">商談予定日</div><div class="value">${rec.meetingDate ? fmtDateTime(rec.meetingDate) : '—'}</div></div>
+      <div class="detail-row"><div class="label">商談予定日</div><div class="value">${rec.meetingDate ? fmtDateTime(rec.meetingDate) + (rec.meetingEnd ? '〜' + esc(rec.meetingEnd) : '') : '—'}</div></div>
+      <div class="detail-row"><div class="label">商談方法</div><div class="value">${inferTool(rec) ? toolBadge(inferTool(rec)) : '—'}</div></div>
+      <div class="detail-row"><div class="label">メール送付</div><div class="value">${isOnlineTool(inferTool(rec)) ? (rec.mail_sent ? '<span class="mail-ok">✓ 送付済み</span>' : '<span class="mail-ng">✕ 未送付</span>') : '—'}</div></div>
       <div class="detail-row"><div class="label">商談相手</div><div class="value">${esc(rec.rep_name || '—')}</div></div>
       <div class="detail-row"><div class="label">訪問先</div><div class="value">${esc(rec.meet_place || '—')}</div></div>
-      <div class="detail-row"><div class="label">Zoom送付</div><div class="value">${esc(rec.zoom_send || '—')}</div></div>
+      <div class="detail-row"><div class="label">会議URL送付</div><div class="value">${esc(rec.zoom_send || '—')}</div></div>
       <div class="detail-row"><div class="label">商材</div><div class="value">${esc(rec.product || '—')}</div></div>
       <div class="detail-row"><div class="label">アポ取得者</div><div class="value">${esc(rec.apo_owner || '—')}</div></div>
       <div class="detail-row"><div class="label">営業者</div><div class="value">${esc(rec.sales_owner || '—')}</div></div>
-      <div class="detail-row"><div class="label">メモ</div><div class="value" style="white-space:pre-wrap;">${esc(rec.apo_memo || '—')}</div></div>
+      <div class="detail-row"><div class="label">メモ</div><div class="value" style="white-space:pre-wrap;">${linkifyText(rec.apo_memo || '—')}</div></div>
     </div>` : ''}
+
+    ${(() => {
+      // チャッター履歴: 全期間（フィードの1ヶ月制限とは無関係に、この会社の投稿は全部出す）
+      const posts = state.chatter.filter(p => p.recordId === rec.id);
+      if (!posts.length) return '';
+      return `<div class="detail-section">
+        <div class="detail-section-title">// チャッター履歴 (${posts.length})</div>
+        ${posts.map(p => {
+          const t = CH_TYPES[p.type] || CH_TYPES.manual;
+          return `<div class="detail-row">
+            <div class="label"><span class="ch-type ${t.cls}">${esc(t.label)}</span></div>
+            <div class="value">
+              <div style="font-size:11px; color:var(--text3);">${esc(p.author || '—')} · ${esc(p.createdAt ? fmtDateTime(p.createdAt) : '')}</div>
+              <div style="white-space:pre-wrap; font-size:12px; line-height:1.6; margin-top:3px;">${linkifyText(p.text)}</div>
+              ${(p.comments || []).length ? `<div style="font-size:11px; color:var(--text2); margin-top:4px;">💬 ${(p.comments || []).map(c => `${esc(c.author || '')}: ${linkifyText(c.text)}`).join(' ／ ')}</div>` : ''}
+            </div>
+          </div>`;
+        }).join('')}
+      </div>`;
+    })()}
 
     ${(() => {
       const ds = state.deals.filter(d => d.customerId === rec.id);
@@ -4553,7 +5928,7 @@ function openDetail(id) {
       </div>`;
     })()}
 
-    ${rec.meetingDate ? `<div class="detail-section">
+    ${(rec.meetingDate && !(rec.apo_memo || rec.meet_place || rec.apo_owner)) ? `<div class="detail-section">
       <div class="detail-section-title">// 商談</div>
       <div class="detail-row"><div class="label">商談日時</div><div class="value">${fmtDateTime(rec.meetingDate)}</div></div>
     </div>` : ''}
@@ -4573,7 +5948,7 @@ function openDetail(id) {
     </div>` : ''}
 
     ${rec.phase === 'cancelled' || rec.cancel_date ? `<div class="detail-section">
-      <div class="detail-section-title">// 解約情報</div>
+      <div class="detail-section-title">// 解約情報${rec.auto_cancel_done ? ' <span class="ch-type shitsuchu">自動キャンセル</span>' : ''}</div>
       <div class="detail-row"><div class="label">解約日</div><div class="value">${fmtDate(rec.cancel_date)}</div></div>
       <div class="detail-row"><div class="label">理由</div><div class="value">${esc(CANCEL_REASONS[rec.cancel_reason] || rec.cancel_reason || '—')}</div></div>
       <div class="detail-row"><div class="label">詳細</div><div class="value" style="white-space:pre-wrap;">${esc(rec.cancel_detail || '—')}</div></div>
@@ -4693,11 +6068,18 @@ document.getElementById('detailCloneBtn').addEventListener('click', () => {
 document.getElementById('detailDeleteBtn').addEventListener('click', async () => {
   if (!state.detailId) return;
   const related = state.deals.filter(d => d.customerId === state.detailId);
-  const extra = related.length ? `\n紐づく商談 ${related.length}件 も一緒に削除されます。` : '';
+  const relCalls = state.calls.filter(c => c.customerId === state.detailId);
+  const relEvents = state.events.filter(e => e.customerId === state.detailId);
+  const parts = [];
+  if (related.length) parts.push(`商談 ${related.length}件`);
+  if (relCalls.length) parts.push(`架電履歴 ${relCalls.length}件`);
+  const extra = parts.length ? `\n紐づく ${parts.join(' / ')} も一緒に削除されます。` : '';
   if (!confirm(`この顧客を削除しますか?${extra}\nこの操作は取り消せません。`)) return;
   showLoading(true);
   try {
     for (const d of related) { await deleteDoc(doc(state.db, DEALS_COLLECTION, d.id)); }
+    for (const c of relCalls) { await deleteDoc(doc(state.db, CALLS_COLLECTION, c.id)); }
+    for (const ev of relEvents) { await saveEvent({ ...ev, customerId: '', customerName: '' }); }
     await deleteRecordFromDb(state.detailId);
     closeDetail();
     toast(`✓ 削除しました${related.length ? `（商談${related.length}件も削除）` : ''}`);
@@ -4747,19 +6129,31 @@ document.getElementById('dupSearch').addEventListener('input', renderDup);
 document.getElementById('dupClearBtn').addEventListener('click', () => { document.getElementById('dupSearch').value = ''; renderDup(); });
 
 // ============== BACKUP/RESTORE ==============
+const BACKUP_COLLECTIONS = [
+  ['records', 'crm_customers'], ['deals', 'crm_deals'], ['chatter', 'crm_chatter'],
+  ['calls', 'crm_calls'], ['events', 'crm_events'], ['meta', 'crm_meta']
+];
+function stripServerTs(o) { const c = { ...o }; delete c._updatedServer; return c; }
 document.getElementById('backupBtn').addEventListener('click', async () => {
   try {
-    const snap = await getDocs(collection(state.db, COLLECTION));
-    const all = [];
-    snap.forEach(d => all.push({ id: d.id, ...d.data() }));
-    const payload = { version: 3, exportedAt: isoNow(), records: all };
+    const payload = { version: 8, exportedAt: isoNow() };
+    const counts = [];
+    for (const [key, coll] of BACKUP_COLLECTIONS) {
+      // 架電は全期間を取る（画面は直近3ヶ月だけ読むが、バックアップは全部）
+      const snap = await getDocs(collection(state.db, coll));
+      const arr = [];
+      snap.forEach(d => arr.push(stripServerTs({ id: d.id, ...d.data() })));
+      payload[key] = arr;
+      counts.push(`${key} ${arr.length}`);
+    }
+    const all = payload.records;
     const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url; a.download = `yamato-crm-backup-${todayStr()}.json`;
     document.body.appendChild(a); a.click(); document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    toast(`✓ ${all.length}件をバックアップ`);
+    toast(`✓ バックアップ完了（${counts.join(' / ')}）`);
   } catch (e) { alert('バックアップ失敗: ' + e.message); }
 });
 document.getElementById('exportCsvBtn').addEventListener('click', () => {
@@ -4792,10 +6186,26 @@ document.getElementById('restoreFile').addEventListener('change', async e => {
     const text = await file.text();
     const data = JSON.parse(text);
     if (!Array.isArray(data.records)) throw new Error('不正なバックアップファイル');
-    const existing = new Set(state.records.map(r => r.id));
-    const toAdd = data.records.filter(r => r && r.id && r.name && !existing.has(r.id));
-    if (!toAdd.length) alert('追加可能な新規レコードなし');
-    else { await batchSaveRecords(toAdd); alert(`復元完了\n追加: ${toAdd.length}件\nスキップ: ${data.records.length - toAdd.length}件`); }
+    // 既に存在するIDは上書きしない（復元で最新データを壊さない）
+    const lines = [];
+    for (const [key, coll] of BACKUP_COLLECTIONS) {
+      const arr = Array.isArray(data[key]) ? data[key] : [];
+      if (!arr.length) continue;
+      const snap = await getDocs(collection(state.db, coll));
+      const have = new Set(); snap.forEach(d => have.add(d.id));
+      const toAdd = arr.filter(x => x && x.id && !have.has(x.id));
+      for (let i = 0; i < toAdd.length; i += 400) {
+        const batch = writeBatch(state.db);
+        toAdd.slice(i, i + 400).forEach(x => {
+          const clean = {};
+          Object.keys(x).forEach(k => { if (x[k] !== undefined) clean[k] = x[k]; });
+          batch.set(doc(state.db, coll, x.id), clean);
+        });
+        await batch.commit();
+      }
+      lines.push(`${key}: 追加 ${toAdd.length} / スキップ ${arr.length - toAdd.length}`);
+    }
+    alert('復元完了\n' + (lines.join('\n') || '追加可能なデータなし'));
   } catch (err) { alert('復元失敗: ' + err.message); }
   finally { showLoading(false); e.target.value = ''; }
 });
@@ -4814,8 +6224,12 @@ async function initApp() {
   subscribeAll();
   subscribeChatter();
   subscribeDeals();
+  subscribeCalls();
+  subscribeEvents();
   subscribeMeta();
   startChatterAutoRefresh();
+  if (state.autoCancelInterval) clearInterval(state.autoCancelInterval);
+  state.autoCancelInterval = setInterval(scheduleAutoCancel, 60 * 60 * 1000);
   refreshMemberSelects();
   updateMeLabels();
   state.calWeekStart = ymd(startOfWeek(new Date()));
