@@ -755,7 +755,7 @@ service cloud.firestore {
 <!-- ==================== APP ==================== -->
 <div class="app" id="app">
   <header class="header">
-    <div class="header-brand">YAMATO<span class="sub">CRM v12</span></div>
+    <div class="header-brand">YAMATO<span class="sub">CRM v13</span></div>
     <div class="nav-tabs" id="navTabs">
       <button class="nav-tab active" data-tab="dashboard">📊 ダッシュボード</button>
       <button class="nav-tab" data-tab="chatter">💬 チャッター <span class="badge" id="chatterBadge" style="display:none;">0</span></button>
@@ -914,7 +914,7 @@ service cloud.firestore {
       </div>
 
       <div class="ch-search">
-        <input type="search" id="chSearch" placeholder="🔍 屋号・電話・内容でチャッターを検索（全期間）" maxlength="100" />
+        <input type="search" id="chSearch" placeholder="🔍 屋号・代表者・電話・メール・URL・内容で検索（全期間）" maxlength="100" />
         <button class="btn-action" id="chSearchClear">クリア</button>
       </div>
       <div style="font-size:11px; color:var(--text3); margin:-4px 0 10px;" id="chRangeNote">直近1ヶ月の投稿を表示中。それより前は検索、または取引先の詳細で見られます。</div>
@@ -1069,7 +1069,7 @@ service cloud.firestore {
       </div>
       <div class="panel">
         <div class="search-bar">
-          <input type="text" id="leadListSearch" placeholder="🔍 会社名・電話・URL検索..." maxlength="100" />
+          <input type="text" id="leadListSearch" placeholder="🔍 屋号・代表者・電話・メール・URL検索..." maxlength="100" />
           <select id="leadListStatus">
             <option value="">全ステータス</option>
             <option value="新規">新規</option>
@@ -1113,7 +1113,7 @@ service cloud.firestore {
       </div>
       <div class="panel">
         <div class="search-bar">
-          <input type="text" id="dealSearch" placeholder="🔍 商談名・取引先検索..." maxlength="100" />
+          <input type="text" id="dealSearch" placeholder="🔍 商談名・屋号・代表者・電話・メール・URL検索..." maxlength="100" />
           <select id="dealPhaseFilter"><option value="">全フェーズ</option></select>
           <button class="clear-btn" id="dealClear">クリア</button>
         </div>
@@ -1151,7 +1151,7 @@ service cloud.firestore {
       </div>
       <div class="panel">
         <div class="search-bar">
-          <input type="text" id="allSearch" placeholder="🔍 検索..." maxlength="100" />
+          <input type="text" id="allSearch" placeholder="🔍 屋号・代表者・電話・メール・URL検索..." maxlength="100" />
           <select id="allPhaseFilter"><option value="">全フェーズ</option></select>
           <select id="allTagFilter"><option value="">全タグ</option></select>
           <select id="allSortBy">
@@ -1325,7 +1325,7 @@ service cloud.firestore {
       </div>
       <div class="panel">
         <div class="search-bar" style="grid-template-columns: 1fr auto;">
-          <input type="text" id="dupSearch" placeholder="🔍 屋号・電話・メールで検索..." maxlength="100" />
+          <input type="text" id="dupSearch" placeholder="🔍 屋号・代表者・電話・メール・URLで検索..." maxlength="100" />
           <button class="clear-btn" id="dupClearBtn">クリア</button>
         </div>
         <div class="table-wrap">
@@ -2001,7 +2001,7 @@ service cloud.firestore {
         <div class="form-group">
           <label>関連する会社（任意）</label>
           <div class="picker">
-            <input type="text" class="picker-input" id="e-target-search" placeholder="🔍 屋号 / 電話 / URL" autocomplete="off" />
+            <input type="text" class="picker-input" id="e-target-search" placeholder="🔍 屋号 / 代表者 / 電話 / メール / URL" autocomplete="off" />
             <button type="button" class="picker-clear" id="e-target-clear" title="クリア">×</button>
             <div class="picker-list" id="e-target-list"></div>
           </div>
@@ -2082,7 +2082,7 @@ service cloud.firestore {
         <div class="form-group full">
           <label>対象</label>
           <div class="picker">
-            <input type="text" class="picker-input" id="a-target-search" placeholder="🔍 屋号 / 電話 / 携帯 / URL で検索…" autocomplete="off" />
+            <input type="text" class="picker-input" id="a-target-search" placeholder="🔍 屋号 / 代表者 / 電話 / メール / URL で検索…" autocomplete="off" />
             <button type="button" class="picker-clear" id="a-target-clear" title="クリア">×</button>
             <div class="picker-list" id="a-target-list"></div>
           </div>
@@ -2181,7 +2181,7 @@ service cloud.firestore {
         <div class="form-group full">
           <label class="required">取引先</label>
           <div class="picker">
-            <input type="text" class="picker-input" id="d-target-search" placeholder="🔍 屋号 / 電話 / 携帯 / URL で検索…" autocomplete="off" />
+            <input type="text" class="picker-input" id="d-target-search" placeholder="🔍 屋号 / 代表者 / 電話 / メール / URL で検索…" autocomplete="off" />
             <button type="button" class="picker-clear" id="d-target-clear" title="クリア">×</button>
             <div class="picker-list" id="d-target-list"></div>
           </div>
@@ -3224,18 +3224,9 @@ function renderChatter() {
   const note = document.getElementById('chRangeNote');
   if (q) {
     // 検索は全期間が対象（1ヶ月より前の投稿も出す）
-    const nq = normalText(q), nt = normalTel(q);
-    list = list.filter(post => {
-      const rec = post.recordId ? state.records.find(r => r.id === post.recordId) : null;
-      const hay = normalText([post.text, post.recordName, post.author, ...(post.comments || []).map(c => c.text)].join(' '));
-      if (hay.includes(nq)) return true;
-      if (nt.length >= 3) {
-        const telLike = (String(post.text || '').normalize('NFKC').match(/[0-9][0-9\-()（） ]{5,}[0-9]/g) || []).map(normalTel);
-        if (telLike.some(x => x.includes(nt))) return true;
-        if (rec && (normalTel(rec.tel).includes(nt) || normalTel(rec.mobile).includes(nt))) return true;
-      }
-      return rec ? normalText([rec.name, rec.url].join(' ')).includes(nq) : false;
-    });
+    const cq = compileSearch(q);
+    const byId = new Map(state.records.map(r => [r.id, r]));
+    list = list.filter(post => chatterMatchesSearch(post, cq, byId));
     if (note) note.textContent = `「${q}」の検索結果：全期間から ${list.length}件`;
   } else {
     const cutoff = Date.now() - CHATTER_FEED_DAYS * 86400000;
@@ -3641,7 +3632,7 @@ function subscribeDeals() {
 function applyLeadFilter() {
   const f = state.leadListFilter;
   let list = state.records.filter(r => recKind(r) === 'lead');
-  if (f.search) list = list.filter(r => recordMatchesSearch(r, f.search));
+  if (f.search) { const cq = compileSearch(f.search); list = list.filter(r => recordMatchesSearch(r, cq)); }
   if (f.status) list = list.filter(r => (r.leadStatus || '新規') === f.status);
   list.sort((a, b) => String(b.updatedAt || '').localeCompare(String(a.updatedAt || '')));
   return list;
@@ -4003,16 +3994,81 @@ function renderConflictBox(boxId, res, tool) {
     (res.alternatives.length ? `<br><strong>→ ${res.alternatives.map(esc).join(' / ')} なら空いています</strong>` : '<br><strong>→ 他のツールも埋まっています。時間をずらしてください</strong>');
 }
 
-// ================== 一覧検索の共通判定 ==================
-// 社名・代表者・業種・メール・URL・電話(固定/携帯)で探す。
-// 電話は数字が3桁以上ある時だけ比較する（数字の無い検索語で全件一致してしまうのを防ぐ）
+// ================== 検索の共通判定（全検索窓で共通） ==================
+// 取引先一覧・リード一覧・商談一覧・重複タブ・チャッター・会社ピッカー(アポ/商談/予定)は全部ここを通す。
+// 対象: 屋号・代表者・固定電話・携帯・メール・URL1〜3・業種・都道府県
+// ・文字: 全角半角/大小を揃え、空白(全角含む)を無視（山田太郎 = 山田 太郎）
+// ・電話: 数字3桁以上、かつ電話番号らしい入力(数字と - ( ) + . 空白 だけ)の時だけ比較
+//         → 空振りで全件一致しない／メールや社名の中の数字で電話に誤ヒットしない
+// ・URL : https:// / www. / 末尾の / を無視。ページ部分付きのURLはドメイン単位で同じ会社として当たる
+const SEARCH_TEXT_FIELDS = ['name', 'rep_name', 'email', 'industry', 'pref'];
+const SEARCH_URL_FIELDS = ['url', 'url2', 'url3'];
+const searchText = t => normalText(t).replace(/\s+/g, '');
+// 検索1回ごとに全社のURLを解析し直さないよう結果を覚えておく（上限付き）
+const _urlKeyCache = new Map();
+function urlKeyCached(u) {
+  const k = String(u);
+  let v = _urlKeyCache.get(k);
+  if (v === undefined) {
+    if (_urlKeyCache.size > 5000) _urlKeyCache.clear();
+    v = urlKey(k);
+    _urlKeyCache.set(k, v);
+  }
+  return v;
+}
+const stripUrlText = t => searchText(t).replace(/^[a-z][a-z0-9+.\-]*:\/\//, '').replace(/^www\./, '').replace(/\/+$/, '');
+function compileSearch(raw) {
+  if (raw && typeof raw === 'object' && raw.__compiled) return raw;
+  const src = String(raw == null ? '' : raw).normalize('NFKC').trim();
+  const text = searchText(src);
+  const digits = normalTel(src);
+  const telLike = /^[0-9\s\-‐‑–—―−ー()（）+.]+$/.test(src);
+  return {
+    __compiled: true,
+    empty: !text,
+    text,
+    tel: telLike && digits.length >= 3 ? digits : '',
+    urlText: stripUrlText(src),
+    urlKey: text ? urlKey(src) : ''
+  };
+}
 function recordMatchesSearch(r, raw) {
-  const q = normalText(raw);
-  if (!q) return true;
-  const qt = normalTel(raw);
-  if ([r.name, r.rep_name, r.industry, r.email, r.url, r.url2, r.url3, r.pref].some(v => normalText(v).includes(q))) return true;
-  if (qt.length >= 3 && (normalTel(r.tel).includes(qt) || normalTel(r.mobile).includes(qt))) return true;
+  const q = compileSearch(raw);
+  if (q.empty) return true;
+  if (!r) return false;
+  if (SEARCH_TEXT_FIELDS.some(k => searchText(r[k]).includes(q.text))) return true;
+  if (q.tel && [r.tel, r.mobile].some(v => { const d = normalTel(v); return !!d && d.includes(q.tel); })) return true;
+  if (q.urlText || q.urlKey) {
+    for (const k of SEARCH_URL_FIELDS) {
+      const v = r[k];
+      if (!v) continue;
+      if (q.urlText && stripUrlText(v).includes(q.urlText)) return true;
+      if (q.urlKey && urlKeyCached(v) === q.urlKey) return true;
+    }
+  }
   return false;
+}
+// 商談: 商談名 + 紐づく取引先の全項目（取引先が削除済みなら保存時の会社名）
+function dealMatchesSearch(d, raw, byId) {
+  const q = compileSearch(raw);
+  if (q.empty) return true;
+  if (searchText(d.dealName).includes(q.text)) return true;
+  const c = byId ? byId.get(d.customerId) : state.records.find(r => r.id === d.customerId);
+  if (c) return recordMatchesSearch(c, q);
+  return searchText(d.customerName).includes(q.text);
+}
+// チャッター: 投稿本文・会社名・投稿者・コメント + 紐づく会社の全項目
+function chatterMatchesSearch(post, raw, byId) {
+  const q = compileSearch(raw);
+  if (q.empty) return true;
+  const texts = [post.text, post.recordName, post.author, ...(Array.isArray(post.comments) ? post.comments : []).map(c => c && c.text)];
+  if (texts.some(t => searchText(t).includes(q.text))) return true;
+  if (q.tel) {
+    const telLike = (String(post.text || '').normalize('NFKC').match(/[0-9][0-9\-()（） ]{5,}[0-9]/g) || []).map(normalTel);
+    if (telLike.some(x => x.includes(q.tel))) return true;
+  }
+  const rec = post.recordId ? (byId ? byId.get(post.recordId) : state.records.find(r => r.id === post.recordId)) : null;
+  return rec ? recordMatchesSearch(rec, q) : false;
 }
 
 // ================== 重複チェック（社名・電話・URL） ==================
@@ -4102,29 +4158,25 @@ function pickerItemsFromRecords(filterFn) {
     tel: r.tel || '',
     mobile: r.mobile || '',
     url: r.url || '',
+    rep: r.rep_name || '',
+    email: r.email || '',
+    rec: r,
     kindLabel: recKind(r) === 'lead' ? 'リード' : '取引先'
   }));
 }
 function renderPicker(key) {
   const p = pickers[key];
   const raw = p.search.value.trim();
-  const q = normalText(raw);
-  const qt = normalTel(raw);
+  const cq = compileSearch(raw);
   let items = p.getItems();
-  if (q) {
-    items = items.filter(it =>
-      normalText(it.name).includes(q) ||
-      normalText(it.url).includes(q) ||
-      (qt.length >= 2 && (normalTel(it.tel).includes(qt) || normalTel(it.mobile).includes(qt)))
-    );
-  }
+  if (!cq.empty) items = items.filter(it => recordMatchesSearch(it.rec || it, cq));
   items = items.slice(0, 60);
   if (!items.length) {
     p.list.innerHTML = `<div class="picker-empty">${raw ? '該当なし' : '登録がありません'}</div>`;
     return;
   }
   p.list.innerHTML = items.map(it => {
-    const sub = [it.tel, it.mobile, it.url].filter(Boolean).join(' / ');
+    const sub = [it.rep ? '👤 ' + it.rep : '', it.tel, it.mobile, it.email, it.url].filter(Boolean).join(' / ');
     return `<div class="picker-item" data-pick="${esc(it.id)}">
       <div class="pi-name">${esc(it.name)} <span style="font-weight:400;color:var(--text3);font-size:10px;">${esc(it.kindLabel || '')}</span></div>
       ${sub ? `<div class="pi-sub">${esc(sub)}</div>` : ''}
@@ -4542,8 +4594,9 @@ function renderDealList() {
   let list = [...state.deals];
   const liveName = d => { const c = state.records.find(r => r.id === d.customerId); return c ? c.name : (d.customerName || ''); };
   if (f.search) {
-    const q = normalText(f.search);
-    list = list.filter(d => normalText(d.dealName).includes(q) || normalText(liveName(d)).includes(q));
+    const cq = compileSearch(f.search);
+    const byId = new Map(state.records.map(r => [r.id, r]));
+    list = list.filter(d => dealMatchesSearch(d, cq, byId));
   }
   if (f.phase) list = list.filter(d => d.dealPhase === f.phase);
   const tbody = document.getElementById('dealTable');
@@ -5766,7 +5819,7 @@ document.getElementById('dashThisMonth').addEventListener('click', () => {
 function applyAllFilter() {
   const f = state.allFilter;
   let list = [...state.records];
-  if (f.search) list = list.filter(r => recordMatchesSearch(r, f.search));
+  if (f.search) { const cq = compileSearch(f.search); list = list.filter(r => recordMatchesSearch(r, cq)); }
   if (f.phase) list = list.filter(r => r.phase === f.phase);
   if (f.tag) list = list.filter(r => Array.isArray(r.tags) && r.tags.includes(f.tag));
   list.sort((a, b) => {
@@ -6000,12 +6053,8 @@ function renderDup() {
       <td class="right mono" style="font-size:11px;">${r.updatedAt ? relativeDate(r.updatedAt.slice(0,10)) : '—'}</td>
     </tr>`).join('');
   } else {
-    const sNorm = normalText(q), telNorm = normalTel(q);
-    const list = state.records.filter(r =>
-      normalText(r.name).includes(sNorm) ||
-      (telNorm && telNorm.length > 5 && (normalTel(r.tel).includes(telNorm) || normalTel(r.mobile).includes(telNorm))) ||
-      normalText(r.email).includes(sNorm) ||
-      [r.url, r.url2, r.url3].some(u => normalText(u).includes(sNorm)));
+    const cq = compileSearch(q);
+    const list = state.records.filter(r => recordMatchesSearch(r, cq));
     if (!list.length) { tbody.innerHTML = `<tr><td colspan="5"><div class="empty"><div class="empty-icon">∅</div><div class="empty-text">該当なし</div></div></td></tr>`; return; }
     tbody.innerHTML = list.map(r => `<tr data-id="${esc(r.id)}">
       <td><strong>${esc(r.name)}</strong></td>
