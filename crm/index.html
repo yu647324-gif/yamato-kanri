@@ -241,6 +241,46 @@ button { font-family: inherit; cursor: pointer; }
 .dphase.win { background: var(--green-dim); color: var(--green); }
 .dphase.lost { background: var(--red-dim); color: var(--red); }
 .dphase.hot { background: var(--accent-dim); color: var(--accent); }
+/* ==== レコードページ（Salesforce型） ==== */
+.rec-head { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 16px 20px; margin-bottom: 16px; box-shadow: var(--shadow-card); }
+.rec-crumb { font-size: 12px; color: var(--text3); margin-bottom: 4px; }
+.rec-crumb a { color: var(--accent); cursor: pointer; text-decoration: none; }
+.rec-crumb a:hover { text-decoration: underline; }
+.rec-title-row { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.rec-title { font-size: 24px; font-weight: 800; color: var(--text); line-height: 1.3; word-break: break-word; }
+.rec-meta { display: flex; gap: 10px 16px; flex-wrap: wrap; align-items: center; margin-top: 8px; font-size: 13px; color: var(--text2); }
+.rec-meta a { color: var(--accent); }
+.rec-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.rec-actions .btn-action { min-height: 34px; padding: 6px 12px; font-size: 12px; }
+.rec-grid { display: grid; grid-template-columns: minmax(0, 1.35fr) minmax(0, 1fr); gap: 16px; align-items: start; }
+.rec-main { background: var(--surface); border: 1px solid var(--border); border-radius: 4px; padding: 6px 18px 18px; }
+.rec-side .panel { margin-bottom: 14px; }
+.rel-row { display: flex; align-items: center; gap: 10px; padding: 9px 16px; border-bottom: 1px solid var(--border); font-size: 13px; cursor: pointer; }
+.rel-row:last-child { border-bottom: none; }
+.rel-row:hover { background: var(--surface2); }
+.rel-row .rel-main { flex: 1; min-width: 0; }
+.rel-row .rel-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.rel-empty { padding: 14px 16px; font-size: 12px; color: var(--text3); }
+.rel-post { padding: 10px 16px; border-bottom: 1px solid var(--border); font-size: 12px; }
+.rel-post:last-child { border-bottom: none; }
+.ct-row { display: flex; align-items: center; gap: 10px; padding: 9px 16px; border-bottom: 1px solid var(--border); font-size: 13px; }
+.ct-row:last-child { border-bottom: none; }
+.ct-row .ct-main { flex: 1; min-width: 0; }
+.ct-row .ct-main a { color: var(--accent); font-weight: 700; word-break: break-all; }
+.ct-row .ct-sub { font-size: 11px; color: var(--text3); margin-top: 2px; }
+.ct-del { background: none; border: none; color: var(--text3); font-size: 15px; padding: 2px 6px; cursor: pointer; }
+.ct-del:hover { color: var(--red); }
+.ct-form { padding: 10px 16px 14px; border-top: 1px dashed var(--border2); display: grid; gap: 8px; }
+.ct-form input, .ct-form select { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 9px 11px; font-size: 14px; border-radius: 2px; min-height: 38px; outline: none; }
+.ct-form input:focus, .ct-form select:focus { border-color: var(--accent); }
+.ct-hint { font-size: 11px; color: var(--text3); line-height: 1.6; }
+.rec-missing { padding: 60px 20px; text-align: center; color: var(--text2); font-size: 14px; line-height: 2; }
+.deal-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 24px; }
+@media (max-width: 900px) {
+  .rec-grid { grid-template-columns: 1fr; }
+  .deal-fields { grid-template-columns: 1fr; }
+  .rec-title { font-size: 20px; }
+}
 .tool-badge { display: inline-block; font-size: 9px; font-weight: 700; padding: 1px 5px; border-radius: 3px; margin-left: 3px; background: var(--accent-dim); color: var(--accent); vertical-align: 1px; white-space: nowrap; }
 .tool-badge.meet { background: var(--green-dim); color: var(--green); }
 .tool-badge.offline { background: var(--surface3); color: var(--text2); }
@@ -715,7 +755,7 @@ service cloud.firestore {
 <!-- ==================== APP ==================== -->
 <div class="app" id="app">
   <header class="header">
-    <div class="header-brand">YAMATO<span class="sub">CRM v8</span></div>
+    <div class="header-brand">YAMATO<span class="sub">CRM v10</span></div>
     <div class="nav-tabs" id="navTabs">
       <button class="nav-tab active" data-tab="dashboard">📊 ダッシュボード</button>
       <button class="nav-tab" data-tab="chatter">💬 チャッター <span class="badge" id="chatterBadge" style="display:none;">0</span></button>
@@ -896,6 +936,63 @@ service cloud.firestore {
 
 
 
+
+    <!-- RECORD PAGE (取引先 / リード) -->
+    <section class="view" id="view-record">
+      <div class="rec-missing" id="recordMissing" style="display:none;"></div>
+      <div id="recordWrap">
+        <div class="rec-head">
+          <div class="rec-crumb"><a id="recCrumbLink">取引先</a> <span>/</span> <span id="recCrumbName">—</span></div>
+          <div class="rec-title-row">
+            <div style="min-width:0;">
+              <div class="rec-title" id="detailTitle">—</div>
+              <div class="rec-meta" id="recMeta"></div>
+            </div>
+            <div class="rec-actions">
+              <button class="btn-action" id="detailClose" title="一覧へ戻る">← 一覧</button>
+              <button class="btn-action" id="recCallBtn">☎ 架電</button>
+              <button class="btn-action primary" id="recApoBtn">📞 アポ報告</button>
+              <button class="btn-action primary" id="recDealBtn">🤝 商談報告</button>
+              <button class="btn-action" id="recCopyBtn">🔗 リンクをコピー</button>
+              <button class="btn-action primary" id="detailEditBtn">編集</button>
+              <button class="btn-action" id="detailCloneBtn">複製</button>
+              <button class="btn-action danger" id="detailDeleteBtn">削除</button>
+            </div>
+          </div>
+        </div>
+        <div class="rec-grid">
+          <div class="rec-main" id="detailBody"></div>
+          <div class="rec-side" id="recordSide"></div>
+        </div>
+        <div style="margin-top:14px;"><button class="btn-action" id="detailCloseBtn">← 一覧へ戻る</button></div>
+      </div>
+    </section>
+
+    <!-- DEAL PAGE (商談) -->
+    <section class="view" id="view-dealpage">
+      <div class="rec-missing" id="dealMissing" style="display:none;"></div>
+      <div id="dealWrap">
+        <div class="rec-head">
+          <div class="rec-crumb"><a id="dealCrumbLink">商談</a> <span>/</span> <span id="dealCrumbName">—</span></div>
+          <div class="rec-title-row">
+            <div style="min-width:0;">
+              <div class="rec-title" id="dealTitle">—</div>
+              <div class="rec-meta" id="dealMeta"></div>
+            </div>
+            <div class="rec-actions">
+              <button class="btn-action" id="dealBackBtn">← 一覧</button>
+              <button class="btn-action" id="dealCopyBtn">🔗 リンクをコピー</button>
+              <button class="btn-action primary" id="dealEditBtn">編集</button>
+              <button class="btn-action danger" id="dealDeleteBtn">削除</button>
+            </div>
+          </div>
+        </div>
+        <div class="rec-grid">
+          <div class="rec-main" id="dealBody"></div>
+          <div class="rec-side" id="dealSide"></div>
+        </div>
+      </div>
+    </section>
 
     <!-- CALENDAR -->
     <section class="view" id="view-calendar">
@@ -1400,6 +1497,22 @@ service cloud.firestore {
               style="width:80px; background:var(--bg); border:1px solid var(--border); color:var(--text); padding:9px 12px; border-radius:2px; min-height:38px;" />
             <button class="btn-action primary" id="addToolBtn">＋ 追加</button>
           </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><div class="panel-title"><span class="mono">// CONTRACTS</span>契約書フォルダ（Googleドライブ）</div></div>
+        <div style="padding: 16px 18px;">
+          <p style="font-size: 12px; color: var(--text2); line-height: 1.8; margin-bottom: 12px;">
+            契約書PDFを入れる共有フォルダのURLです。登録すると、商談・取引先ページに「📁 フォルダを開く」ボタンが出ます。<br>
+            フォルダはメンバーだけに共有し、「リンクを知っている全員」にはしないでください。
+          </p>
+          <div style="display:flex; gap:8px; flex-wrap:wrap;">
+            <input type="url" id="contractFolderUrl" placeholder="https://drive.google.com/drive/folders/..." maxlength="500" inputmode="url"
+              style="flex:1; min-width:220px; background:var(--bg); border:1px solid var(--border); color:var(--text); padding:9px 12px; border-radius:2px; min-height:38px;" />
+            <button class="btn-action primary" id="saveContractFolderBtn">保存</button>
+          </div>
+          <div id="contractFolderNow" style="margin-top:10px; font-size:12px;"></div>
         </div>
       </div>
 
@@ -2010,21 +2123,7 @@ service cloud.firestore {
   </div>
 </div>
 
-<div class="modal-overlay" id="detailModal">
-  <div class="modal">
-    <div class="modal-head">
-      <div class="modal-title" id="detailTitle">顧客詳細</div>
-      <button class="modal-close" id="detailClose">×</button>
-    </div>
-    <div class="modal-body" id="detailBody"></div>
-    <div class="modal-foot">
-      <button class="btn-action danger" id="detailDeleteBtn">削除</button>
-      <button class="btn-action" id="detailCloneBtn">複製</button>
-      <button class="btn-action" id="detailCloseBtn">閉じる</button>
-      <button class="btn-action primary" id="detailEditBtn">編集</button>
-    </div>
-  </div>
-</div>
+
 
 <div class="global-loading" id="globalLoading"><div class="spinner"></div></div>
 <div class="toast" id="toast"></div>
@@ -2152,6 +2251,7 @@ const state = {
   members: [],
   products: [],
   tools: [],
+  contractFolder: '',
   chatterSearch: '',
   metaUnsub: null,
   me: '',
@@ -2511,7 +2611,8 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
   if (state.chatterTimer) { clearInterval(state.chatterTimer); state.chatterTimer = null; }
   if (state.autoCancelInterval) { clearInterval(state.autoCancelInterval); state.autoCancelInterval = null; }
   clearTimeout(autoCancelTimer);
-  state.chatter = []; state.deals = []; state.calls = []; state.events = [];
+  state.chatter = []; state.deals = []; state.calls = []; state.events = []; state.dealsLoaded = false;
+  state.detailId = null; state.dealPageId = null;
   document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
   state.records = []; state.isInitialLoad = true; state.notifiedIds.clear();
   showScreen('login'); passwordInput.focus();
@@ -2612,8 +2713,12 @@ async function addActivity(rec, type, text) {
 }
 
 // ============== TAB SWITCH ==============
-const VIEW_NAMES = ['dashboard','chatter','calendar','leadlist','all','deals','payments','active','dup','reports','settings'];
-function switchTab(name) {
+const VIEW_NAMES = ['dashboard','chatter','calendar','leadlist','all','deals','payments','active','dup','reports','settings','record','dealpage'];
+// タブ切替はURL（#/タブ名）経由で行う。戻るボタン・ブックマークが効くようにするため
+function switchTab(name) { navigate({ type: 'tab', name }); }
+function showTab(name) {
+  state.detailId = null; state.dealPageId = null;
+  document.title = 'YAMATO CRM — 顧客管理システム';
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === name));
   VIEW_NAMES.forEach(v => {
     const el = document.getElementById(`view-${v}`);
@@ -2657,6 +2762,9 @@ function renderAll() {
   });
 
   updateBadges();
+
+  // 会社/商談ページを開いている時は、そのページを描き直す
+  if (currentRoute.type !== 'tab') { refreshOpenPage(); return; }
 
   // Re-render currently active view
   const active = document.querySelector('.nav-tab.active')?.dataset.tab || 'dashboard';
@@ -2927,6 +3035,7 @@ function subscribeChatter() {
       return String(b.id).localeCompare(String(a.id));
     });
     state.chatter = list;
+    if (currentRoute.type === 'account' || currentRoute.type === 'lead') renderRecordPage();
     state.chatterSyncedAt = new Date();
     updateChatterSyncLabel();
     const badge = document.getElementById('chatterBadge');
@@ -3033,7 +3142,7 @@ function renderChatter() {
         ${me && post.author === me ? `<button class="ch-del" data-del="${esc(post.id)}" title="削除">×</button>` : ''}
       </div>
       <div class="ch-body">${linkifyText(post.text)}</div>
-      ${post.recordId ? `<span class="ch-link" data-open="${esc(post.recordId)}">🔗 ${esc(post.recordName || '顧客を開く')}</span>` : ''}
+      ${post.recordId ? `<a class="ch-link" href="${routeHash({ type: 'account', id: post.recordId })}" data-open="${esc(post.recordId)}">🔗 ${esc(post.recordName || '顧客を開く')}</a>` : ''}
       <div class="ch-actions">
         <button class="ch-act ${liked ? 'liked' : ''}" data-like="${esc(post.id)}">👍 いいね${likes.length ? ' ' + likes.length : ''}</button>
         <button class="ch-act" data-toggle="${esc(post.id)}">💬 コメント${comments.length ? ' ' + comments.length : ''}</button>
@@ -3102,7 +3211,10 @@ function bindChatterEvents() {
     catch (e) { toast('失敗: ' + e.message, true); }
   }));
 
-  document.querySelectorAll('[data-open]').forEach(el => el.addEventListener('click', () => openDetail(el.dataset.open)));
+  document.querySelectorAll('[data-open]').forEach(el => el.addEventListener('click', e => {
+    if (e.metaKey || e.ctrlKey || e.shiftKey) return; // 新しいタブで開く操作はブラウザに任せる
+    e.preventDefault(); openDetail(el.dataset.open);
+  }));
 }
 
 // ---- 更新表示 / 自動更新 ----
@@ -3261,11 +3373,13 @@ function subscribeMeta() {
       if (!data || !Array.isArray(data.list)) return;
       if (d.id === 'members') state.members = data.list;
       if (d.id === 'products') state.products = data.list;
+      if (d.id === 'contractFolder') state.contractFolder = String(data.list[0] || '');
       if (d.id === 'tools') state.tools = data.list.filter(t => t && t.name).map(t => ({ name: String(t.name).slice(0, 30), cap: Math.max(1, Math.min(20, Number(t.cap) || 1)) }));
     });
     if (!state.products.length) state.products = [...DEFAULT_PRODUCTS];
     refreshMemberSelects();
     renderSettingsMembers();
+    if (currentRoute.type !== 'tab') refreshOpenPage();
     if (document.querySelector('.nav-tab.active')?.dataset.tab === 'calendar') renderCalendar();
   }, err => console.error('meta onSnapshot:', err));
 }
@@ -3329,8 +3443,16 @@ function renderSettingsTools() {
     catch (e) { toast('失敗: ' + e.message, true); }
   }));
 }
+function renderSettingsContractFolder() {
+  const now = document.getElementById('contractFolderNow');
+  if (!now) return;
+  const inp = document.getElementById('contractFolderUrl');
+  if (inp && document.activeElement !== inp) inp.value = state.contractFolder || '';
+  now.innerHTML = state.contractFolder ? `現在: ${extLink(state.contractFolder, '📁 フォルダを開く')}` : '<span style="color:var(--text3);">未設定</span>';
+}
 function renderSettingsMembers() {
   renderSettingsTools();
+  renderSettingsContractFolder();
   const el = document.getElementById('memberList');
   if (!el) return;
   el.innerHTML = state.members.length
@@ -3375,7 +3497,9 @@ function subscribeDeals() {
       return c !== 0 ? c : String(b.id).localeCompare(String(a.id));
     });
     state.deals = list;
+    state.dealsLoaded = true;
     updateBadges();
+    refreshOpenPage();
     const active = document.querySelector('.nav-tab.active')?.dataset.tab;
     if (active === 'deals') renderDealList();
     else if (active === 'dashboard') renderDashboard();
@@ -3425,7 +3549,7 @@ function renderLeadList() {
   </tr>`).join('');
   tbody.querySelectorAll('tr').forEach(tr => tr.addEventListener('click', e => {
     if (e.target.closest('[data-apo],[data-call],a')) return;
-    openLeadNewModal(tr.dataset.id);
+    openDetail(tr.dataset.id);
   }));
   tbody.querySelectorAll('[data-apo]').forEach(b => b.addEventListener('click', e => {
     e.stopPropagation(); openApoModal(b.dataset.apo);
@@ -3527,9 +3651,11 @@ document.getElementById('leadNewDelete').addEventListener('click', async () => {
   if (!confirm(`このリードを削除しますか?${related.length ? `\n紐づく商談 ${related.length}件 も削除されます。` : ''}`)) return;
   try {
     for (const d of related) { await deleteDoc(doc(state.db, DEALS_COLLECTION, d.id)); }
-    await deleteRecordFromDb(state.editingLeadId);
+    const deletedLead = state.editingLeadId;
+    await deleteRecordFromDb(deletedLead);
     leadNewModal.classList.remove('open');
     toast('✓ 削除しました');
+    if (state.detailId === deletedLead) navigate({ type: 'tab', name: 'leadlist' });
   } catch (e) { toast('失敗: ' + e.message, true); }
 });
 
@@ -3992,7 +4118,7 @@ ${memo}`;
     await autoLogApoCall(rec, owner, memo);
     apoModal.classList.remove('open');
     toast(ok ? '✓ アポ報告をチャッターに流しました' : '⚠ 保存しましたがチャッター投稿に失敗', !ok);
-    switchTab('chatter');
+    if (currentRoute.type === 'tab') switchTab('chatter'); else if (state.detailId === rec.id) refreshOpenPage(); else openDetail(rec.id);
   } catch (e) { console.error(e); toast('失敗: ' + (e.message || ''), true); }
   finally { btn.disabled = false; }
 });
@@ -4070,9 +4196,11 @@ document.getElementById('shodanDeleteBtn').addEventListener('click', async () =>
   if (!state.editingDealId) return;
   if (!confirm('この商談を削除しますか?')) return;
   try {
-    await deleteDoc(doc(state.db, DEALS_COLLECTION, state.editingDealId));
+    const deletedId = state.editingDealId;
+    await deleteDoc(doc(state.db, DEALS_COLLECTION, deletedId));
     shodanModal.classList.remove('open');
     toast('✓ 削除しました');
+    if (state.dealPageId === deletedId) navigate({ type: 'tab', name: 'deals' });
   } catch (e) { toast('失敗: ' + e.message, true); }
 });
 
@@ -4171,7 +4299,7 @@ ${memo}`;
 
     shodanModal.classList.remove('open');
     toast(ok ? '✓ 商談報告をチャッターに流しました' : '⚠ 保存しましたがチャッター投稿に失敗', !ok);
-    switchTab('chatter');
+    if (currentRoute.type === 'tab') switchTab('chatter'); else refreshOpenPage();
   } catch (e) { console.error(e); toast('失敗: ' + (e.message || ''), true); }
   finally { btn.disabled = false; }
 });
@@ -4198,7 +4326,7 @@ function renderDealList() {
     const amt = (Number(d.amount_init) || 0) + (Number(d.amount_monthly) || 0) * 3;
     return `<tr data-did="${esc(d.id)}">
       <td>${dealPhaseBadge(d.dealPhase)}</td>
-      <td><strong>${esc(d.dealName)}</strong><br><span style="font-size:11px;color:var(--text3);">${esc(d.customerName || '')}</span></td>
+      <td><strong>${esc(d.dealName)}</strong>${dealContracts(d).length ? ` <span title="契約書 ${dealContracts(d).length}件">📄</span>` : ''}<br><span style="font-size:11px;color:var(--text3);">${esc(d.customerName || '')}</span></td>
       <td style="font-size:11px;">${esc(d.product || '—')}</td>
       <td class="mono">${amt ? '¥' + fmt(amt) : '—'}</td>
       <td class="mono" style="font-size:11px;">${d.closeDate ? fmtDate(d.closeDate) : '—'}</td>
@@ -4207,7 +4335,7 @@ function renderDealList() {
       <td class="right" style="font-size:11px;">${esc(d.salesOwner || '—')}</td>
     </tr>`;
   }).join('');
-  tbody.querySelectorAll('tr').forEach(tr => tr.addEventListener('click', () => openDealModal(tr.dataset.did)));
+  tbody.querySelectorAll('tr').forEach(tr => tr.addEventListener('click', () => openDealPage(tr.dataset.did)));
   renderPagination('dealPagination', list.length, f.page, pg => { f.page = pg; renderDealList(); });
 }
 document.getElementById('dealSearch').addEventListener('input', e => { state.dealFilter.search = e.target.value; state.dealFilter.page = 1; renderDealList(); });
@@ -4327,6 +4455,7 @@ function subscribeCalls() {
     snap.forEach(d => { const data = d.data(); if (data && data.result) list.push({ ...data, id: d.id }); });
     list.sort((a, b) => (Number(b.atMs) || 0) - (Number(a.atMs) || 0));
     state.calls = list;
+    if (currentRoute.type !== 'tab') refreshOpenPage();
     const active = document.querySelector('.nav-tab.active')?.dataset.tab;
     if (active === 'leadlist') renderLeadList();
     else if (active === 'calendar') renderCalendar();
@@ -4459,6 +4588,7 @@ function subscribeEvents() {
     const list = [];
     snap.forEach(d => { const data = d.data(); if (data && data.date && data.title) list.push({ ...data, id: d.id }); });
     state.events = list;
+    if (currentRoute.type !== 'tab') refreshOpenPage();
     const act = document.querySelector('.nav-tab.active')?.dataset.tab;
     if (act === 'calendar') renderCalendar();
   }, err => console.error('events onSnapshot:', err));
@@ -4890,6 +5020,410 @@ function renderDashTeam() {
     + (monthInCallsWindow(state.dashYear, state.dashMonth) ? '' : `<tr><td colspan="7" style="text-align:left; color:var(--yellow); font-size:11px;">⚠ この月のアポ・架電は集計対象外（直近${CALLS_WINDOW_MONTHS}ヶ月分のみ読み込み）。受注・失注・アポ流れは全期間集計です。</td></tr>`);
 }
 function monthInCallsWindow(y, m) { return new Date(y, m, 1).getTime() >= callsCutoffMs(); }
+
+
+// ==================================================================
+// ============ 会社ごとのURL / 全画面ページ（Salesforce型） ============
+// ==================================================================
+const ROUTE_TABS = new Set(['dashboard','chatter','calendar','leadlist','all','deals','payments','active','dup','reports','settings']);
+let currentRoute = { type: 'tab', name: 'dashboard' };
+function parseHash() {
+  const h = String(location.hash || '').replace(/^#\/?/, '');
+  const parts = h.split('/');
+  const a = parts[0], b = parts[1];
+  if ((a === 'account' || a === 'lead' || a === 'deal') && b) {
+    try { return { type: a, id: decodeURIComponent(b) }; } catch { return { type: 'tab', name: 'dashboard' }; }
+  }
+  if (ROUTE_TABS.has(a)) return { type: 'tab', name: a };
+  return { type: 'tab', name: 'dashboard' };
+}
+function routeHash(r) { return r.type === 'tab' ? `#/${r.name}` : `#/${r.type}/${encodeURIComponent(r.id)}`; }
+function recordUrl(type, id) { return String(location.href).split('#')[0] + routeHash({ type, id }); }
+function navigate(r) {
+  const h = routeHash(r);
+  if (location.hash === h) { applyRoute(); return; }
+  location.hash = h;
+}
+function applyRoute() {
+  const app = document.getElementById('app');
+  if (!app || !app.classList.contains('active')) return;
+  const r = parseHash();
+  currentRoute = r;
+  if (r.type === 'tab') showTab(r.name);
+  else if (r.type === 'deal') showDealPage(r.id);
+  else showRecordPage(r.id);
+}
+window.addEventListener('hashchange', applyRoute);
+
+function openDetail(id) {
+  const rec = state.records.find(r => r.id === id);
+  if (!rec) { toast('この顧客は削除されています', true); return; }
+  document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
+  navigate({ type: recKind(rec) === 'lead' ? 'lead' : 'account', id });
+}
+function openDealPage(id) {
+  document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
+  navigate({ type: 'deal', id });
+}
+function showOnlyView(name, navTab) {
+  VIEW_NAMES.forEach(v => { const el = document.getElementById(`view-${v}`); if (el) el.classList.toggle('active', v === name); });
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === navTab));
+}
+function refreshOpenPage() {
+  if (currentRoute.type === 'deal') renderDealPage();
+  else if (currentRoute.type === 'account' || currentRoute.type === 'lead') renderRecordPage();
+}
+
+async function copyText(text) {
+  try { if (navigator.clipboard && navigator.clipboard.writeText) { await navigator.clipboard.writeText(text); return true; } } catch {}
+  try {
+    const ta = document.createElement('textarea');
+    ta.value = text; ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    const ok = document.execCommand && document.execCommand('copy');
+    ta.remove();
+    return !!ok;
+  } catch { return false; }
+}
+async function copyRecordLink(type, id) {
+  const url = recordUrl(type, id);
+  if (await copyText(url)) toast('✓ リンクをコピーしました');
+  else prompt('このURLをコピーしてください', url);
+}
+
+// ---------- 取引先 / リード ページ ----------
+function showRecordPage(id) {
+  const rec = state.records.find(r => r.id === id);
+  const navTab = rec && recKind(rec) === 'lead' ? 'leadlist' : 'all';
+  showOnlyView('record', navTab);
+  const first = state.detailId !== id;
+  state.detailId = id;
+  state.dealPageId = null;
+  renderRecordPage();
+  if (first) { try { window.scrollTo(0, 0); } catch {} }
+}
+function renderRecordPage() {
+  const id = state.detailId;
+  const rec = state.records.find(r => r.id === id);
+  const miss = document.getElementById('recordMissing');
+  const wrap = document.getElementById('recordWrap');
+  if (!rec) {
+    wrap.style.display = 'none';
+    miss.style.display = '';
+    miss.innerHTML = state.isInitialLoad
+      ? '読み込み中…'
+      : 'この会社は見つかりません（削除された可能性があります）<br><button class="btn-action" id="recMissingBack">← 取引先一覧へ</button>';
+    const b = document.getElementById('recMissingBack');
+    if (b) b.addEventListener('click', () => navigate({ type: 'tab', name: 'all' }));
+    document.title = 'YAMATO CRM — 顧客管理システム';
+    return;
+  }
+  wrap.style.display = '';
+  miss.style.display = 'none';
+  const draftEl = document.getElementById('newActivityText');
+  const draft = draftEl ? draftEl.value : '';
+  buildDetailBody(id);
+  if (draft) { const ta = document.getElementById('newActivityText'); if (ta) ta.value = draft; }
+
+  const isLead = recKind(rec) === 'lead';
+  state.detailKind = isLead ? 'lead' : 'account';
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === (isLead ? 'leadlist' : 'all')));
+  // リード→取引先に昇格した等でURLの種別がズレたら、履歴を増やさずに直す
+  if (currentRoute.type !== state.detailKind) {
+    currentRoute = { type: state.detailKind, id: rec.id };
+    try { history.replaceState(null, '', routeHash(currentRoute)); } catch {}
+  }
+  document.getElementById('recCrumbLink').textContent = isLead ? 'リード' : '取引先';
+  document.getElementById('recCrumbName').textContent = rec.name || '—';
+  document.getElementById('recMeta').innerHTML = [
+    isLead ? leadStatusBadge(rec.leadStatus) : phaseBadge(rec.phase),
+    rec.tel ? `☎ <a href="tel:${esc(rec.tel)}">${esc(rec.tel)}</a>` : '',
+    rec.mobile ? `📱 <a href="tel:${esc(rec.mobile)}">${esc(rec.mobile)}</a>` : '',
+    rec.url ? `🌐 ${extLink(rec.url)}` : '',
+    rec.apo_owner ? `アポ: ${esc(rec.apo_owner)}` : '',
+    rec.sales_owner ? `営業: ${esc(rec.sales_owner)}` : ''
+  ].filter(Boolean).join('<span style="color:var(--border2);">|</span>');
+  document.getElementById('recDealBtn').style.display = isLead ? 'none' : '';
+  document.title = `${rec.name} | YAMATO CRM`;
+  renderRecordSide(rec);
+}
+function relPanel(title, count, btnHTML, bodyHTML) {
+  return `<div class="panel">
+    <div class="panel-head"><div class="panel-title">${title} <span style="color:var(--text3); font-weight:400;">(${count})</span></div>${btnHTML || ''}</div>
+    ${bodyHTML}
+  </div>`;
+}
+function renderRecordSide(rec) {
+  const el = document.getElementById('recordSide');
+  const isLead = recKind(rec) === 'lead';
+  const small = 'style="padding:4px 10px; min-height:28px; font-size:11px;"';
+
+  const deals = state.deals.filter(d => d.customerId === rec.id);
+  const dealsHTML = deals.length ? deals.map(d => {
+    const amt = (Number(d.amount_init) || 0) + (Number(d.amount_monthly) || 0) * 3;
+    return `<div class="rel-row" data-godeal="${esc(d.id)}">
+      ${dealPhaseBadge(d.dealPhase)}
+      <div class="rel-main"><strong>${esc(d.dealName)}</strong>
+        <div class="rel-sub">${d.closeDate ? esc(fmtDate(d.closeDate)) : '決着前'}${amt ? ' ／ ¥' + fmt(amt) : ''}${d.lostReason ? ' ／ ' + esc(LOST_REASONS[d.lostReason] || d.lostReason) : ''} ／ 営業 ${esc(d.salesOwner || '—')}</div>
+      </div></div>`;
+  }).join('') : '<div class="rel-empty">商談はまだありません</div>';
+
+  const ctItems = [];
+  deals.forEach(d => dealContracts(d).forEach(c => ctItems.push({ deal: d, c })));
+  const contractHTML = contractRowsHTML(ctItems) + (deals.length
+    ? contractFormHTML(deals, null)
+    : '<div class="rel-empty">契約書は商談に登録します。先に「＋ 商談報告」で商談を作ってください。</div>');
+
+  const calls = state.calls.filter(c => c.customerId === rec.id);
+  const callsHTML = calls.length ? calls.slice(0, 20).map(c => `<div class="rel-row" style="cursor:default;">
+      ${callResultBadge(c.result)}
+      <div class="rel-main">${esc(c.caller || '—')}${c.nextDate ? ` → 次回 ${esc(fmtDate(c.nextDate))}${c.nextTime ? ' ' + esc(c.nextTime) : ''}` : ''}
+        <div class="rel-sub">${esc(fmtDateTime(c.at))}${c.memo ? ' ／ ' + esc(String(c.memo).slice(0, 80)) : ''}</div>
+      </div></div>`).join('') : `<div class="rel-empty">直近${CALLS_WINDOW_MONTHS}ヶ月の架電はありません</div>`;
+
+  const evs = state.events.filter(e => e.customerId === rec.id).sort((a, b) => (b.date + (b.time || '')).localeCompare(a.date + (a.time || '')));
+  const evsHTML = evs.length ? evs.map(ev => `<div class="rel-row" data-goevent="${esc(ev.id)}">
+      <span class="mono" style="font-size:12px; min-width:92px;">${esc(fmtDate(ev.date))}</span>
+      <div class="rel-main">${esc(ev.title)}${ev.tool ? ' ' + toolBadge(ev.tool) : ''}
+        <div class="rel-sub">${ev.time ? esc(ev.time) + (ev.endTime ? '〜' + esc(ev.endTime) : '') : '時間未定'}${ev.member ? ' ／ ' + esc(ev.member) : ''}</div>
+      </div></div>`).join('') : '<div class="rel-empty">予定はありません</div>';
+
+  const posts = state.chatter.filter(pp => pp.recordId === rec.id);
+  const postsHTML = posts.length ? posts.map(pp => {
+    const t = CH_TYPES[pp.type] || CH_TYPES.manual;
+    return `<div class="rel-post">
+      <div style="display:flex; gap:8px; align-items:center; margin-bottom:4px;">
+        <span class="ch-type ${t.cls}">${esc(t.label)}</span>
+        <span style="color:var(--text3); font-size:11px;">${esc(pp.author || '—')} · ${esc(pp.createdAt ? fmtDateTime(pp.createdAt) : '')}</span>
+      </div>
+      <div style="white-space:pre-wrap; line-height:1.6;">${linkifyText(pp.text)}</div>
+      ${(pp.comments || []).length ? `<div style="font-size:11px; color:var(--text2); margin-top:4px;">💬 ${(pp.comments || []).map(c => `${esc(c.author || '')}: ${linkifyText(c.text)}`).join(' ／ ')}</div>` : ''}
+    </div>`;
+  }).join('') : '<div class="rel-empty">この会社の投稿はまだありません</div>';
+
+  el.innerHTML =
+    (isLead ? '' : relPanel('🤝 商談', deals.length, `<button class="btn-action primary" ${small} data-sideact="deal">＋ 商談報告</button>`, dealsHTML)) +
+    (isLead ? '' : relPanel('📄 契約書', ctItems.length, contractFolderBtnHTML(), contractHTML)) +
+    relPanel('☎ 架電履歴', calls.length, `<button class="btn-action" ${small} data-sideact="call">☎ 架電</button>`, callsHTML) +
+    relPanel('📅 予定', evs.length, `<button class="btn-action" ${small} data-sideact="event">＋ 予定</button>`, evsHTML) +
+    relPanel('💬 チャッター（全期間）', posts.length, '', postsHTML);
+
+  bindContractPanel(el);
+  el.querySelectorAll('[data-godeal]').forEach(r => r.addEventListener('click', () => openDealPage(r.dataset.godeal)));
+  el.querySelectorAll('[data-goevent]').forEach(r => r.addEventListener('click', () => openEventModal(r.dataset.goevent, null)));
+  el.querySelectorAll('[data-sideact]').forEach(b => b.addEventListener('click', () => {
+    const a = b.dataset.sideact;
+    if (a === 'deal') openDealModal(null, rec.id);
+    else if (a === 'call') openCallModal(rec.id);
+    else if (a === 'event') {
+      openEventModal(null, todayStr());
+      setPickerValue('e-target', rec.id);
+      const t = document.getElementById('e-title'); if (t && !t.value) t.value = rec.name || '';
+    }
+  }));
+}
+document.getElementById('recCrumbLink').addEventListener('click', () => closeDetail());
+document.getElementById('recCallBtn').addEventListener('click', () => { if (state.detailId) openCallModal(state.detailId); });
+document.getElementById('recApoBtn').addEventListener('click', () => { if (state.detailId) openApoModal(state.detailId); });
+document.getElementById('recDealBtn').addEventListener('click', () => { if (state.detailId) openDealModal(null, state.detailId); });
+document.getElementById('recCopyBtn').addEventListener('click', () => {
+  const rec = state.records.find(r => r.id === state.detailId);
+  if (rec) copyRecordLink(recKind(rec) === 'lead' ? 'lead' : 'account', rec.id);
+});
+
+// ---------- 商談ページ ----------
+function showDealPage(id) {
+  showOnlyView('dealpage', 'deals');
+  const first = state.dealPageId !== id;
+  state.dealPageId = id;
+  state.detailId = null;
+  renderDealPage();
+  if (first) { try { window.scrollTo(0, 0); } catch {} }
+}
+function renderDealPage() {
+  const id = state.dealPageId;
+  const d = state.deals.find(x => x.id === id);
+  const miss = document.getElementById('dealMissing');
+  const wrap = document.getElementById('dealWrap');
+  if (!d) {
+    wrap.style.display = 'none';
+    miss.style.display = '';
+    miss.innerHTML = (state.isInitialLoad || !state.dealsLoaded)
+      ? '読み込み中…'
+      : 'この商談は見つかりません（削除された可能性があります）<br><button class="btn-action" id="dealMissingBack">← 商談一覧へ</button>';
+    const b = document.getElementById('dealMissingBack');
+    if (b) b.addEventListener('click', () => navigate({ type: 'tab', name: 'deals' }));
+    return;
+  }
+  wrap.style.display = '';
+  miss.style.display = 'none';
+  const c = state.records.find(r => r.id === d.customerId);
+  const isWin = d.dealPhase === 'juchu' || d.dealPhase === 'kaishu';
+  document.getElementById('dealCrumbName').textContent = d.dealName || '—';
+  document.getElementById('dealTitle').textContent = d.dealName || '—';
+  document.getElementById('dealMeta').innerHTML = [
+    dealPhaseBadge(d.dealPhase),
+    c ? `🏢 <a class="ext" href="${routeHash({ type: 'account', id: c.id })}">${esc(c.name)}</a>` : `🏢 ${esc(d.customerName || '—')}（削除済み）`,
+    `営業: ${esc(d.salesOwner || '—')}`,
+    `アポ: ${esc(d.apoOwner || '—')}`
+  ].join('<span style="color:var(--border2);">|</span>');
+  const row = (l, v) => `<div class="detail-row"><div class="label">${l}</div><div class="value">${v}</div></div>`;
+  document.getElementById('dealBody').innerHTML = `
+    <div class="detail-section">
+      <div class="detail-section-title">// 商談情報</div>
+      <div class="deal-fields">
+        <div>
+          ${row('商談名', esc(d.dealName || '—'))}
+          ${row('取引先', c ? `<a class="ext" href="${routeHash({ type: 'account', id: c.id })}">${esc(c.name)}</a>` : esc(d.customerName || '—'))}
+          ${row('フェーズ', dealPhaseBadge(d.dealPhase))}
+          ${row('商材', esc(d.product || '—'))}
+          ${row('初回商談日', d.firstMeetingDate ? esc(fmtDate(d.firstMeetingDate)) : '—')}
+        </div>
+        <div>
+          ${row('受注日・失注日', d.closeDate ? esc(fmtDate(d.closeDate)) : '—')}
+          ${row('アポ取得者', esc(d.apoOwner || '—'))}
+          ${row('営業者', esc(d.salesOwner || '—'))}
+          ${isWin ? row('初期費用', '¥' + fmt(d.amount_init)) + row('月費', '¥' + fmt(d.amount_monthly)) : ''}
+          ${d.lostReason ? row('失注理由', `<span style="color:var(--red);">${esc(LOST_REASONS[d.lostReason] || d.lostReason)}</span>`) : ''}
+        </div>
+      </div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-section-title">// 商談内容 / メモ</div>
+      <div style="white-space:pre-wrap; font-size:13px; line-height:1.7; background:var(--bg); padding:12px; border-radius:3px; border:1px solid var(--border);">${linkifyText(d.memo || '—')}</div>
+    </div>
+    <div class="detail-section">
+      <div class="detail-section-title">// 履歴</div>
+      ${row('作成', `<span class="mono" style="font-size:12px; color:var(--text3);">${esc(fmtDateTime(d.createdAt))}</span>`)}
+      ${row('最終更新', `<span class="mono" style="font-size:12px; color:var(--text3);">${esc(fmtDateTime(d.updatedAt))}</span>`)}
+    </div>`;
+  const others = c ? state.deals.filter(x => x.customerId === c.id && x.id !== d.id) : [];
+  document.getElementById('dealSide').innerHTML =
+    (c ? relPanel('🏢 取引先', 1, '', `<div class="rel-row" data-goacct="${esc(c.id)}">${phaseBadge(c.phase)}<div class="rel-main"><strong>${esc(c.name)}</strong><div class="rel-sub">${esc(c.tel || c.mobile || '')}${c.url ? ' ／ ' + esc(c.url) : ''}</div></div></div>`) : '') +
+    relPanel('📄 契約書', dealContracts(d).length, contractFolderBtnHTML(), contractRowsHTML(dealContracts(d).map(c => ({ deal: d, c })), false) + contractFormHTML([d], d.id)) +
+    (others.length ? relPanel('🤝 同じ取引先の他の商談', others.length, '', others.map(x => `<div class="rel-row" data-godeal="${esc(x.id)}">${dealPhaseBadge(x.dealPhase)}<div class="rel-main"><strong>${esc(x.dealName)}</strong><div class="rel-sub">${x.closeDate ? esc(fmtDate(x.closeDate)) : '決着前'}</div></div></div>`).join('')) : '');
+  bindContractPanel(document.getElementById('dealSide'));
+  document.querySelectorAll('#dealSide [data-goacct]').forEach(r => r.addEventListener('click', () => openDetail(r.dataset.goacct)));
+  document.querySelectorAll('#dealSide [data-godeal]').forEach(r => r.addEventListener('click', () => openDealPage(r.dataset.godeal)));
+  document.title = `${d.dealName} | 商談 | YAMATO CRM`;
+}
+document.getElementById('dealCrumbLink').addEventListener('click', () => navigate({ type: 'tab', name: 'deals' }));
+document.getElementById('dealBackBtn').addEventListener('click', () => navigate({ type: 'tab', name: 'deals' }));
+document.getElementById('dealCopyBtn').addEventListener('click', () => { if (state.dealPageId) copyRecordLink('deal', state.dealPageId); });
+document.getElementById('dealEditBtn').addEventListener('click', () => { if (state.dealPageId) openDealModal(state.dealPageId); });
+document.getElementById('dealDeleteBtn').addEventListener('click', async () => {
+  const d = state.deals.find(x => x.id === state.dealPageId);
+  if (!d) return;
+  if (!confirm(`商談「${d.dealName}」を削除しますか?\nこの操作は取り消せません。`)) return;
+  try {
+    await deleteDoc(doc(state.db, DEALS_COLLECTION, d.id));
+    toast('✓ 削除しました');
+    navigate({ type: 'tab', name: 'deals' });
+  } catch (e) { toast('失敗: ' + (e.message || ''), true); }
+});
+
+// ==================================================================
+// ============ 契約書（Googleドライブのリンクを商談に登録） ============
+// ==================================================================
+function dealContracts(d) { return (d && Array.isArray(d.contracts)) ? d.contracts.filter(c => c && c.url) : []; }
+function contractFolderBtnHTML() {
+  const href = safeUrl(state.contractFolder);
+  return href ? `<a class="btn-action" style="padding:4px 10px; min-height:28px; font-size:11px; text-decoration:none;" href="${esc(href)}" target="_blank" rel="noopener noreferrer">📁 フォルダを開く</a>` : '';
+}
+function contractRowsHTML(items, showDeal = true) {
+  // items: [{ deal, c }]  deal は必須（削除ボタンがどの商談の契約書かを知るため）
+  if (!items.length) return '<div class="rel-empty">まだ登録されていません</div>';
+  return items.map(({ deal, c }) => `<div class="ct-row">
+      <span style="font-size:18px;">📄</span>
+      <div class="ct-main">
+        ${extLink(c.url, c.label || '契約書')}
+        <div class="ct-sub">${showDeal ? esc(deal.dealName) + ' ／ ' : ''}${esc(c.addedBy || '—')} · ${esc(c.addedAt ? fmtDateTime(c.addedAt) : '')}</div>
+      </div>
+      <button class="ct-del" title="登録を外す（ドライブのファイルは消えません）" data-ctdel="${esc(deal.id)}|${esc(c.id)}">×</button>
+    </div>`).join('');
+}
+function contractFormHTML(deals, fixedDealId) {
+  const pick = fixedDealId ? `<input type="hidden" data-ct="deal" value="${esc(fixedDealId)}" />`
+    : (deals.length === 1 ? `<input type="hidden" data-ct="deal" value="${esc(deals[0].id)}" />`
+    : `<select data-ct="deal">${deals.map(d => `<option value="${esc(d.id)}">${esc(d.dealName)}（${esc(dealPhaseInfo(d.dealPhase).label)}）</option>`).join('')}</select>`);
+  return `<div class="ct-form">
+    ${pick}
+    <input type="url" data-ct="url" placeholder="契約書PDFのリンク（https://drive.google.com/...）" maxlength="1000" inputmode="url" />
+    <div style="display:flex; gap:8px;">
+      <input type="text" data-ct="label" placeholder="名前（例: 本契約 / 追加契約）" maxlength="60" style="flex:1;" />
+      <button class="btn-action primary" data-ct="add" style="flex-shrink:0;">＋ 登録</button>
+    </div>
+    <div class="ct-hint">ドライブでPDFを右クリック →「共有」→「リンクをコピー」で貼り付け。</div>
+  </div>`;
+}
+async function addContract(dealId, url, label) {
+  const d = state.deals.find(x => x.id === dealId);
+  if (!d) { toast('商談が見つかりません', true); return false; }
+  const href = safeUrl(url);
+  if (!href) { toast('https:// で始まるリンクを貼ってください', true); return false; }
+  const list = dealContracts(d);
+  if (list.some(c => c.url === href)) { toast('このリンクはすでに登録されています', true); return false; }
+  const item = {
+    id: 'k_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 6),
+    url: href.slice(0, 1000), label: (label || '契約書').trim().slice(0, 60) || '契約書',
+    addedBy: getMe() || '—', addedAt: isoNow()
+  };
+  await saveDeal({ ...d, contracts: [...list, item] });
+  const c = state.records.find(r => r.id === d.customerId);
+  if (c) {
+    const act = Array.isArray(c.activity) ? [...c.activity] : [];
+    act.unshift({ at: isoNow(), type: 'system', text: `📄 契約書を登録: ${item.label}（${d.dealName}） (${item.addedBy})` });
+    await saveRecord({ ...c, activity: act.slice(0, 50), updatedAt: isoNow() });
+  }
+  return true;
+}
+async function removeContract(dealId, contractId) {
+  const d = state.deals.find(x => x.id === dealId);
+  if (!d) return;
+  const target = dealContracts(d).find(c => c.id === contractId);
+  if (!target) return;
+  if (!confirm(`「${target.label}」の登録を外しますか?\n（Googleドライブのファイル自体は消えません）`)) return;
+  await saveDeal({ ...d, contracts: dealContracts(d).filter(c => c.id !== contractId) });
+  const c = state.records.find(r => r.id === d.customerId);
+  if (c) {
+    const act = Array.isArray(c.activity) ? [...c.activity] : [];
+    act.unshift({ at: isoNow(), type: 'system', text: `📄 契約書の登録を外した: ${target.label}（${d.dealName}） (${getMe() || '—'})` });
+    await saveRecord({ ...c, activity: act.slice(0, 50), updatedAt: isoNow() });
+  }
+  toast('✓ 登録を外しました');
+}
+function bindContractPanel(root) {
+  if (!root) return;
+  root.querySelectorAll('[data-ctdel]').forEach(b => b.addEventListener('click', async e => {
+    e.stopPropagation();
+    const [dealId, cid] = b.dataset.ctdel.split('|');
+    try { await removeContract(dealId, cid); } catch (err) { toast('失敗: ' + (err.message || ''), true); }
+  }));
+  root.querySelectorAll('[data-ct="add"]').forEach(btn => btn.addEventListener('click', async () => {
+    const form = btn.closest('.ct-form');
+    const dealId = form.querySelector('[data-ct="deal"]').value;
+    const urlEl = form.querySelector('[data-ct="url"]');
+    const labelEl = form.querySelector('[data-ct="label"]');
+    btn.disabled = true;
+    try {
+      if (await addContract(dealId, urlEl.value, labelEl.value)) {
+        urlEl.value = ''; labelEl.value = '';
+        toast('✓ 契約書を登録しました');
+      }
+    } catch (err) { toast('失敗: ' + (err.message || ''), true); }
+    finally { btn.disabled = false; }
+  }));
+}
+document.getElementById('saveContractFolderBtn').addEventListener('click', async () => {
+  const v = document.getElementById('contractFolderUrl').value.trim();
+  if (v && !safeUrl(v)) { toast('https:// で始まるURLを入れてください', true); return; }
+  try {
+    await saveMeta('contractFolder', v ? [safeUrl(v)] : []);
+    state.contractFolder = v ? safeUrl(v) : '';
+    renderSettingsContractFolder();
+    toast(v ? '✓ 契約書フォルダを保存しました' : '✓ 契約書フォルダを解除しました');
+  } catch (e) { toast('失敗: ' + (e.message || ''), true); }
+});
 
 function dashShiftMonth(dir) {
   state.dashMonth += dir;
@@ -5804,9 +6338,9 @@ document.getElementById('leadDeleteBtn').addEventListener('click', async () => {
 });
 
 // ============== DETAIL MODAL ==============
-function openDetail(id) {
+function buildDetailBody(id) {
   const rec = state.records.find(r => r.id === id);
-  if (!rec) { toast('この顧客は削除されています', true); return; }
+  if (!rec) return;
   state.detailId = id;
   document.getElementById('detailTitle').textContent = rec.name;
   const body = document.getElementById('detailBody');
@@ -5891,42 +6425,7 @@ function openDetail(id) {
       <div class="detail-row"><div class="label">メモ</div><div class="value" style="white-space:pre-wrap;">${linkifyText(rec.apo_memo || '—')}</div></div>
     </div>` : ''}
 
-    ${(() => {
-      // チャッター履歴: 全期間（フィードの1ヶ月制限とは無関係に、この会社の投稿は全部出す）
-      const posts = state.chatter.filter(p => p.recordId === rec.id);
-      if (!posts.length) return '';
-      return `<div class="detail-section">
-        <div class="detail-section-title">// チャッター履歴 (${posts.length})</div>
-        ${posts.map(p => {
-          const t = CH_TYPES[p.type] || CH_TYPES.manual;
-          return `<div class="detail-row">
-            <div class="label"><span class="ch-type ${t.cls}">${esc(t.label)}</span></div>
-            <div class="value">
-              <div style="font-size:11px; color:var(--text3);">${esc(p.author || '—')} · ${esc(p.createdAt ? fmtDateTime(p.createdAt) : '')}</div>
-              <div style="white-space:pre-wrap; font-size:12px; line-height:1.6; margin-top:3px;">${linkifyText(p.text)}</div>
-              ${(p.comments || []).length ? `<div style="font-size:11px; color:var(--text2); margin-top:4px;">💬 ${(p.comments || []).map(c => `${esc(c.author || '')}: ${linkifyText(c.text)}`).join(' ／ ')}</div>` : ''}
-            </div>
-          </div>`;
-        }).join('')}
-      </div>`;
-    })()}
 
-    ${(() => {
-      const ds = state.deals.filter(d => d.customerId === rec.id);
-      if (!ds.length) return '';
-      return `<div class="detail-section">
-        <div class="detail-section-title">// 商談 (${ds.length})</div>
-        ${ds.map(d => `<div class="detail-row">
-          <div class="label">${dealPhaseBadge(d.dealPhase)}</div>
-          <div class="value">
-            <strong>${esc(d.dealName)}</strong>
-            ${d.closeDate ? `<span style="color:var(--text3); font-size:11px;"> / ${fmtDate(d.closeDate)}</span>` : ''}
-            ${d.lostReason ? `<span style="color:var(--red); font-size:11px;"> / ${esc(LOST_REASONS[d.lostReason] || d.lostReason)}</span>` : ''}
-            ${d.memo ? `<div style="font-size:11px; color:var(--text2); margin-top:4px; white-space:pre-wrap;">${esc(String(d.memo).slice(0, 200))}</div>` : ''}
-          </div>
-        </div>`).join('')}
-      </div>`;
-    })()}
 
     ${(rec.meetingDate && !(rec.apo_memo || rec.meet_place || rec.apo_owner)) ? `<div class="detail-section">
       <div class="detail-section-title">// 商談</div>
@@ -5974,8 +6473,6 @@ function openDetail(id) {
       <div class="detail-row"><div class="label">最終更新</div><div class="value mono" style="font-size:12px; color:var(--text3);">${fmtDateTime(rec.updatedAt)}</div></div>
     </div>
   `;
-  document.getElementById('detailModal').classList.add('open');
-
   // クイックアクションbind
   body.querySelectorAll('.qa').forEach(btn => {
     btn.addEventListener('click', () => detailQuickAction(btn.dataset.act, btn.dataset.key));
@@ -5985,14 +6482,16 @@ function openDetail(id) {
   if (addBtn) addBtn.addEventListener('click', async () => {
     const text = document.getElementById('newActivityText').value.trim();
     if (!text) return;
+    document.getElementById('newActivityText').value = '';
     showLoading(true);
     try {
       const cur = state.records.find(r => r.id === state.detailId);
       await addActivity(cur, 'note', text);
       toast('✓ 履歴に追加しました');
-      // 詳細を再描画
-      setTimeout(() => openDetail(state.detailId), 300);
-    } catch (e) { alert('追加失敗: ' + e.message); }
+    } catch (e) {
+      const ta = document.getElementById('newActivityText'); if (ta && !ta.value) ta.value = text;
+      alert('追加失敗: ' + e.message);
+    }
     finally { showLoading(false); }
   });
 }
@@ -6042,10 +6541,19 @@ async function detailQuickAction(act, key) {
   finally { showLoading(false); }
 }
 
-function closeDetail() { document.getElementById('detailModal').classList.remove('open'); state.detailId = null; }
+function closeDetail() {
+  const rec = state.records.find(r => r.id === state.detailId);
+  const kind = rec ? recKind(rec) : state.detailKind;
+  state.detailId = null;
+  navigate({ type: 'tab', name: kind === 'lead' ? 'leadlist' : 'all' });
+}
 document.getElementById('detailClose').addEventListener('click', closeDetail);
 document.getElementById('detailCloseBtn').addEventListener('click', closeDetail);
-document.getElementById('detailEditBtn').addEventListener('click', () => { const id = state.detailId; closeDetail(); openLeadModal(id); });
+document.getElementById('detailEditBtn').addEventListener('click', () => {
+  const rec = state.records.find(r => r.id === state.detailId);
+  if (!rec) return;
+  if (recKind(rec) === 'lead') openLeadNewModal(rec.id); else openLeadModal(rec.id);
+});
 document.getElementById('detailCloneBtn').addEventListener('click', () => {
   const rec = state.records.find(r => r.id === state.detailId);
   if (!rec) return;
@@ -6097,13 +6605,11 @@ document.getElementById('detailDeleteBtn').addEventListener('click', async () =>
 document.getElementById('leadModal').addEventListener('click', e => {
   if (e.target.id === 'leadModal') closeLeadModal();
 });
-document.getElementById('detailModal').addEventListener('click', e => {
-  if (e.target.id === 'detailModal') closeDetail();
-});
 document.addEventListener('keydown', e => {
   if (e.key === 'Escape') {
-    if (document.getElementById('detailModal').classList.contains('open')) closeDetail();
-    else if (document.getElementById('leadModal').classList.contains('open')) closeLeadModal();
+    const open = document.querySelector('.modal-overlay.open');
+    if (open && open.id === 'leadModal') closeLeadModal();
+    else if (open) open.classList.remove('open');
   }
 });
 
@@ -6241,6 +6747,9 @@ async function initApp() {
     else if (state.notifiedIds._date !== today) { state.notifiedIds.clear(); state.notifiedIds._date = today; }
   }, 5 * 60 * 1000);
   setTimeout(() => { if (state.isInitialLoad) { state.isInitialLoad = false; showLoading(false); } }, 10000);
+  // URLに会社/タブの指定があればそこを開く（ログイン前に共有リンクを開いた場合もここで飛ぶ）
+  if (!location.hash) { try { history.replaceState(null, '', '#/dashboard'); } catch {} }
+  applyRoute();
 }
 
 async function startup() {
