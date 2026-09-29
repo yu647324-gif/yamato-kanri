@@ -755,7 +755,7 @@ service cloud.firestore {
 <!-- ==================== APP ==================== -->
 <div class="app" id="app">
   <header class="header">
-    <div class="header-brand">YAMATO<span class="sub">CRM v10</span></div>
+    <div class="header-brand">YAMATO<span class="sub">CRM v12</span></div>
     <div class="nav-tabs" id="navTabs">
       <button class="nav-tab active" data-tab="dashboard">📊 ダッシュボード</button>
       <button class="nav-tab" data-tab="chatter">💬 チャッター <span class="badge" id="chatterBadge" style="display:none;">0</span></button>
@@ -1584,6 +1584,34 @@ service cloud.firestore {
           <input type="url" id="f-url" maxlength="500" placeholder="https://..." inputmode="url" />
         </div>
         <div class="form-group">
+          <label for="f-rep">代表者名</label>
+          <input type="text" id="f-rep" maxlength="60" placeholder="例: 山田 太郎" />
+        </div>
+        <div class="form-group">
+          <label for="f-mobile">携帯</label>
+          <input type="tel" id="f-mobile" maxlength="20" inputmode="tel" placeholder="090-0000-0000" />
+        </div>
+        <div class="form-group">
+          <label for="f-industry">業種</label>
+          <input type="text" id="f-industry" maxlength="60" />
+        </div>
+        <div class="form-group">
+          <label for="f-pref">都道府県</label>
+          <input type="text" id="f-pref" maxlength="20" />
+        </div>
+        <div class="form-group">
+          <label for="f-url2">URL2</label>
+          <input type="url" id="f-url2" maxlength="500" inputmode="url" />
+        </div>
+        <div class="form-group">
+          <label for="f-url3">URL3</label>
+          <input type="url" id="f-url3" maxlength="500" inputmode="url" />
+        </div>
+        <div class="form-group full">
+          <label for="f-map">GoogleマップURL</label>
+          <input type="url" id="f-map" maxlength="500" inputmode="url" />
+        </div>
+        <div class="form-group">
           <label class="required" for="f-phase">フェーズ</label>
           <select id="f-phase"></select>
         </div>
@@ -1593,8 +1621,45 @@ service cloud.firestore {
         </div>
 
         <div class="form-group full collapse" id="grp-meeting">
-          <label class="required" for="f-meeting-date">商談日時</label>
+          <label class="required" for="f-meeting-date">商談日時（開始）</label>
           <input type="datetime-local" id="f-meeting-date" />
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px;">
+            <div><label for="f-meeting-end">終了</label><input type="time" id="f-meeting-end" step="300" /></div>
+            <div><label for="f-tool">商談方法</label><select id="f-tool"></select></div>
+          </div>
+        </div>
+
+        <div class="form-group full" style="margin-top:6px;">
+          <div style="font-size:12px; font-weight:700; color:var(--accent); border-bottom:1px solid var(--border); padding-bottom:6px;">📞 アポ報告の内容</div>
+        </div>
+        <div class="form-group">
+          <label for="f-apo-owner">アポ取得者</label>
+          <select id="f-apo-owner"></select>
+        </div>
+        <div class="form-group">
+          <label for="f-sales-owner">営業者</label>
+          <select id="f-sales-owner"></select>
+        </div>
+        <div class="form-group">
+          <label for="f-product">商材</label>
+          <select id="f-product"></select>
+        </div>
+        <div class="form-group">
+          <label for="f-place">訪問先 / 住所</label>
+          <input type="text" id="f-place" maxlength="200" />
+        </div>
+        <div class="form-group full">
+          <label for="f-zoom">会議URL送付方法</label>
+          <input type="text" id="f-zoom" maxlength="200" />
+        </div>
+        <div class="form-group full">
+          <label style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+            <input type="checkbox" id="f-mail-sent" style="width:18px; height:18px;" /> 会議URLのメール送付済み
+          </label>
+        </div>
+        <div class="form-group full">
+          <label for="f-apo-memo">アポ報告メモ</label>
+          <textarea id="f-apo-memo" rows="4" maxlength="5000"></textarea>
         </div>
 
         <div class="form-group full">
@@ -1615,6 +1680,11 @@ service cloud.firestore {
         <div class="form-group collapse" id="grp-contract-start">
           <label for="f-contract-start">契約開始日</label>
           <input type="date" id="f-contract-start" />
+        </div>
+        <div class="form-group">
+          <label for="f-order-date">受注日</label>
+          <input type="date" id="f-order-date" />
+          <div class="hint">ダッシュボード「今月の受注」の集計に使う日付</div>
         </div>
 
         <div class="form-group collapse" id="grp-init-amount">
@@ -1640,9 +1710,12 @@ service cloud.firestore {
         </div>
 
         <div class="form-group full">
-          <label for="f-followup">次回フォロー予定日</label>
-          <input type="date" id="f-followup" />
-          <div class="hint">設定するとカレンダーと通知に表示されます</div>
+          <label for="f-followup">次回フォロー / 再架電の予定日</label>
+          <div style="display:grid; grid-template-columns:2fr 1fr; gap:10px;">
+            <input type="date" id="f-followup" />
+            <input type="time" id="f-followup-time" step="300" title="時刻（任意）" />
+          </div>
+          <div class="hint">設定するとカレンダーと通知に表示されます（時刻は任意）</div>
         </div>
 
         <div class="form-group full collapse" id="grp-lost">
@@ -1743,6 +1816,10 @@ service cloud.firestore {
           <label for="ln-industry">業種</label>
           <input type="text" id="ln-industry" maxlength="60" placeholder="例: 不動産系" />
         </div>
+        <div class="form-group full">
+          <label for="ln-rep">代表者名</label>
+          <input type="text" id="ln-rep" maxlength="60" placeholder="例: 山田 太郎" />
+        </div>
         <div class="form-group">
           <label for="ln-tel">電話</label>
           <input type="tel" id="ln-tel" maxlength="20" inputmode="tel" placeholder="0120-000-000" />
@@ -1832,6 +1909,57 @@ service cloud.firestore {
       <button class="btn-action" id="callCancelBtn">キャンセル</button>
       <button class="btn-action primary" id="callSaveBtn">保存</button>
       <button class="btn-action primary" id="callSaveApoBtn" style="display:none;">保存してアポ報告へ →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ==================== 架電の記録を編集 MODAL ==================== -->
+<div class="modal-overlay" id="callEditModal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title">☎ 架電の記録を修正</div>
+      <button class="modal-close" id="callEditClose">×</button>
+    </div>
+    <div class="modal-body">
+      <div style="font-size:15px; font-weight:700; margin-bottom:10px;" id="ce-name">—</div>
+      <div class="form-grid">
+        <div class="form-group">
+          <label class="required" for="ce-at">架電日時</label>
+          <input type="datetime-local" id="ce-at" />
+        </div>
+        <div class="form-group">
+          <label class="required" for="ce-result">結果</label>
+          <select id="ce-result">
+            <option value="noanswer">📵 不通</option>
+            <option value="refused">✕ 営業断り</option>
+            <option value="busy">⏳ 忙しい（再架電）</option>
+            <option value="schedule">📆 日程調整</option>
+            <option value="apo">✅ アポ取得</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="required" for="ce-caller">架電者</label>
+          <select id="ce-caller"></select>
+        </div>
+        <div class="form-group">
+          <label for="ce-next">次回架電日</label>
+          <input type="date" id="ce-next" />
+        </div>
+        <div class="form-group">
+          <label for="ce-next-time">時刻</label>
+          <input type="time" id="ce-next-time" step="300" />
+        </div>
+        <div class="form-group full">
+          <label for="ce-memo">メモ</label>
+          <textarea id="ce-memo" rows="3" maxlength="2000"></textarea>
+        </div>
+      </div>
+      <div class="hint" style="margin-top:8px;">直すと、月次成績（架電数・アポ数）と一覧の「直近の架電」も自動で直ります。</div>
+    </div>
+    <div class="modal-foot">
+      <button class="btn-action danger" id="callEditDelete" style="margin-right:auto;">この記録を削除</button>
+      <button class="btn-action" id="callEditCancel">キャンセル</button>
+      <button class="btn-action primary" id="callEditSave">保存</button>
     </div>
   </div>
 </div>
@@ -1964,6 +2092,8 @@ service cloud.firestore {
         <div class="form-group full">
           <label class="required" for="a-name">会社名 / 屋号</label>
           <input type="text" id="a-name" maxlength="200" placeholder="例: 株式会社サンプル" />
+          <div class="duplicate-warning" id="aRedoWarning">⚠ この会社はアポ報告済みです（<span id="aRedoInfo"></span>）。<br>内容の修正は会社ページの「編集」から行ってください。ここで保存すると<strong>新しいアポとして1件追加で数えられます</strong>（再アポの時だけ使ってください）。</div>
+          <div class="duplicate-warning" id="aDupWarning">⚠ すでに登録されている会社かもしれません（このまま保存すると新しい会社として増えます）:<div id="aDupList" style="margin-top:4px;"></div></div>
         </div>
         <div class="form-group">
           <label class="required" for="a-date">商談日</label>
@@ -3142,7 +3272,7 @@ function renderChatter() {
         ${me && post.author === me ? `<button class="ch-del" data-del="${esc(post.id)}" title="削除">×</button>` : ''}
       </div>
       <div class="ch-body">${linkifyText(post.text)}</div>
-      ${post.recordId ? `<a class="ch-link" href="${routeHash({ type: 'account', id: post.recordId })}" data-open="${esc(post.recordId)}">🔗 ${esc(post.recordName || '顧客を開く')}</a>` : ''}
+      ${post.recordId ? `<a class="ch-link" href="${routeHash({ type: 'account', id: post.recordId })}" data-open="${esc(post.recordId)}">🔗 ${esc((state.records.find(r => r.id === post.recordId) || {}).name || post.recordName || '顧客を開く')}</a>` : ''}
       <div class="ch-actions">
         <button class="ch-act ${liked ? 'liked' : ''}" data-like="${esc(post.id)}">👍 いいね${likes.length ? ' ' + likes.length : ''}</button>
         <button class="ch-act" data-toggle="${esc(post.id)}">💬 コメント${comments.length ? ' ' + comments.length : ''}</button>
@@ -3511,13 +3641,7 @@ function subscribeDeals() {
 function applyLeadFilter() {
   const f = state.leadListFilter;
   let list = state.records.filter(r => recKind(r) === 'lead');
-  if (f.search) {
-    const q = normalText(f.search), qt = normalTel(f.search);
-    list = list.filter(r =>
-      normalText(r.name).includes(q) ||
-      (qt && (normalTel(r.tel).includes(qt) || normalTel(r.mobile).includes(qt))) ||
-      normalText(r.url).includes(q));
-  }
+  if (f.search) list = list.filter(r => recordMatchesSearch(r, f.search));
   if (f.status) list = list.filter(r => (r.leadStatus || '新規') === f.status);
   list.sort((a, b) => String(b.updatedAt || '').localeCompare(String(a.updatedAt || '')));
   return list;
@@ -3570,7 +3694,7 @@ document.getElementById('leadListClear').addEventListener('click', () => {
 
 // ---- 新規リードモーダル ----
 const leadNewModal = document.getElementById('leadNewModal');
-const LN_FIELDS = ['ln-name','ln-industry','ln-tel','ln-mobile','ln-url','ln-url2','ln-url3','ln-pref','ln-map','ln-memo'];
+const LN_FIELDS = ['ln-name','ln-industry','ln-rep','ln-tel','ln-mobile','ln-url','ln-url2','ln-url3','ln-pref','ln-map','ln-memo'];
 function openLeadNewModal(id) {
   state.editingLeadId = id || null;
   LN_FIELDS.forEach(f => document.getElementById(f).value = '');
@@ -3584,6 +3708,7 @@ function openLeadNewModal(id) {
       document.getElementById('ln-name').value = r.name || '';
       document.getElementById('ln-status').value = r.leadStatus || '新規';
       document.getElementById('ln-industry').value = r.industry || '';
+      document.getElementById('ln-rep').value = r.rep_name || '';
       document.getElementById('ln-tel').value = r.tel || '';
       document.getElementById('ln-mobile').value = r.mobile || '';
       document.getElementById('ln-url').value = r.url || '';
@@ -3601,16 +3726,17 @@ document.getElementById('leadNewClose').addEventListener('click', () => leadNewM
 document.getElementById('leadNewCancel').addEventListener('click', () => leadNewModal.classList.remove('open'));
 leadNewModal.addEventListener('click', e => { if (e.target === leadNewModal) leadNewModal.classList.remove('open'); });
 
-document.getElementById('ln-name').addEventListener('input', e => {
-  const v = normalText(e.target.value);
+function checkLeadDup() {
   const warn = document.getElementById('lnDupWarning');
-  if (v.length < 2) { warn.classList.remove('show'); return; }
-  const dups = state.records.filter(r => r.id !== state.editingLeadId && normalText(r.name).includes(v)).slice(0, 3);
-  if (dups.length) {
-    document.getElementById('lnDupList').innerHTML = dups.map(d => `<div style="font-size:11px;">・${esc(d.name)}（${esc(phaseInfo(d.phase).label)}）</div>`).join('');
-    warn.classList.add('show');
-  } else warn.classList.remove('show');
-});
+  const items = findDupCandidates({
+    name: document.getElementById('ln-name').value,
+    tels: [document.getElementById('ln-tel').value, document.getElementById('ln-mobile').value],
+    urls: [document.getElementById('ln-url').value, document.getElementById('ln-url2').value, document.getElementById('ln-url3').value]
+  }, state.editingLeadId);
+  if (items.length) { document.getElementById('lnDupList').innerHTML = dupListHTML(items, false); warn.classList.add('show'); }
+  else warn.classList.remove('show');
+}
+['ln-name','ln-tel','ln-mobile','ln-url','ln-url2','ln-url3'].forEach(id => document.getElementById(id).addEventListener('input', checkLeadDup));
 
 document.getElementById('leadNewSave').addEventListener('click', async () => {
   const name = document.getElementById('ln-name').value.trim();
@@ -3628,6 +3754,7 @@ document.getElementById('leadNewSave').addEventListener('click', async () => {
       phase: existing && existing.phase !== 'lead' ? existing.phase : 'lead',
       leadStatus: document.getElementById('ln-status').value,
       industry: document.getElementById('ln-industry').value.trim(),
+      rep_name: document.getElementById('ln-rep').value.trim().slice(0, 60),
       tel: document.getElementById('ln-tel').value.trim(),
       mobile: document.getElementById('ln-mobile').value.trim(),
       url: document.getElementById('ln-url').value.trim(),
@@ -3876,6 +4003,62 @@ function renderConflictBox(boxId, res, tool) {
     (res.alternatives.length ? `<br><strong>→ ${res.alternatives.map(esc).join(' / ')} なら空いています</strong>` : '<br><strong>→ 他のツールも埋まっています。時間をずらしてください</strong>');
 }
 
+// ================== 一覧検索の共通判定 ==================
+// 社名・代表者・業種・メール・URL・電話(固定/携帯)で探す。
+// 電話は数字が3桁以上ある時だけ比較する（数字の無い検索語で全件一致してしまうのを防ぐ）
+function recordMatchesSearch(r, raw) {
+  const q = normalText(raw);
+  if (!q) return true;
+  const qt = normalTel(raw);
+  if ([r.name, r.rep_name, r.industry, r.email, r.url, r.url2, r.url3, r.pref].some(v => normalText(v).includes(q))) return true;
+  if (qt.length >= 3 && (normalTel(r.tel).includes(qt) || normalTel(r.mobile).includes(qt))) return true;
+  return false;
+}
+
+// ================== 重複チェック（社名・電話・URL） ==================
+const SHARED_HOSTS = ['instagram.com','facebook.com','x.com','twitter.com','tiktok.com','youtube.com','line.me','lin.ee',
+  'ameblo.jp','note.com','hotpepper.jp','tabelog.com','linktr.ee','lit.link','peraichi.com','wixsite.com','jimdofree.com','studio.site'];
+// URLを「同じ会社か」判定用のキーにする。SNS等の共有サービスは最初のパスまで見る。Googleマップは判定に使わない
+function urlKey(u) {
+  const h = safeUrl(u);
+  if (!h) return '';
+  try {
+    const x = new URL(h);
+    const host = x.hostname.replace(/^www\./, '').toLowerCase();
+    if (/(^|\.)google\.[a-z.]+$/.test(host) || host === 'goo.gl') return '';
+    if (SHARED_HOSTS.some(sh => host === sh || host.endsWith('.' + sh))) {
+      const seg = x.pathname.split('/').filter(Boolean)[0] || '';
+      return seg ? `${host}/${seg.toLowerCase()}` : '';
+    }
+    return host;
+  } catch { return ''; }
+}
+function recTels(r) { return [r.tel, r.mobile].map(normalTel).filter(t => t.length >= 9); }
+function findDupCandidates(q, excludeId) {
+  const n = normalText(q.name || '');
+  const tels = (q.tels || []).map(normalTel).filter(t => t.length >= 9);
+  const uks = (q.urls || []).map(urlKey).filter(Boolean);
+  const out = [];
+  state.records.forEach(r => {
+    if (r.id === excludeId) return;
+    const reasons = [];
+    const rn = normalText(r.name);
+    if (n.length >= 2 && rn === n) reasons.push('社名');
+    else if (n.length >= 2 && rn.length >= 2 && (rn.includes(n) || n.includes(rn))) reasons.push('社名が似ている');
+    if (tels.length && recTels(r).some(t => tels.includes(t))) reasons.push('電話番号');
+    if (uks.length && [r.url, r.url2, r.url3].map(urlKey).some(k => k && uks.includes(k))) reasons.push('URL');
+    if (reasons.length) out.push({ r, reasons, score: reasons.filter(x => x !== '社名が似ている').length * 10 + reasons.length });
+  });
+  return out.sort((a, b) => b.score - a.score);
+}
+function dupListHTML(items, pickable) {
+  return items.slice(0, 5).map(({ r, reasons }) => `<div style="font-size:12px; margin-top:3px;">・
+      <a class="ext" href="${routeHash({ type: recKind(r) === 'lead' ? 'lead' : 'account', id: r.id })}" target="_blank" rel="noopener noreferrer">${esc(r.name)}</a>
+      （${recKind(r) === 'lead' ? 'リード' : '取引先'}／一致: <strong>${esc(reasons.join('・'))}</strong>）${esc([r.tel, r.mobile].filter(Boolean).join(' / '))}
+      ${pickable ? ` <button type="button" class="btn-action" style="padding:2px 8px; min-height:24px; font-size:11px;" data-pickdup="${esc(r.id)}">この会社で報告</button>` : ''}
+    </div>`).join('');
+}
+
 // ================== 検索できる会社ピッカー ==================
 const pickers = {};
 function initPicker(key, cfg) {
@@ -3972,7 +4155,7 @@ const apoModal = document.getElementById('apoModal');
 initPicker('a-target', {
   getItems: () => pickerItemsFromRecords().sort((a, b) => String(a.name).localeCompare(String(b.name), 'ja')),
   onPick: id => applyApoTarget(id),
-  onClear: () => ['a-name','a-tel','a-industry','a-rep'].forEach(id => document.getElementById(id).value = '')
+  onClear: () => { ['a-name','a-tel','a-industry','a-rep'].forEach(id => document.getElementById(id).value = ''); updateApoRedoWarning(); }
 });
 function openApoModal(recordId, prefillDate) {
   if (!ensureMe()) return;
@@ -3985,6 +4168,8 @@ function openApoModal(recordId, prefillDate) {
   document.getElementById('a-end').dataset.auto = '1';
   document.getElementById('a-tool').innerHTML = toolOptions(toolsList()[0].name);
   document.getElementById('a-mail-sent').checked = false;
+  document.getElementById('aDupWarning').classList.remove('show');
+  document.getElementById('aRedoWarning').classList.remove('show');
   renderConflictBox('a-conflict', null, '');
   document.getElementById('a-product').value = '';
   document.getElementById('a-owner').value = getMe();
@@ -3992,8 +4177,18 @@ function openApoModal(recordId, prefillDate) {
   if (recordId) applyApoTarget(recordId);
   apoModal.classList.add('open');
 }
+function updateApoRedoWarning() {
+  const id = document.getElementById('a-target').value;
+  const r = id ? state.records.find(x => x.id === id) : null;
+  const w = document.getElementById('aRedoWarning');
+  if (r && (r.apo_owner || r.apo_memo)) {
+    document.getElementById('aRedoInfo').textContent = `${r.apo_owner || '—'} / 商談 ${r.meetingDate ? fmtDateTime(r.meetingDate) : '日時未設定'}`;
+    w.classList.add('show');
+  } else w.classList.remove('show');
+}
 function applyApoTarget(id) {
   const r = state.records.find(x => x.id === id);
+  updateApoRedoWarning();
   if (!r) return;
   document.getElementById('a-name').value = r.name || '';
   document.getElementById('a-tel').value = r.tel || r.mobile || '';
@@ -4022,6 +4217,26 @@ document.getElementById('a-time').addEventListener('change', () => {
 document.getElementById('a-end').addEventListener('change', () => { document.getElementById('a-end').dataset.auto = '0'; apoCheckConflict(); });
 document.getElementById('a-date').addEventListener('change', apoCheckConflict);
 document.getElementById('a-tool').addEventListener('change', apoCheckConflict);
+function checkApoDup() {
+  const warn = document.getElementById('aDupWarning');
+  if (document.getElementById('a-target').value) { warn.classList.remove('show'); return; }
+  const items = findDupCandidates({
+    name: document.getElementById('a-name').value,
+    tels: [document.getElementById('a-tel').value],
+    urls: [document.getElementById('a-url').value]
+  }, null);
+  if (!items.length) { warn.classList.remove('show'); return; }
+  const listEl = document.getElementById('aDupList');
+  listEl.innerHTML = dupListHTML(items, true);
+  listEl.querySelectorAll('[data-pickdup]').forEach(b => b.addEventListener('click', () => {
+    setPickerValue('a-target', b.dataset.pickdup);
+    applyApoTarget(b.dataset.pickdup);
+    warn.classList.remove('show');
+    apoCheckConflict();
+  }));
+  warn.classList.add('show');
+}
+['a-name','a-tel','a-url'].forEach(id => document.getElementById(id).addEventListener('input', checkApoDup));
 document.getElementById('apoReportBtn').addEventListener('click', () => openApoModal(null));
 const closeApoModal = () => { apoModal.classList.remove('open'); state.skipAutoCallLog = false; };
 document.getElementById('apoModalClose').addEventListener('click', closeApoModal);
@@ -4253,8 +4468,11 @@ document.getElementById('shodanConfirmBtn').addEventListener('click', async () =
       const act = Array.isArray(customer.activity) ? [...customer.activity] : [];
       if (isWin) {
         const startDay = closeDate || todayStr();
-        upd.phase = 'order';
-        upd.orderDate = customer.orderDate || startDay;
+        // 入金が進んでいる案件のフェーズは巻き戻さない（受注→入金済み等を保持）
+        if (!(PHASE_MAP[customer.phase] && PHASE_MAP[customer.phase].group === 'active' && customer.phase !== 'order')) upd.phase = 'order';
+        // 受注日は商談の「受注日・失注日」に合わせる（商談側で直したらダッシュボードにも反映）
+        upd.orderDate = closeDate || customer.orderDate || startDay;
+        upd.lost_reason = ''; upd.lost_date = ''; upd.lost_detail = '';
         upd.init_amount = init; upd.monthly_amount = monthly;
         upd.planType = (init && monthly) ? 'full' : init ? 'init_only' : monthly ? 'monthly_only' : 'none';
         // 入金期限の基準日。未設定だと作成日基準になり即「期限超過」になるため必ず入れる
@@ -4272,6 +4490,20 @@ document.getElementById('shodanConfirmBtn').addEventListener('click', async () =
         act.unshift({ at: isoNow(), type: 'system', text: `✕ 失注: ${LOST_REASONS[lostReason]} (${sales})` });
       } else {
         act.unshift({ at: isoNow(), type: 'system', text: `🤝 商談報告: ${dealPhaseInfo(phase).label} (${sales})` });
+        // 失注/受注にしていた商談を「まだ決着していない」に戻した場合は、取引先も商談中に戻す
+        const prevWin = prev && (prev.dealPhase === 'juchu' || prev.dealPhase === 'kaishu');
+        const prevLost = prev && (prev.dealPhase === 'lost' || prev.dealPhase === 'nagare_r' || prev.dealPhase === 'nagare_o');
+        const otherDecided = state.deals.some(x => x.customerId === customer.id && x.id !== deal.id &&
+          ['juchu', 'kaishu', 'lost', 'nagare_r', 'nagare_o'].includes(x.dealPhase));
+        if (prevLost && customer.phase === 'lost' && !otherDecided) {
+          upd.phase = 'appo'; upd.lost_reason = ''; upd.lost_date = ''; upd.lost_detail = '';
+          act.unshift({ at: isoNow(), type: 'system', text: `↩ 失注を取り消し → 商談中に戻しました (${sales})` });
+        } else if (prevWin && customer.phase === 'order' && !hasAnyPayment(customer) && !otherDecided) {
+          upd.phase = 'appo'; upd.orderDate = '';
+          act.unshift({ at: isoNow(), type: 'system', text: `↩ 受注を取り消し → 商談中に戻しました (${sales})` });
+        } else if (prevWin && hasAnyPayment(customer)) {
+          toast('⚠ 入金済みのため、取引先のフェーズはそのままにしています。必要なら取引先の「編集」で直してください', true);
+        }
       }
       upd.activity = act.slice(0, 50);
       await saveRecord(upd);
@@ -4308,9 +4540,10 @@ ${memo}`;
 function renderDealList() {
   const f = state.dealFilter;
   let list = [...state.deals];
+  const liveName = d => { const c = state.records.find(r => r.id === d.customerId); return c ? c.name : (d.customerName || ''); };
   if (f.search) {
     const q = normalText(f.search);
-    list = list.filter(d => normalText(d.dealName).includes(q) || normalText(d.customerName).includes(q));
+    list = list.filter(d => normalText(d.dealName).includes(q) || normalText(liveName(d)).includes(q));
   }
   if (f.phase) list = list.filter(d => d.dealPhase === f.phase);
   const tbody = document.getElementById('dealTable');
@@ -4326,7 +4559,7 @@ function renderDealList() {
     const amt = (Number(d.amount_init) || 0) + (Number(d.amount_monthly) || 0) * 3;
     return `<tr data-did="${esc(d.id)}">
       <td>${dealPhaseBadge(d.dealPhase)}</td>
-      <td><strong>${esc(d.dealName)}</strong>${dealContracts(d).length ? ` <span title="契約書 ${dealContracts(d).length}件">📄</span>` : ''}<br><span style="font-size:11px;color:var(--text3);">${esc(d.customerName || '')}</span></td>
+      <td><strong>${esc(d.dealName)}</strong>${dealContracts(d).length ? ` <span title="契約書 ${dealContracts(d).length}件">📄</span>` : ''}<br><span style="font-size:11px;color:var(--text3);">${esc(liveName(d))}</span></td>
       <td style="font-size:11px;">${esc(d.product || '—')}</td>
       <td class="mono">${amt ? '¥' + fmt(amt) : '—'}</td>
       <td class="mono" style="font-size:11px;">${d.closeDate ? fmtDate(d.closeDate) : '—'}</td>
@@ -4555,6 +4788,93 @@ async function submitCall(thenApo) {
 }
 document.getElementById('callSaveBtn').addEventListener('click', () => submitCall(false));
 document.getElementById('callSaveApoBtn').addEventListener('click', () => submitCall(true));
+
+// ---- 架電の記録を直す / 消す ----
+const callEditModal = document.getElementById('callEditModal');
+let callEditingId = null;
+function isoLocalFromInput(v) { return v && v.length >= 16 ? `${v.slice(0, 16)}:00` : ''; }
+function openCallEditModal(callId) {
+  const c = state.calls.find(x => x.id === callId);
+  if (!c) { toast('この記録は見つかりません', true); return; }
+  callEditingId = callId;
+  const r = state.records.find(x => x.id === c.customerId);
+  document.getElementById('ce-name').textContent = (r && r.name) || c.customerName || '—';
+  document.getElementById('ce-at').value = String(c.at || '').slice(0, 16);
+  document.getElementById('ce-result').value = c.result;
+  document.getElementById('ce-caller').innerHTML = optionsWithCurrent([getMe(), ...state.members].filter(Boolean), c.caller || '', '—');
+  document.getElementById('ce-next').value = c.nextDate || '';
+  document.getElementById('ce-next-time').value = c.nextTime || '';
+  document.getElementById('ce-memo').value = c.memo || '';
+  callEditModal.classList.add('open');
+}
+// 取引先側の「直近の架電」「再架電予定」「架電回数」を、残っている架電記録から付け直す
+async function resyncCallSummary(customerId, countDelta, activityText) {
+  const r = state.records.find(x => x.id === customerId);
+  if (!r) return;
+  const mine = state.calls.filter(c => c.customerId === customerId).sort((a, b) => (Number(b.atMs) || 0) - (Number(a.atMs) || 0));
+  const latest = mine[0];
+  const upd = { ...r, updatedAt: isoNow() };
+  upd.callCount = Math.max(0, (Number(r.callCount) || 0) + (countDelta || 0));
+  if (latest) {
+    upd.lastCallResult = latest.result;
+    upd.lastCallAt = latest.at;
+    if (latest.result === 'busy' || latest.result === 'schedule') { upd.followupDate = latest.nextDate || ''; upd.followupTime = latest.nextTime || ''; }
+    else if (r.lastCallResult === 'busy' || r.lastCallResult === 'schedule') { upd.followupDate = ''; upd.followupTime = ''; }
+    if (latest.result === 'refused' && recKind(r) === 'lead') upd.leadStatus = '完了';
+  } else if (upd.callCount === 0) {
+    upd.lastCallResult = ''; upd.lastCallAt = '';
+    if (r.lastCallResult === 'busy' || r.lastCallResult === 'schedule') { upd.followupDate = ''; upd.followupTime = ''; }
+  }
+  // 対応履歴も同じ保存でまとめて書く（2回に分けると後の保存が前の結果を古い内容で上書きしうる）
+  if (activityText) {
+    const act = Array.isArray(r.activity) ? [...r.activity] : [];
+    act.unshift({ at: isoNow(), type: 'system', text: activityText });
+    upd.activity = act.slice(0, 50);
+  }
+  await saveRecord(upd);
+}
+document.getElementById('callEditClose').addEventListener('click', () => callEditModal.classList.remove('open'));
+document.getElementById('callEditCancel').addEventListener('click', () => callEditModal.classList.remove('open'));
+callEditModal.addEventListener('click', e => { if (e.target === callEditModal) callEditModal.classList.remove('open'); });
+document.getElementById('callEditSave').addEventListener('click', async () => {
+  const c = state.calls.find(x => x.id === callEditingId);
+  if (!c) return;
+  const atIn = document.getElementById('ce-at').value;
+  const result = document.getElementById('ce-result').value;
+  const caller = document.getElementById('ce-caller').value;
+  const next = document.getElementById('ce-next').value;
+  if (!atIn) { toast('架電日時を入力してください', true); return; }
+  if (!caller) { toast('架電者を選択してください', true); return; }
+  if ((result === 'busy' || result === 'schedule') && !next) { toast('忙しい・日程調整は次回架電日が必要です', true); return; }
+  const at = isoLocalFromInput(atIn);
+  const atMs = new Date(at).getTime();
+  if (isNaN(atMs)) { toast('日時が正しくありません', true); return; }
+  const btn = document.getElementById('callEditSave'); btn.disabled = true;
+  try {
+    const needNext = result === 'busy' || result === 'schedule';
+    const updated = { ...c, at, atMs, result, caller,
+      nextDate: needNext ? next : '', nextTime: needNext ? document.getElementById('ce-next-time').value : '',
+      memo: document.getElementById('ce-memo').value.trim().slice(0, 2000), editedBy: getMe() || '', editedAt: isoNow() };
+    await saveCall(updated);
+    state.calls = state.calls.map(x => x.id === c.id ? updated : x);
+    await resyncCallSummary(c.customerId, 0, `✎ 架電記録を修正: ${fmtDateTime(at)} ${CALL_RESULTS[result].label} (${caller}) — 修正者 ${getMe() || '—'}`);
+    callEditModal.classList.remove('open');
+    toast('✓ 架電の記録を修正しました');
+  } catch (e) { console.error(e); toast('失敗: ' + (e.message || ''), true); }
+  finally { btn.disabled = false; }
+});
+document.getElementById('callEditDelete').addEventListener('click', async () => {
+  const c = state.calls.find(x => x.id === callEditingId);
+  if (!c) return;
+  if (!confirm(`${fmtDateTime(c.at)} の架電記録（${CALL_RESULTS[c.result] ? CALL_RESULTS[c.result].label : c.result}）を削除しますか?\n月次成績の架電数・アポ数からも外れます。`)) return;
+  try {
+    await deleteDoc(doc(state.db, CALLS_COLLECTION, c.id));
+    state.calls = state.calls.filter(x => x.id !== c.id);
+    await resyncCallSummary(c.customerId, -1, `🗑 架電記録を削除: ${fmtDateTime(c.at)} ${CALL_RESULTS[c.result] ? CALL_RESULTS[c.result].label : c.result} — ${getMe() || '—'}`);
+    callEditModal.classList.remove('open');
+    toast('✓ 削除しました');
+  } catch (e) { toast('失敗: ' + (e.message || ''), true); }
+});
 
 // アポ報告が保存されたときに、架電チェックを経由していなければアポ取得として自動記録
 async function autoLogApoCall(rec, owner, memo) {
@@ -4977,7 +5297,7 @@ function renderDashTeam() {
       return `<div class="today-apo-row" data-rid="${esc(c.customerId)}">
         <span class="mono" style="color:var(--text3); min-width:44px;">${esc(String(c.at).slice(11, 16))}</span>
         <strong style="min-width:70px;">${esc(c.caller || '—')}</strong>
-        <span style="flex:1; min-width:140px;">${esc(c.customerName || (r && r.name) || '—')}</span>
+        <span style="flex:1; min-width:140px;">${esc((r && r.name) || c.customerName || '—')}</span>
         <span style="font-size:12px;">${meet}</span>
       </div>`;
     }).join('');
@@ -5138,6 +5458,7 @@ function renderRecordPage() {
   document.getElementById('recMeta').innerHTML = [
     isLead ? leadStatusBadge(rec.leadStatus) : phaseBadge(rec.phase),
     rec.tel ? `☎ <a href="tel:${esc(rec.tel)}">${esc(rec.tel)}</a>` : '',
+    rec.rep_name ? `👤 ${esc(rec.rep_name)}` : '',
     rec.mobile ? `📱 <a href="tel:${esc(rec.mobile)}">${esc(rec.mobile)}</a>` : '',
     rec.url ? `🌐 ${extLink(rec.url)}` : '',
     rec.apo_owner ? `アポ: ${esc(rec.apo_owner)}` : '',
@@ -5175,7 +5496,7 @@ function renderRecordSide(rec) {
     : '<div class="rel-empty">契約書は商談に登録します。先に「＋ 商談報告」で商談を作ってください。</div>');
 
   const calls = state.calls.filter(c => c.customerId === rec.id);
-  const callsHTML = calls.length ? calls.slice(0, 20).map(c => `<div class="rel-row" style="cursor:default;">
+  const callsHTML = calls.length ? calls.slice(0, 20).map(c => `<div class="rel-row" data-editcall="${esc(c.id)}" title="押すと修正・削除できます">
       ${callResultBadge(c.result)}
       <div class="rel-main">${esc(c.caller || '—')}${c.nextDate ? ` → 次回 ${esc(fmtDate(c.nextDate))}${c.nextTime ? ' ' + esc(c.nextTime) : ''}` : ''}
         <div class="rel-sub">${esc(fmtDateTime(c.at))}${c.memo ? ' ／ ' + esc(String(c.memo).slice(0, 80)) : ''}</div>
@@ -5211,6 +5532,7 @@ function renderRecordSide(rec) {
   bindContractPanel(el);
   el.querySelectorAll('[data-godeal]').forEach(r => r.addEventListener('click', () => openDealPage(r.dataset.godeal)));
   el.querySelectorAll('[data-goevent]').forEach(r => r.addEventListener('click', () => openEventModal(r.dataset.goevent, null)));
+  el.querySelectorAll('[data-editcall]').forEach(r => r.addEventListener('click', () => openCallEditModal(r.dataset.editcall)));
   el.querySelectorAll('[data-sideact]').forEach(b => b.addEventListener('click', () => {
     const a = b.dataset.sideact;
     if (a === 'deal') openDealModal(null, rec.id);
@@ -5444,13 +5766,7 @@ document.getElementById('dashThisMonth').addEventListener('click', () => {
 function applyAllFilter() {
   const f = state.allFilter;
   let list = [...state.records];
-  if (f.search) {
-    const s = normalText(f.search);
-    list = list.filter(r =>
-      normalText(r.name).includes(s) ||
-      normalTel(r.tel).includes(normalTel(f.search)) ||
-      normalText(r.email).includes(s));
-  }
+  if (f.search) list = list.filter(r => recordMatchesSearch(r, f.search));
   if (f.phase) list = list.filter(r => r.phase === f.phase);
   if (f.tag) list = list.filter(r => Array.isArray(r.tags) && r.tags.includes(f.tag));
   list.sort((a, b) => {
@@ -5666,9 +5982,11 @@ function renderDup() {
   const q = document.getElementById('dupSearch').value.trim();
   if (!q) {
     const groups = {};
+    const push = (k, r) => { if (!groups[k]) groups[k] = []; if (!groups[k].includes(r)) groups[k].push(r); };
     state.records.forEach(r => {
-      if (r.tel) { const k = 'tel:' + normalTel(r.tel); if (k.length > 5) { if (!groups[k]) groups[k] = []; groups[k].push(r); } }
-      if (r.email) { const k = 'email:' + normalText(r.email); if (k.includes('@')) { if (!groups[k]) groups[k] = []; groups[k].push(r); } }
+      recTels(r).forEach(t => push('tel:' + t, r));
+      if (r.email) { const k = 'email:' + normalText(r.email); if (k.includes('@')) push(k, r); }
+      [r.url, r.url2, r.url3].map(urlKey).filter(Boolean).forEach(k => push('url:' + k, r));
     });
     const dups = new Set();
     Object.values(groups).forEach(arr => { if (arr.length >= 2) arr.forEach(r => dups.add(r.id)); });
@@ -5676,7 +5994,7 @@ function renderDup() {
     if (!list.length) { tbody.innerHTML = `<tr><td colspan="5"><div class="empty"><div class="empty-icon">✓</div><div class="empty-text">重複候補は検出されませんでした<br><br>検索ボックスに屋号・電話番号を入力すると類似レコードを検索できます</div></div></td></tr>`; return; }
     tbody.innerHTML = list.map(r => `<tr data-id="${esc(r.id)}">
       <td><strong>${esc(r.name)}</strong></td>
-      <td class="mono">${esc(r.tel || '—')}</td>
+      <td class="mono">${esc([r.tel, r.mobile].filter(Boolean).join(' / ') || '—')}</td>
       <td class="mono">${esc(r.email || '—')}</td>
       <td>${phaseBadge(r.phase)}</td>
       <td class="right mono" style="font-size:11px;">${r.updatedAt ? relativeDate(r.updatedAt.slice(0,10)) : '—'}</td>
@@ -5685,12 +6003,13 @@ function renderDup() {
     const sNorm = normalText(q), telNorm = normalTel(q);
     const list = state.records.filter(r =>
       normalText(r.name).includes(sNorm) ||
-      (telNorm && telNorm.length > 5 && normalTel(r.tel).includes(telNorm)) ||
-      normalText(r.email).includes(sNorm));
+      (telNorm && telNorm.length > 5 && (normalTel(r.tel).includes(telNorm) || normalTel(r.mobile).includes(telNorm))) ||
+      normalText(r.email).includes(sNorm) ||
+      [r.url, r.url2, r.url3].some(u => normalText(u).includes(sNorm)));
     if (!list.length) { tbody.innerHTML = `<tr><td colspan="5"><div class="empty"><div class="empty-icon">∅</div><div class="empty-text">該当なし</div></div></td></tr>`; return; }
     tbody.innerHTML = list.map(r => `<tr data-id="${esc(r.id)}">
       <td><strong>${esc(r.name)}</strong></td>
-      <td class="mono">${esc(r.tel || '—')}</td>
+      <td class="mono">${esc([r.tel, r.mobile].filter(Boolean).join(' / ') || '—')}</td>
       <td class="mono">${esc(r.email || '—')}</td>
       <td>${phaseBadge(r.phase)}</td>
       <td class="right mono" style="font-size:11px;">${r.updatedAt ? relativeDate(r.updatedAt.slice(0,10)) : '—'}</td>
@@ -6094,6 +6413,10 @@ function renderPagination(id, total, current, onPage) {
 }
 
 // ============== LEAD MODAL ==============
+function optionsWithCurrent(list, current, blankLabel) {
+  const names = [...new Set([...(current ? [current] : []), ...list])];
+  return `<option value="">${esc(blankLabel || '—')}</option>` + names.map(n => `<option value="${esc(n)}"${n === current ? ' selected' : ''}>${esc(n)}</option>`).join('');
+}
 function openLeadModal(id, prefill) {
   state.editingId = id;
   const modal = document.getElementById('leadModal');
@@ -6110,6 +6433,19 @@ function openLeadModal(id, prefill) {
   document.getElementById('f-lost-reason').value = '';
   document.getElementById('f-lost-date').value = '';
   document.getElementById('f-lost-detail').value = '';
+  ['f-rep','f-mobile','f-industry','f-pref','f-url2','f-url3','f-map','f-meeting-end','f-place','f-zoom','f-apo-memo','f-order-date','f-followup-time'].forEach(fid => {
+    const el = document.getElementById(fid); if (el) el.value = '';
+  });
+  document.getElementById('f-mail-sent').checked = false;
+  {
+    const r0 = id ? state.records.find(r => r.id === id) : (prefill || null);
+    const people = [getMe(), ...state.members].filter(Boolean);
+    document.getElementById('f-apo-owner').innerHTML = optionsWithCurrent(people, r0 ? r0.apo_owner : '', '—');
+    document.getElementById('f-sales-owner').innerHTML = optionsWithCurrent(people, r0 ? r0.sales_owner : '', '—');
+    document.getElementById('f-product').innerHTML = optionsWithCurrent(state.products.length ? state.products : DEFAULT_PRODUCTS, r0 ? r0.product : '', '--なし--');
+    document.getElementById('f-tool').innerHTML = '<option value="">未設定</option>' + toolOptions(r0 ? inferTool(r0) : '');
+    document.getElementById('f-tool').value = r0 ? inferTool(r0) : '';
+  }
   document.getElementById('f-phase').value = 'lead';
   const noneRadio = document.querySelector('input[name="planType"][value="none"]');
   if (noneRadio) noneRadio.checked = true;
@@ -6140,6 +6476,20 @@ function openLeadModal(id, prefill) {
     document.getElementById('f-lost-date').value = rec.lost_date || '';
     document.getElementById('f-lost-detail').value = rec.lost_detail || '';
     document.getElementById('f-cancel-detail').value = rec.cancel_detail || '';
+    document.getElementById('f-rep').value = rec.rep_name || '';
+    document.getElementById('f-mobile').value = rec.mobile || '';
+    document.getElementById('f-industry').value = rec.industry || '';
+    document.getElementById('f-pref').value = rec.pref || '';
+    document.getElementById('f-url2').value = rec.url2 || '';
+    document.getElementById('f-url3').value = rec.url3 || '';
+    document.getElementById('f-map').value = rec.mapUrl || '';
+    document.getElementById('f-meeting-end').value = rec.meetingEnd || '';
+    document.getElementById('f-place').value = rec.meet_place || '';
+    document.getElementById('f-zoom').value = rec.zoom_send || '';
+    document.getElementById('f-mail-sent').checked = !!rec.mail_sent;
+    document.getElementById('f-apo-memo').value = rec.apo_memo || '';
+    document.getElementById('f-order-date').value = (rec.orderDate || '').slice(0, 10);
+    document.getElementById('f-followup-time').value = rec.followupTime || '';
     const pt = rec.planType || 'none';
     const ptEl = document.querySelector(`input[name="planType"][value="${pt}"]`);
     if (ptEl) ptEl.checked = true;
@@ -6155,7 +6505,7 @@ function updateFormVisibility() {
   const ptRadio = document.querySelector('input[name="planType"]:checked');
   const planType = ptRadio ? ptRadio.value : 'none';
   const plan = PLAN_TYPES[planType];
-  document.getElementById('grp-meeting').classList.toggle('show', phase === 'appo' || phase === 'lead');
+  document.getElementById('grp-meeting').classList.toggle('show', phase === 'appo' || phase === 'lead' || phase === 'hold' || !!document.getElementById('f-meeting-date').value);
   document.getElementById('grp-service').classList.toggle('show', planType !== 'none');
   document.getElementById('grp-contract-start').classList.toggle('show', planType !== 'none');
   document.getElementById('grp-init-amount').classList.toggle('show', plan.hasInit);
@@ -6169,26 +6519,26 @@ function updateFormVisibility() {
 document.getElementById('f-phase').addEventListener('change', updateFormVisibility);
 document.querySelectorAll('input[name="planType"]').forEach(el => el.addEventListener('change', updateFormVisibility));
 
-document.getElementById('f-name').addEventListener('input', checkDuplicate);
+['f-name','f-tel','f-mobile','f-email','f-url','f-url2','f-url3'].forEach(id => document.getElementById(id).addEventListener('input', checkDuplicate));
 document.getElementById('f-tel').addEventListener('input', checkDuplicate);
 document.getElementById('f-email').addEventListener('input', checkDuplicate);
 function checkDuplicate() {
-  const name = document.getElementById('f-name').value.trim();
-  const tel = normalTel(document.getElementById('f-tel').value);
-  const email = normalText(document.getElementById('f-email').value);
   const warning = document.getElementById('dupWarning');
   const listEl = document.getElementById('dupWarningList');
-  if (!name && !tel && !email) { warning.classList.remove('show'); return; }
-  const dups = state.records.filter(r => {
-    if (r.id === state.editingId) return false;
-    if (name && normalText(r.name) === normalText(name)) return true;
-    if (tel && tel.length >= 8 && normalTel(r.tel) === tel) return true;
-    if (email && email.includes('@') && normalText(r.email) === email) return true;
-    return false;
-  });
-  if (!dups.length) { warning.classList.remove('show'); return; }
+  const email = normalText(document.getElementById('f-email').value);
+  const items = findDupCandidates({
+    name: document.getElementById('f-name').value,
+    tels: [document.getElementById('f-tel').value, document.getElementById('f-mobile').value],
+    urls: [document.getElementById('f-url').value, document.getElementById('f-url2').value, document.getElementById('f-url3').value]
+  }, state.editingId);
+  if (email.includes('@')) {
+    state.records.forEach(r => {
+      if (r.id !== state.editingId && normalText(r.email) === email && !items.some(x => x.r.id === r.id)) items.push({ r, reasons: ['メール'], score: 10 });
+    });
+  }
+  if (!items.length) { warning.classList.remove('show'); return; }
   warning.classList.add('show');
-  listEl.innerHTML = dups.slice(0, 5).map(d => `<div>・ <strong>${esc(d.name)}</strong> (${esc(d.tel || d.email || '')})</div>`).join('');
+  listEl.innerHTML = dupListHTML(items, false);
 }
 
 function closeLeadModal() { document.getElementById('leadModal').classList.remove('open'); state.editingId = null; }
@@ -6245,6 +6595,21 @@ document.getElementById('leadSaveBtn').addEventListener('click', async () => {
     memo: document.getElementById('f-memo').value.trim().slice(0, 5000),
     cancel_date: document.getElementById('f-cancel-date').value || '',
     kind: inferKind(phase),
+    rep_name: document.getElementById('f-rep').value.trim().slice(0, 60),
+    mobile: document.getElementById('f-mobile').value.trim().slice(0, 20),
+    industry: document.getElementById('f-industry').value.trim().slice(0, 60),
+    pref: document.getElementById('f-pref').value.trim().slice(0, 20),
+    url2: document.getElementById('f-url2').value.trim().slice(0, 500),
+    url3: document.getElementById('f-url3').value.trim().slice(0, 500),
+    mapUrl: document.getElementById('f-map').value.trim().slice(0, 500),
+    meet_tool: document.getElementById('f-tool').value,
+    meet_place: document.getElementById('f-place').value.trim().slice(0, 200),
+    zoom_send: document.getElementById('f-zoom').value.trim().slice(0, 200),
+    mail_sent: document.getElementById('f-mail-sent').checked,
+    product: document.getElementById('f-product').value,
+    apo_owner: document.getElementById('f-apo-owner').value,
+    sales_owner: document.getElementById('f-sales-owner').value,
+    apo_memo: document.getElementById('f-apo-memo').value.trim().slice(0, 5000),
     lost_reason: document.getElementById('f-lost-reason').value || '',
     lost_date: document.getElementById('f-lost-date').value || '',
     lost_detail: document.getElementById('f-lost-detail').value.trim().slice(0, 2000),
@@ -6252,9 +6617,13 @@ document.getElementById('leadSaveBtn').addEventListener('click', async () => {
     cancel_detail: document.getElementById('f-cancel-detail').value.trim().slice(0, 2000)
   };
 
-  // orderDate を受注時に自動設定。既存値があれば必ず保持
+  // 受注日: 手で入れた値を最優先。空なら既存値を保持、それも無ければ受注系フェーズの時だけ今日
   const existingForOrder = state.editingId ? state.records.find(r => r.id === state.editingId) : null;
-  if (existingForOrder && existingForOrder.orderDate) {
+  const formOrderDate = document.getElementById('f-order-date').value;
+  rec.followupTime = rec.followupDate ? document.getElementById('f-followup-time').value : '';
+  if (formOrderDate) {
+    rec.orderDate = formOrderDate;
+  } else if (existingForOrder && existingForOrder.orderDate) {
     rec.orderDate = existingForOrder.orderDate;
   } else if (phase === 'order' || phase === 'init_unpaid' || phase === 'init_paid' || (typeof phase === 'string' && phase.startsWith('m')) || phase === 'continuing') {
     rec.orderDate = todayStr();
@@ -6295,16 +6664,26 @@ document.getElementById('leadSaveBtn').addEventListener('click', async () => {
   // フォームに無い項目（アポ報告・架電・URL2/3・携帯・担当者など）を消さないよう、既存データの上に重ねる
   const merged = existing ? { ...existing, ...rec } : rec;
 
-  // 商談日時を動かしたら、元の商談の長さを保ったまま終了時刻もずらす
-  if (existing && merged.meetingDate && merged.meetingDate !== existing.meetingDate) {
+  const formEnd = document.getElementById('f-meeting-end').value;
+  const endEditedByUser = existing ? formEnd !== (existing.meetingEnd || '') : !!formEnd;
+  if (!merged.meetingDate) merged.meetingEnd = '';
+  else if (endEditedByUser) merged.meetingEnd = formEnd;
+  else if (existing && merged.meetingDate !== existing.meetingDate) {
+    // 開始だけ動かした場合は、元の商談の長さを保ったまま終了もずらす
     const oldStart = existing.meetingDate ? hhmmToMin(existing.meetingDate.slice(11, 16)) : NaN;
     const oldEnd = hhmmToMin(existing.meetingEnd || '');
     const dur = (!isNaN(oldStart) && !isNaN(oldEnd) && oldEnd > oldStart) ? oldEnd - oldStart : MEETING_DEFAULT_MIN;
     merged.meetingEnd = addMinHHMM(merged.meetingDate.slice(11, 16), dur);
   }
-  if (!merged.meetingDate) merged.meetingEnd = '';
-  // 編集フォームで日時を動かす場合も、Zoom/Meet の枠を超えるなら保存しない
-  if (merged.meetingDate && merged.meetingDate.length >= 16 && (!existing || merged.meetingDate !== existing.meetingDate)
+  if (merged.meetingDate && merged.meetingEnd && hhmmToMin(merged.meetingEnd) <= hhmmToMin(merged.meetingDate.slice(11, 16))) {
+    alert('終了時刻は開始より後にしてください'); return;
+  }
+  if (merged.mail_sent && !(existing && existing.mail_sent)) merged.mail_sent_at = isoNow();
+  if (!merged.mail_sent) merged.mail_sent_at = '';
+  // 日時・終了・商談方法のどれかを変えたら、Zoom/Meet の枠を超えないか確認
+  const slotChanged = !existing || merged.meetingDate !== existing.meetingDate ||
+    (merged.meetingEnd || '') !== (existing.meetingEnd || '') || inferTool(merged) !== inferTool(existing);
+  if (merged.meetingDate && merged.meetingDate.length >= 16 && slotChanged
       && merged.phase !== 'lost' && merged.phase !== 'cancelled') {
     const tool = inferTool(merged);
     const st = merged.meetingDate.slice(11, 16);
@@ -6408,6 +6787,8 @@ function buildDetailBody(id) {
       ${rec.mapUrl ? `<div class="detail-row"><div class="label">Googleマップ</div><div class="value">${extLink(rec.mapUrl, '地図を開く')}</div></div>` : ''}
       <div class="detail-row"><div class="label">携帯</div><div class="value">${rec.mobile ? `<a href="tel:${esc(rec.mobile)}">${esc(rec.mobile)}</a>` : '—'}</div></div>
       <div class="detail-row"><div class="label">業種</div><div class="value">${esc(rec.industry || '—')}</div></div>
+      <div class="detail-row"><div class="label">代表者</div><div class="value">${esc(rec.rep_name || '—')}</div></div>
+      ${rec.pref ? `<div class="detail-row"><div class="label">都道府県</div><div class="value">${esc(rec.pref)}</div></div>` : ''}
       <div class="detail-row"><div class="label">タグ</div><div class="value">${(rec.tags || []).map(t => `<span class="tag">${esc(t)}</span>`).join('') || '—'}</div></div>
     </div>
 
