@@ -277,7 +277,7 @@ button { font-family: inherit; cursor: pointer; }
 .rec-missing { padding: 60px 20px; text-align: center; color: var(--text2); font-size: 14px; line-height: 2; }
 .deal-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 24px; }
 @media (max-width: 900px) {
-  .rec-grid { grid-template-columns: 1fr; }
+  .rec-grid { grid-template-columns: minmax(0, 1fr); }
   .deal-fields { grid-template-columns: 1fr; }
   .rec-title { font-size: 20px; }
 }
@@ -583,6 +583,50 @@ tbody tr:last-child td { border-bottom: none; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
 }
+
+/* ==== スマホ: 文字が切れないように（v14） ==== */
+.nav-tab .nav-ic, .nav-tab .nav-lb { pointer-events: none; }
+.cal-cell .day-num .dnw { display: none; }
+@media (max-width: 900px) {
+  .nav-tab .nav-lb { white-space: nowrap; letter-spacing: -0.04em; }
+  .nav-tab .nav-ic { font-size: 15px; line-height: 1; }
+}
+@media (max-width: 640px) {
+  /* 一覧表はカード表示（横スクロール・1文字ずつの折り返しをなくす） */
+  table.m-cards { min-width: 0; display: block; width: 100%; }
+  table.m-cards thead { display: none; }
+  table.m-cards tbody { display: block; width: 100%; }
+  table.m-cards tbody tr { display: block; padding: 10px 14px; border-bottom: 1px solid var(--border); }
+  table.m-cards tbody td { display: block; position: relative; padding: 3px 0 3px 80px !important; border: none; text-align: left !important;
+    max-width: none !important; overflow: visible !important; white-space: normal !important; overflow-wrap: anywhere; word-break: normal; font-size: 13px; min-height: 22px; }
+  table.m-cards tbody td::before { content: attr(data-label); position: absolute; left: 0; top: 5px; width: 72px; font-size: 10px; line-height: 1.3; color: var(--text3); letter-spacing: 0.5px; font-family: 'JetBrains Mono', monospace; white-space: normal; }
+  table.m-cards tbody td[data-label=""] { padding: 8px 0 3px !important; }
+  table.m-cards tbody td[data-label=""]::before, table.m-cards tbody td[colspan]::before { content: none; }
+  table.m-cards tbody td[colspan] { padding: 0 !important; }
+  table.m-cards tbody td [style*="nowrap"], table.m-cards tbody td [style*="max-width"] { white-space: normal !important; max-width: none !important; overflow: visible !important; text-overflow: clip !important; }
+  table.m-cards tbody td .btn-action { margin: 2px 4px 2px 0; }
+  table.m-cards .phase, table.m-cards .tag { white-space: normal; text-align: left; }
+  /* 週表示: 日ごとに縦に並べ、予定は横幅いっぱい */
+  .cal-week { grid-template-columns: 1fr; }
+  .cal-wcol { flex-direction: row; min-height: 0; }
+  .cal-whead { flex: 0 0 52px; border-bottom: none; border-right: 1px solid var(--border); display: flex; flex-direction: column; justify-content: center; padding: 6px 2px; }
+  .cal-whead .dn { font-size: 16px; }
+  .cal-wbody { max-height: none; min-height: 46px; min-width: 0; }
+  .cal-wbody .cal-empty { text-align: left; padding: 6px 4px; }
+  .cal-wbody .cal-event { font-size: 13px; }
+  /* 月表示: 1日1行（左に日付・右に予定） */
+  .cal-grid { grid-template-columns: 1fr; }
+  .cal-day-head, .cal-cell.other-month { display: none; }
+  .cal-cell { display: grid; grid-template-columns: 52px minmax(0, 1fr); column-gap: 8px; row-gap: 3px; align-items: start; min-height: 40px; max-height: none; overflow: visible; padding: 6px 8px; }
+  .cal-cell .day-num { grid-column: 1; grid-row: 1 / span 50; font-size: 14px; margin: 0; }
+  .cal-cell .day-num .dnw { display: inline; font-size: 10px; margin-left: 3px; }
+  .cal-cell .cal-event { grid-column: 2; font-size: 12px; white-space: normal; overflow: visible; padding: 4px 6px; margin: 0; }
+  .cal-cell.today { padding: 4px 6px; }
+  /* 入金の枠: 長い商談名でも欄からはみ出さない */
+  .payment-cell .lbl { text-transform: none; letter-spacing: 0; overflow-wrap: anywhere; }
+  /* カンバンの屋号は省略せず折り返す */
+  .kanban-card .name { white-space: normal; overflow: visible; text-overflow: clip; }
+}
 </style>
 <style>
 /* === V2 ADDITIONS === */
@@ -674,6 +718,8 @@ tbody tr:last-child td { border-bottom: none; }
 .quick-actions .qa:hover { border-color: var(--accent); color: var(--accent); }
 .quick-actions .qa.paid { border-color: var(--green); color: var(--green); }
 .quick-actions .qa.paid:hover { background: var(--green-dim); }
+.quick-actions .qa.unpay { color: var(--text3); border-style: dashed; }
+.quick-actions .qa.unpay:hover { border-color: var(--red); color: var(--red); }
 .quick-actions .qa.cancel { border-color: var(--red); color: var(--red); }
 .quick-actions .qa.cancel:hover { background: var(--red-dim); }
 
@@ -755,19 +801,19 @@ service cloud.firestore {
 <!-- ==================== APP ==================== -->
 <div class="app" id="app">
   <header class="header">
-    <div class="header-brand">YAMATO<span class="sub">CRM v13</span></div>
+    <div class="header-brand">YAMATO<span class="sub">CRM v17</span></div>
     <div class="nav-tabs" id="navTabs">
-      <button class="nav-tab active" data-tab="dashboard">📊 ダッシュボード</button>
-      <button class="nav-tab" data-tab="chatter">💬 チャッター <span class="badge" id="chatterBadge" style="display:none;">0</span></button>
-      <button class="nav-tab" data-tab="calendar">📅 カレンダー</button>
-      <button class="nav-tab" data-tab="leadlist">📇 リード <span class="badge" id="leadBadge">0</span></button>
-      <button class="nav-tab" data-tab="all">🏢 取引先 <span class="badge" id="acctBadge">0</span></button>
-      <button class="nav-tab" data-tab="deals">🤝 商談 <span class="badge" id="dealBadge">0</span></button>
-      <button class="nav-tab" data-tab="payments">💰 入金管理 <span class="badge orange" id="paymentsBadge" style="display:none;">0</span></button>
-      <button class="nav-tab" data-tab="active">🔄 進行中 <span class="badge" id="activeBadge">0</span></button>
-      <button class="nav-tab" data-tab="dup">🔍 重複</button>
-      <button class="nav-tab" data-tab="reports">📈 レポート</button>
-      <button class="nav-tab" data-tab="settings">⚙️ 設定</button>
+      <button class="nav-tab active" data-tab="dashboard"><span class="nav-ic">📊</span> <span class="nav-lb">ダッシュボード</span></button>
+      <button class="nav-tab" data-tab="chatter"><span class="nav-ic">💬</span> <span class="nav-lb">チャッター</span> <span class="badge" id="chatterBadge" style="display:none;">0</span></button>
+      <button class="nav-tab" data-tab="calendar"><span class="nav-ic">📅</span> <span class="nav-lb">カレンダー</span></button>
+      <button class="nav-tab" data-tab="leadlist"><span class="nav-ic">📇</span> <span class="nav-lb">リード</span> <span class="badge" id="leadBadge">0</span></button>
+      <button class="nav-tab" data-tab="all"><span class="nav-ic">🏢</span> <span class="nav-lb">取引先</span> <span class="badge" id="acctBadge">0</span></button>
+      <button class="nav-tab" data-tab="deals"><span class="nav-ic">🤝</span> <span class="nav-lb">商談</span> <span class="badge" id="dealBadge">0</span></button>
+      <button class="nav-tab" data-tab="payments"><span class="nav-ic">💰</span> <span class="nav-lb">入金管理</span> <span class="badge orange" id="paymentsBadge" style="display:none;">0</span></button>
+      <button class="nav-tab" data-tab="active"><span class="nav-ic">🔄</span> <span class="nav-lb">進行中</span> <span class="badge" id="activeBadge">0</span></button>
+      <button class="nav-tab" data-tab="dup"><span class="nav-ic">🔍</span> <span class="nav-lb">重複</span></button>
+      <button class="nav-tab" data-tab="reports"><span class="nav-ic">📈</span> <span class="nav-lb">レポート</span></button>
+      <button class="nav-tab" data-tab="settings"><span class="nav-ic">⚙️</span> <span class="nav-lb">設定</span></button>
     </div>
     <div class="header-right">
       <span class="sync-pill" id="syncPill"><span class="dot"></span><span id="syncText">同期中</span></span>
@@ -914,7 +960,7 @@ service cloud.firestore {
       </div>
 
       <div class="ch-search">
-        <input type="search" id="chSearch" placeholder="🔍 屋号・代表者・電話・メール・URL・内容で検索（全期間）" maxlength="100" />
+        <input type="search" id="chSearch" placeholder="🔍 屋号・電話・内容など" maxlength="100" />
         <button class="btn-action" id="chSearchClear">クリア</button>
       </div>
       <div style="font-size:11px; color:var(--text3); margin:-4px 0 10px;" id="chRangeNote">直近1ヶ月の投稿を表示中。それより前は検索、または取引先の詳細で見られます。</div>
@@ -1069,7 +1115,7 @@ service cloud.firestore {
       </div>
       <div class="panel">
         <div class="search-bar">
-          <input type="text" id="leadListSearch" placeholder="🔍 屋号・代表者・電話・メール・URL検索..." maxlength="100" />
+          <input type="text" id="leadListSearch" placeholder="🔍 屋号・代表者・電話・URLなど" maxlength="100" />
           <select id="leadListStatus">
             <option value="">全ステータス</option>
             <option value="新規">新規</option>
@@ -1113,7 +1159,7 @@ service cloud.firestore {
       </div>
       <div class="panel">
         <div class="search-bar">
-          <input type="text" id="dealSearch" placeholder="🔍 商談名・屋号・代表者・電話・メール・URL検索..." maxlength="100" />
+          <input type="text" id="dealSearch" placeholder="🔍 商談名・屋号・電話など" maxlength="100" />
           <select id="dealPhaseFilter"><option value="">全フェーズ</option></select>
           <button class="clear-btn" id="dealClear">クリア</button>
         </div>
@@ -1151,7 +1197,7 @@ service cloud.firestore {
       </div>
       <div class="panel">
         <div class="search-bar">
-          <input type="text" id="allSearch" placeholder="🔍 屋号・代表者・電話・メール・URL検索..." maxlength="100" />
+          <input type="text" id="allSearch" placeholder="🔍 屋号・代表者・電話・URLなど" maxlength="100" />
           <select id="allPhaseFilter"><option value="">全フェーズ</option></select>
           <select id="allTagFilter"><option value="">全タグ</option></select>
           <select id="allSortBy">
@@ -1325,7 +1371,7 @@ service cloud.firestore {
       </div>
       <div class="panel">
         <div class="search-bar" style="grid-template-columns: 1fr auto;">
-          <input type="text" id="dupSearch" placeholder="🔍 屋号・代表者・電話・メール・URLで検索..." maxlength="100" />
+          <input type="text" id="dupSearch" placeholder="🔍 屋号・代表者・電話・URLなど" maxlength="100" />
           <button class="clear-btn" id="dupClearBtn">クリア</button>
         </div>
         <div class="table-wrap">
@@ -1460,6 +1506,13 @@ service cloud.firestore {
           <button class="btn-action" id="exportCsvBtn" style="margin-left:8px;">CSV出力</button>
           <button class="btn-action" id="restoreBtn" style="margin-left:8px;">📤 復元</button>
           <input type="file" id="restoreFile" accept=".json,application/json" style="display:none;" />
+          <div style="margin-top:18px; padding-top:14px; border-top:1px solid var(--border);">
+            <div style="font-size:13px; font-weight:700; margin-bottom:6px;">🛡 自動バックアップ（最新10件）</div>
+            <p style="font-size:12px; color:var(--text2); line-height:1.7; margin-bottom:10px;">
+              新しい版を最初に開いた時と、毎日1回、全データを自動で保存しています。おかしくなったら「この時点に戻す」で戻せます。
+            </p>
+            <div id="autoBackupList"></div>
+          </div>
         </div>
       </div>
 
@@ -1491,7 +1544,7 @@ service cloud.firestore {
           </p>
           <div id="toolList" style="margin-bottom:12px;"></div>
           <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            <input type="text" id="newToolName" placeholder="ツール名（例: Teams）" maxlength="30"
+            <input type="text" id="newToolName" placeholder="例: Teams" maxlength="30"
               style="flex:1; min-width:140px; background:var(--bg); border:1px solid var(--border); color:var(--text); padding:9px 12px; border-radius:2px; min-height:38px;" />
             <input type="number" id="newToolCap" value="1" min="1" max="20"
               style="width:80px; background:var(--bg); border:1px solid var(--border); color:var(--text); padding:9px 12px; border-radius:2px; min-height:38px;" />
@@ -1508,7 +1561,7 @@ service cloud.firestore {
             フォルダはメンバーだけに共有し、「リンクを知っている全員」にはしないでください。
           </p>
           <div style="display:flex; gap:8px; flex-wrap:wrap;">
-            <input type="url" id="contractFolderUrl" placeholder="https://drive.google.com/drive/folders/..." maxlength="500" inputmode="url"
+            <input type="url" id="contractFolderUrl" placeholder="共有フォルダのURL" maxlength="500" inputmode="url"
               style="flex:1; min-width:220px; background:var(--bg); border:1px solid var(--border); color:var(--text); padding:9px 12px; border-radius:2px; min-height:38px;" />
             <button class="btn-action primary" id="saveContractFolderBtn">保存</button>
           </div>
@@ -2001,7 +2054,7 @@ service cloud.firestore {
         <div class="form-group">
           <label>関連する会社（任意）</label>
           <div class="picker">
-            <input type="text" class="picker-input" id="e-target-search" placeholder="🔍 屋号 / 代表者 / 電話 / メール / URL" autocomplete="off" />
+            <input type="text" class="picker-input" id="e-target-search" placeholder="🔍 屋号・代表者・電話・URLなど" autocomplete="off" />
             <button type="button" class="picker-clear" id="e-target-clear" title="クリア">×</button>
             <div class="picker-list" id="e-target-list"></div>
           </div>
@@ -2082,7 +2135,7 @@ service cloud.firestore {
         <div class="form-group full">
           <label>対象</label>
           <div class="picker">
-            <input type="text" class="picker-input" id="a-target-search" placeholder="🔍 屋号 / 代表者 / 電話 / メール / URL で検索…" autocomplete="off" />
+            <input type="text" class="picker-input" id="a-target-search" placeholder="🔍 屋号・代表者・電話・URLなど" autocomplete="off" />
             <button type="button" class="picker-clear" id="a-target-clear" title="クリア">×</button>
             <div class="picker-list" id="a-target-list"></div>
           </div>
@@ -2181,7 +2234,7 @@ service cloud.firestore {
         <div class="form-group full">
           <label class="required">取引先</label>
           <div class="picker">
-            <input type="text" class="picker-input" id="d-target-search" placeholder="🔍 屋号 / 代表者 / 電話 / メール / URL で検索…" autocomplete="off" />
+            <input type="text" class="picker-input" id="d-target-search" placeholder="🔍 屋号・代表者・電話・URLなど" autocomplete="off" />
             <button type="button" class="picker-clear" id="d-target-clear" title="クリア">×</button>
             <div class="picker-list" id="d-target-list"></div>
           </div>
@@ -2274,11 +2327,29 @@ window.addEventListener('unhandledrejection', e => console.error('[Unhandled Rej
 <script type="module">
 import { initializeApp, getApps, deleteApp } from 'https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js';
 import {
-  getFirestore, collection, doc, setDoc, getDoc, getDocs, deleteDoc,
-  query, where, onSnapshot, serverTimestamp, writeBatch
+  getFirestore, collection, doc, setDoc as fsSetDoc, getDoc, getDocs, deleteDoc as fsDeleteDoc,
+  query, where, onSnapshot, serverTimestamp, writeBatch as fsWriteBatch
 } from 'https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js';
 
 'use strict';
+
+// ============== デプロイ時のデータ保護 ==============
+// ・この版の番号。新しい index.html を上げる時は必ず1つ上げる（画面左上の「CRM vXX」と同じ数字）
+// ・誰かが新しい版を開くと、古い版の画面は「読むだけ」になる（古い計算で上書きして壊すのを防ぐ）
+// ・新しい版を最初に開いた時、何かを書き込む前に全データを自動バックアップする（毎日1回も自動）
+const APP_VERSION = 17;
+let writeLocked = false;
+function guardWrite() {
+  if (writeLocked) throw new Error('この画面は古い版です。ページを再読み込みしてから操作してください（データは保護されています）');
+}
+async function setDoc(...a) { guardWrite(); return fsSetDoc(...a); }
+async function deleteDoc(...a) { guardWrite(); return fsDeleteDoc(...a); }
+function writeBatch(db) {
+  const b = fsWriteBatch(db);
+  const commit = b.commit.bind(b);
+  b.commit = async () => { guardWrite(); return commit(); };
+  return b;
+}
 
 // ============== CONSTANTS ==============
 const PASSWORD_HASH = '34b87405a52f95ea5c888d255bb8aad4fc29061ab96734b3c1e2887941574e57'; // Yamato0999
@@ -2546,6 +2617,124 @@ function healthHTML(rec) {
 
 // ============== PAYMENT HELPERS ==============
 // レコードから支払い予定/状況を構築
+// ================== 追加受注（クロスセル） ==================
+// 1社で2件目以降の受注は、取引先の addOrders に「商談ごとに1件」ずつ持つ。
+// 1件目の受注は従来どおり取引先の入金欄（init_amount / m1_due など）。primaryDealId がその商談。
+// 追加受注の入金キーは「x:<商談ID>:init / m1 / m2 / m3」。
+const isWonDealPhase = ph => ph === 'juchu' || ph === 'kaishu';
+function addOrdersOf(rec) { return Array.isArray(rec && rec.addOrders) ? rec.addOrders.filter(o => o && o.dealId) : []; }
+function addOrderHasPayment(o) { return !!(o && (o.init_paid_date || o.m1_paid_date || o.m2_paid_date || o.m3_paid_date)); }
+function addOrderLabel(o) { const t = String(o.dealName || o.product || '追加'); return t.length > 16 ? t.slice(0, 16) + '…' : t; }
+function addOrderPayments(rec) {
+  const list = [];
+  addOrdersOf(rec).forEach(o => {
+    const label = addOrderLabel(o);
+    const start = o.contract_start || o.orderDate || todayStr();
+    if (Number(o.init_amount) > 0) list.push({
+      kind: `初期費用（${label}）`, amount: Number(o.init_amount) || 0, due: o.init_due || '',
+      paid: o.init_paid_date || '', isPaid: !!o.init_paid_date, key: `x:${o.dealId}:init`, monthIndex: 0, addOrder: true, dealId: o.dealId
+    });
+    if (Number(o.monthly_amount) > 0) [1, 2, 3].forEach(m => list.push({
+      kind: `${m}ヶ月目（${label}）`, amount: Number(o.monthly_amount) || 0, due: o[`m${m}_due`] || addMonths(start, m),
+      paid: o[`m${m}_paid_date`] || '', isPaid: !!o[`m${m}_paid_date`], key: `x:${o.dealId}:m${m}`, monthIndex: m, addOrder: true, dealId: o.dealId
+    }));
+  });
+  return list;
+}
+// 入金日をキーで付け外しした取引先のコピーを返す（1件目・追加受注どちらも）
+function withPaidDate(rec, key, date) {
+  const updated = { ...rec };
+  const m = /^x:(.+):(init|m[1-3])$/.exec(String(key));
+  if (m) {
+    updated.addOrders = addOrdersOf(rec).map(o => o.dealId === m[1] ? { ...o, [`${m[2]}_paid_date`]: date } : o);
+  } else if (key === 'init') updated.init_paid_date = date;
+  else if (/^m\d+$/.test(String(key))) updated[`${key}_paid_date`] = date;
+  return updated;
+}
+const isAddOrderKey = key => String(key).startsWith('x:');
+// 入金取消でフェーズも1段戻す（その入金で進んだフェーズの時だけ。1件目の受注のみ）
+const UNPAY_PHASE = { init: ['init_paid', 'init_unpaid'], m1: ['m1_paid', 'm1_unpaid'], m2: ['m2_paid', 'm2_unpaid'], m3: ['m3_paid', 'm3_unpaid'] };
+function phaseAfterUnpay(rec, key) {
+  if (isAddOrderKey(key)) return rec.phase;
+  const r = UNPAY_PHASE[key];
+  return r && rec.phase === r[0] ? r[1] : rec.phase;
+}
+// 入金ボタンの二度押し防止（保存が終わるまで次を受け付けない）
+let paymentBusy = false;
+function primaryHasPayment(r) { return !!(r.init_paid_date || r.m1_paid_date || r.m2_paid_date || r.m3_paid_date); }
+// 1件目の受注（取引先の入金欄）が受注でなくなった時、追加受注のうち一番古いものを1件目に繰り上げる。
+// 1件目に入金済みがある時は繰り上げない（お金の記録を守る）。繰り上げたら true
+function promoteAddOrder(upd) {
+  const list = addOrdersOf(upd);
+  if (!list.length || primaryHasPayment(upd)) return false;
+  const o = [...list].sort((a, b) => String(a.orderDate || '').localeCompare(String(b.orderDate || '')))[0];
+  const fi = Number(o.init_amount) || 0, fm = Number(o.monthly_amount) || 0;
+  Object.assign(upd, {
+    primaryDealId: o.dealId, init_amount: fi, monthly_amount: fm,
+    planType: (fi && fm) ? 'full' : fi ? 'init_only' : fm ? 'monthly_only' : 'none',
+    orderDate: o.orderDate || '', contract_start: o.contract_start || o.orderDate || '',
+    init_due: o.init_due || '', init_paid_date: o.init_paid_date || '',
+    m1_due: o.m1_due || '', m1_paid_date: o.m1_paid_date || '',
+    m2_due: o.m2_due || '', m2_paid_date: o.m2_paid_date || '',
+    m3_due: o.m3_due || '', m3_paid_date: o.m3_paid_date || ''
+  });
+  upd.phase = o.m3_paid_date ? 'm3_paid' : o.m2_paid_date ? 'm2_paid' : o.m1_paid_date ? 'm1_paid' : o.init_paid_date ? 'init_paid' : 'order';
+  upd.addOrders = list.filter(x => x.dealId !== o.dealId);
+  return true;
+}
+
+// 受注の一覧（1件目＋追加受注）。ダッシュボードの「受注件数・受注額」用
+function ordersOf(rec) {
+  const out = [];
+  if (rec.orderDate) {
+    const plan = PLAN_TYPES[rec.planType] || PLAN_TYPES['none'];
+    out.push({ orderDate: String(rec.orderDate), init: plan.hasInit ? (Number(rec.init_amount) || 0) : 0, monthly: plan.hasMonthly ? (Number(rec.monthly_amount) || 0) : 0 });
+  }
+  addOrdersOf(rec).forEach(o => { if (o.orderDate) out.push({ orderDate: String(o.orderDate), init: Number(o.init_amount) || 0, monthly: Number(o.monthly_amount) || 0 }); });
+  return out;
+}
+// 受注商談が2件以上あるのに、入金が1件分にまとまってしまっている取引先（v13以前の上書き）を見つける
+function unsplitWonDeals(rec) {
+  if (!rec) return [];
+  const added = new Set(addOrdersOf(rec).map(o => o.dealId));
+  const won = state.deals.filter(d => d.customerId === rec.id && isWonDealPhase(d.dealPhase))
+    .sort((a, b) => String(a.closeDate || a.createdAt || '').localeCompare(String(b.closeDate || b.createdAt || '')));
+  const rest = won.filter(d => d.id !== rec.primaryDealId && !added.has(d.id));
+  // 1件目の受注として扱う商談が決まっていて、残りが全部追加受注に入っていれば正常
+  // 返す配列は [1件目, 追加にすべき商談...]（追加受注に入っている商談は含めない）
+  const prim = won.find(d => d.id === rec.primaryDealId);
+  if (prim) return rest.length ? [prim, ...rest] : [];
+  return rest.length >= 2 ? rest : [];
+}
+
+// ================== スマホ用: 一覧表のセルに列見出しを付ける ==================
+// thead の見出しを各セルの data-label に入れる。CSS(640px以下)でカード表示にした時の左ラベルになる
+const M_CARD_TABLES = ['leadListTable', 'dealTable', 'allTable', 'paymentsTable', 'activeTable', 'dupTable'];
+function labelTableCells(tbody) {
+  const table = tbody && tbody.closest('table');
+  if (!table) return;
+  const heads = [...table.querySelectorAll('thead th')].map(th => th.textContent.replace(/[▲▼↑↓]/g, '').trim());
+  tbody.querySelectorAll(':scope > tr').forEach(tr => {
+    let i = 0;
+    [...tr.children].forEach(td => {
+      const span = Number(td.getAttribute('colspan')) || 1;
+      if (span === 1 && td.getAttribute('data-label') !== (heads[i] || '')) td.setAttribute('data-label', heads[i] || '');
+      i += span;
+    });
+  });
+}
+function initMobileCards() {
+  M_CARD_TABLES.forEach(id => {
+    const tb = document.getElementById(id);
+    if (!tb) return;
+    const table = tb.closest('table');
+    if (table) table.classList.add('m-cards');
+    labelTableCells(tb);
+    try { new MutationObserver(() => labelTableCells(tb)).observe(tb, { childList: true }); } catch {}
+  });
+}
+initMobileCards();
+
 function paymentsOf(rec) {
   const list = [];
   const plan = PLAN_TYPES[rec.planType] || PLAN_TYPES['none'];
@@ -2577,13 +2766,20 @@ function paymentsOf(rec) {
         monthIndex: m
       });
     });
-    // 継続課金中の場合は4ヶ月目以降も
+    // 4ヶ月目以降: 入金済みの月は履歴として出す（売上に入る・取消できる）
+    const extraPaid = Object.keys(rec).map(k => /^m(\d+)_paid_date$/.exec(k)).filter(m => m && Number(m[1]) >= 4 && rec[m[0]])
+      .map(m => Number(m[1])).sort((a, b) => a - b);
+    extraPaid.forEach(n => list.push({
+      kind: `${n}ヶ月目`, amount: Number(rec.monthly_amount) || 0, due: rec[`m${n}_due`] || addMonths(start, n),
+      paid: rec[`m${n}_paid_date`], isPaid: true, key: `m${n}`, monthIndex: n
+    }));
+    // 継続課金中は次回請求を1件出す（入金済みの月は飛ばして次の月へ）
     if (rec.phase === 'continuing') {
-      // 継続中: 過去の請求は履歴で見るとして、次回請求のみ
       const startMonth = new Date(start);
       const today = new Date();
       const monthsElapsed = (today.getFullYear() - startMonth.getFullYear()) * 12 + (today.getMonth() - startMonth.getMonth());
-      const nextM = Math.max(4, monthsElapsed + 1);
+      let nextM = Math.max(4, monthsElapsed + 1);
+      while (rec[`m${nextM}_paid_date`] && nextM < 600) nextM++;
       list.push({
         kind: `${nextM}ヶ月目`,
         amount: Number(rec.monthly_amount) || 0,
@@ -2596,8 +2792,9 @@ function paymentsOf(rec) {
     }
   }
   // 解約・失注の案件は「これから払われる予定」ではないので未入金から外す（入金済みの履歴は残す）
-  if (rec.phase === 'cancelled' || rec.phase === 'lost') return list.filter(p => p.isPaid);
-  return list;
+  const primary = (rec.phase === 'cancelled' || rec.phase === 'lost') ? list.filter(p => p.isPaid) : list;
+  // 追加受注は商談ごとに独立（取引先のフェーズに引きずられない）
+  return primary.concat(addOrderPayments(rec));
 }
 
 function paymentStatusOf(p, today) {
@@ -2745,6 +2942,7 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
   state.detailId = null; state.dealPageId = null;
   document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
   state.records = []; state.isInitialLoad = true; state.notifiedIds.clear();
+  state.safeReady = false;
   showScreen('login'); passwordInput.focus();
 });
 
@@ -3037,14 +3235,10 @@ function renderDashboard() {
   document.getElementById('statLeads').textContent = state.records.filter(r => recKind(r) === 'lead').length;
 
   // === 受注(選択月) ===
-  const monthOrders = state.records.filter(r => r.orderDate && r.orderDate.startsWith(month));
+  // 1社で複数受注（クロスセル）も1件ずつ数える
+  const monthOrders = state.records.flatMap(r => ordersOf(r)).filter(o => o.orderDate.startsWith(month));
   document.getElementById('statMonthOrders').innerHTML = monthOrders.length + '<span class="unit">件</span>';
-  const monthRev = monthOrders.reduce((s, r) => {
-    const init = Number(r.init_amount) || 0;
-    const monthly = Number(r.monthly_amount) || 0;
-    const plan = PLAN_TYPES[r.planType] || PLAN_TYPES['none'];
-    return s + (plan.hasInit ? init : 0) + (plan.hasMonthly ? monthly * 3 : 0);
-  }, 0);
+  const monthRev = monthOrders.reduce((s, o) => s + o.init + o.monthly * 3, 0);
   document.getElementById('statMonthRevenue').textContent = `¥${fmt(monthRev)}`;
 
   // === 未入金(選択月に期限が来るもの) + 期限超過(全期間) ===
@@ -3491,6 +3685,8 @@ function subscribeMeta() {
   state.metaUnsub = onSnapshot(q, snap => {
     snap.forEach(d => {
       const data = d.data();
+      if (d.id === 'app' && data) { onAppVersionSeen(Number(data.version) || 0); return; }
+      if (d.id === 'backups' && data) { state.backupIndex = Array.isArray(data.list) ? data.list : []; return; }
       if (!data || !Array.isArray(data.list)) return;
       if (d.id === 'members') state.members = data.list;
       if (d.id === 'products') state.products = data.list;
@@ -3500,6 +3696,7 @@ function subscribeMeta() {
     if (!state.products.length) state.products = [...DEFAULT_PRODUCTS];
     refreshMemberSelects();
     renderSettingsMembers();
+    renderBackupList();
     if (currentRoute.type !== 'tab') refreshOpenPage();
     if (document.querySelector('.nav-tab.active')?.dataset.tab === 'calendar') renderCalendar();
   }, err => console.error('meta onSnapshot:', err));
@@ -3538,13 +3735,13 @@ function renderSettingsTools() {
   const el = document.getElementById('toolList');
   if (!el) return;
   const tools = toolsList();
-  el.innerHTML = tools.map((t, i) => `<div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
-      <span style="min-width:120px; font-weight:700;">${esc(t.name)}</span>
-      <span style="font-size:12px; color:var(--text3);">同時</span>
+  el.innerHTML = tools.map((t, i) => `<div style="display:flex; align-items:center; gap:8px 10px; margin-bottom:8px; flex-wrap:wrap;">
+      <span style="flex:1 1 110px; min-width:0; font-weight:700; overflow-wrap:anywhere;">${esc(t.name)}</span>
+      <span style="font-size:12px; color:var(--text3); white-space:nowrap;">同時</span>
       <input type="number" min="1" max="20" value="${t.cap}" data-toolcap="${i}"
         style="width:70px; background:var(--bg); border:1px solid var(--border); color:var(--text); padding:6px 8px; border-radius:2px;" />
-      <span style="font-size:12px; color:var(--text3);">件まで</span>
-      <button class="btn-action" style="padding:4px 10px; min-height:30px; font-size:11px;" data-toolrm="${i}">削除</button>
+      <span style="font-size:12px; color:var(--text3); white-space:nowrap;">件まで</span>
+      <button class="btn-action" style="padding:4px 10px; min-height:30px; font-size:11px; white-space:nowrap;" data-toolrm="${i}">削除</button>
     </div>`).join('');
   el.querySelectorAll('[data-toolcap]').forEach(inp => inp.addEventListener('change', async () => {
     const v = Math.max(1, Math.min(20, Number(inp.value) || 1));
@@ -3783,7 +3980,7 @@ document.getElementById('leadNewDelete').addEventListener('click', async () => {
 const AUTO_CANCEL_MONTHS = 2;
 const PAID_PHASES = ['init_paid', 'm1_paid', 'm2_paid', 'm3_paid', 'continuing'];
 function hasAnyPayment(r) {
-  return !!(r.init_paid_date || r.m1_paid_date || r.m2_paid_date || r.m3_paid_date) || PAID_PHASES.includes(r.phase);
+  return !!(r.init_paid_date || r.m1_paid_date || r.m2_paid_date || r.m3_paid_date) || PAID_PHASES.includes(r.phase) || addOrdersOf(r).some(addOrderHasPayment);
 }
 function autoCancelTargets(today) {
   const t = today || todayStr();
@@ -3812,6 +4009,7 @@ function serverTimeEstimate() {
 }
 async function runAutoCancel() {
   if (autoCancelRunning || !state.db || !state.records.length) return;
+  if (!state.safeReady || writeLocked) return;
   // 端末の日付が進みすぎている（3日以上先）場合は誤キャンセル防止のため実行しない
   const sv = serverTimeEstimate();
   if (sv && Date.now() > sv + 3 * 86400000) {
@@ -4464,7 +4662,28 @@ document.getElementById('shodanDeleteBtn').addEventListener('click', async () =>
   if (!confirm('この商談を削除しますか?')) return;
   try {
     const deletedId = state.editingDealId;
+    const delDeal = state.deals.find(x => x.id === deletedId);
+    const owner = delDeal ? state.records.find(r => r.id === delDeal.customerId) : null;
+    const ao = owner ? addOrdersOf(owner).find(o => o.dealId === deletedId) : null;
+    if (ao && addOrderHasPayment(ao)) {
+      alert('この商談は追加受注として入金済みの記録があります。\n入金管理で「入金取消」をしてから削除してください。');
+      return;
+    }
     await deleteDoc(doc(state.db, DEALS_COLLECTION, deletedId));
+    if (ao) {
+      const act = Array.isArray(owner.activity) ? [...owner.activity] : [];
+      act.unshift({ at: isoNow(), type: 'system', text: `🗑 追加受注「${ao.dealName || ''}」を商談ごと削除` });
+      await saveRecord({ ...owner, addOrders: addOrdersOf(owner).filter(o => o.dealId !== deletedId), activity: act.slice(0, 50), updatedAt: isoNow() });
+    } else if (owner && owner.primaryDealId === deletedId) {
+      const upd = { ...owner, primaryDealId: '', updatedAt: isoNow() };
+      if (delDeal && isWonDealPhase(delDeal.dealPhase) && addOrdersOf(owner).length && !primaryHasPayment(owner)) {
+        promoteAddOrder(upd);
+        const act = Array.isArray(owner.activity) ? [...owner.activity] : [];
+        act.unshift({ at: isoNow(), type: 'system', text: `↪ 1件目の受注の商談を削除 → 追加受注を1件目に繰り上げ` });
+        upd.activity = act.slice(0, 50);
+      }
+      await saveRecord(upd);
+    }
     shodanModal.classList.remove('open');
     toast('✓ 削除しました');
     if (state.dealPageId === deletedId) navigate({ type: 'tab', name: 'deals' });
@@ -4492,6 +4711,19 @@ document.getElementById('shodanConfirmBtn').addEventListener('click', async () =
   const monthly = Number(document.getElementById('d-monthly').value) || 0;
   const closeDate = document.getElementById('d-close').value || ((isWin || isLost) ? todayStr() : '');
 
+  // 受注済みの商談を別の取引先に付け替える場合: 元の取引先の受注・入金の記録をどうするか先に確認
+  const prevForMove = state.editingDealId ? state.deals.find(x => x.id === state.editingDealId) : null;
+  const moveFrom = prevForMove && prevForMove.customerId && prevForMove.customerId !== customerId
+    ? state.records.find(r => r.id === prevForMove.customerId) : null;
+  if (moveFrom) {
+    const ao = addOrdersOf(moveFrom).find(o => o.dealId === prevForMove.id);
+    const isPrim = moveFrom.primaryDealId === prevForMove.id;
+    if ((ao && addOrderHasPayment(ao)) || (isPrim && primaryHasPayment(moveFrom))) {
+      alert(`この商談は「${moveFrom.name}」で入金済みの記録があります。\n付け替える前に、入金管理で入金取消をしてください。`);
+      return;
+    }
+  }
+
   const btn = document.getElementById('shodanConfirmBtn');
   btn.disabled = true;
   try {
@@ -4514,11 +4746,74 @@ document.getElementById('shodanConfirmBtn').addEventListener('click', async () =
     };
     await saveDeal(deal);
 
+    // 付け替え: 元の取引先からこの商談の受注を外す（1件目だった場合は追加受注を繰り上げる）
+    if (moveFrom) {
+      const fresh = state.records.find(r => r.id === moveFrom.id) || moveFrom;
+      const mu = { ...fresh, updatedAt: isoNow() };
+      const mact = Array.isArray(fresh.activity) ? [...fresh.activity] : [];
+      let changed = false;
+      if (addOrdersOf(fresh).some(o => o.dealId === deal.id)) {
+        mu.addOrders = addOrdersOf(fresh).filter(o => o.dealId !== deal.id); changed = true;
+      }
+      if (fresh.primaryDealId === deal.id) {
+        mu.primaryDealId = ''; changed = true;
+        if (addOrdersOf(mu).length) promoteAddOrder(mu);
+      }
+      if (changed) {
+        mact.unshift({ at: isoNow(), type: 'system', text: `↪ 商談「${dealName}」を「${customer ? customer.name : ''}」に付け替えたため、この取引先の受注から外しました` });
+        mu.activity = mact.slice(0, 50);
+        await saveRecord(mu);
+      }
+    }
+
     // 取引先レコード側も同期(入金管理・レポートが動くように)
     if (customer) {
       const upd = { ...customer, kind: 'account', updatedAt: isoNow() };
       const act = Array.isArray(customer.activity) ? [...customer.activity] : [];
-      if (isWin) {
+      // クロスセル判定: この取引先に「他の受注商談」があるか / この商談が既に追加受注か
+      const otherWon = state.deals.filter(x => x.customerId === customer.id && x.id !== deal.id && isWonDealPhase(x.dealPhase))
+        .sort((a, b) => String(a.closeDate || a.createdAt || '').localeCompare(String(b.closeDate || b.createdAt || '')));
+      const existingAdd = addOrdersOf(customer).find(o => o.dealId === deal.id);
+      const isAdditional = !!existingAdd || (customer.primaryDealId ? customer.primaryDealId !== deal.id : otherWon.length > 0);
+      // この商談が「1件目の受注」で、受注でなくなる場合 → 追加受注を繰り上げる
+      const sameCustomer = !!prev && prev.customerId === customer.id;
+      const isPrimaryDeal = customer.primaryDealId ? customer.primaryDealId === deal.id : (sameCustomer && isWonDealPhase(prev.dealPhase) && !existingAdd);
+      const promoteIfPrimaryLeft = () => {
+        if (!isPrimaryDeal || isWin || !sameCustomer || !isWonDealPhase(prev.dealPhase) || !addOrdersOf(upd).length) return false;
+        if (primaryHasPayment(upd)) {
+          toast('⚠ 1件目の受注は入金済みのため、取引先の入金欄はそのままにしています', true);
+          return true;
+        }
+        const name = (addOrdersOf(upd).slice().sort((a, b) => String(a.orderDate || '').localeCompare(String(b.orderDate || '')))[0] || {}).dealName || '';
+        promoteAddOrder(upd);
+        act.unshift({ at: isoNow(), type: 'system', text: `↪ 1件目の受注「${dealName}」を外し、追加受注「${name}」を1件目に繰り上げ (${sales})` });
+        return true;
+      };
+      const dropAddOrder = () => {
+        if (!existingAdd) return;
+        if (addOrderHasPayment(existingAdd)) {
+          toast('⚠ この追加受注は入金済みのため、入金の記録は残しています', true);
+          return;
+        }
+        upd.addOrders = addOrdersOf(customer).filter(x => x.dealId !== deal.id);
+        act.unshift({ at: isoNow(), type: 'system', text: `↩ 追加受注「${existingAdd.dealName || dealName}」を取り消し (${sales})` });
+      };
+      if (isWin && isAdditional) {
+        // 2件目以降の受注: 1件目の金額・入金・受注日には一切触らず、この商談の分を別枠で持つ
+        if (!customer.primaryDealId && otherWon.length) upd.primaryDealId = otherWon[0].id;
+        const startDay = closeDate || todayStr();
+        const o = { ...(existingAdd || {}) };
+        o.dealId = deal.id; o.dealName = dealName.slice(0, 100); o.product = deal.product || '';
+        o.orderDate = closeDate || o.orderDate || startDay;
+        o.contract_start = o.contract_start || startDay;
+        o.init_amount = init; o.monthly_amount = monthly;
+        o.salesOwner = sales;
+        if (init && !o.init_due) o.init_due = addDays(o.contract_start, 14);
+        if (monthly) [1, 2, 3].forEach(m => { if (!o[`m${m}_due`]) o[`m${m}_due`] = addMonths(o.contract_start, m); });
+        upd.addOrders = [...addOrdersOf(customer).filter(x => x.dealId !== deal.id), o];
+        act.unshift({ at: isoNow(), type: 'system', text: `🎉 追加受注「${o.dealName}」(${sales}) 初期¥${fmt(init)} / 月費¥${fmt(monthly)}` });
+      } else if (isWin) {
+        upd.primaryDealId = deal.id;
         const startDay = closeDate || todayStr();
         // 入金が進んでいる案件のフェーズは巻き戻さない（受注→入金済み等を保持）
         if (!(PHASE_MAP[customer.phase] && PHASE_MAP[customer.phase].group === 'active' && customer.phase !== 'order')) upd.phase = 'order';
@@ -4536,11 +4831,20 @@ document.getElementById('shodanConfirmBtn').addEventListener('click', async () =
           if (!customer.m3_due) upd.m3_due = addMonths(upd.contract_start, 3);
         }
         act.unshift({ at: isoNow(), type: 'system', text: `🎉 受注 (${sales}) 初期¥${fmt(init)} / 月費¥${fmt(monthly)}` });
+      } else if (isLost && (otherWon.length || (PHASE_MAP[customer.phase] && PHASE_MAP[customer.phase].group === 'active' && !(prev && isWonDealPhase(prev.dealPhase))))) {
+        // 既存のお客さん（他に受注あり）への追加提案が失注 → 取引先は失注にしない
+        dropAddOrder();
+        promoteIfPrimaryLeft();
+        act.unshift({ at: isoNow(), type: 'system', text: `✕ 商談「${dealName}」失注: ${LOST_REASONS[lostReason]} (${sales}) ※他に受注があるため取引先は失注にしていません` });
       } else if (isLost) {
+        dropAddOrder();
         upd.phase = 'lost';
         upd.lost_reason = lostReason; upd.lost_date = closeDate || todayStr(); upd.lost_detail = memo.slice(0, 2000);
         act.unshift({ at: isoNow(), type: 'system', text: `✕ 失注: ${LOST_REASONS[lostReason]} (${sales})` });
+      } else if (promoteIfPrimaryLeft()) {
+        act.unshift({ at: isoNow(), type: 'system', text: `🤝 商談報告: ${dealPhaseInfo(phase).label} (${sales})` });
       } else {
+        dropAddOrder();
         act.unshift({ at: isoNow(), type: 'system', text: `🤝 商談報告: ${dealPhaseInfo(phase).label} (${sales})` });
         // 失注/受注にしていた商談を「まだ決着していない」に戻した場合は、取引先も商談中に戻す
         const prevWin = prev && (prev.dealPhase === 'juchu' || prev.dealPhase === 'kaishu');
@@ -4550,10 +4854,10 @@ document.getElementById('shodanConfirmBtn').addEventListener('click', async () =
         if (prevLost && customer.phase === 'lost' && !otherDecided) {
           upd.phase = 'appo'; upd.lost_reason = ''; upd.lost_date = ''; upd.lost_detail = '';
           act.unshift({ at: isoNow(), type: 'system', text: `↩ 失注を取り消し → 商談中に戻しました (${sales})` });
-        } else if (prevWin && customer.phase === 'order' && !hasAnyPayment(customer) && !otherDecided) {
-          upd.phase = 'appo'; upd.orderDate = '';
+        } else if (prevWin && !existingAdd && customer.phase === 'order' && !hasAnyPayment(customer) && !otherDecided) {
+          upd.phase = 'appo'; upd.orderDate = ''; upd.primaryDealId = '';
           act.unshift({ at: isoNow(), type: 'system', text: `↩ 受注を取り消し → 商談中に戻しました (${sales})` });
-        } else if (prevWin && hasAnyPayment(customer)) {
+        } else if (prevWin && !existingAdd && hasAnyPayment(customer)) {
           toast('⚠ 入金済みのため、取引先のフェーズはそのままにしています。必要なら取引先の「編集」で直してください', true);
         }
       }
@@ -5723,7 +6027,7 @@ function contractFormHTML(deals, fixedDealId) {
     : `<select data-ct="deal">${deals.map(d => `<option value="${esc(d.id)}">${esc(d.dealName)}（${esc(dealPhaseInfo(d.dealPhase).label)}）</option>`).join('')}</select>`);
   return `<div class="ct-form">
     ${pick}
-    <input type="url" data-ct="url" placeholder="契約書PDFのリンク（https://drive.google.com/...）" maxlength="1000" inputmode="url" />
+    <input type="url" data-ct="url" placeholder="契約書PDFのリンク" maxlength="1000" inputmode="url" />
     <div style="display:flex; gap:8px;">
       <input type="text" data-ct="label" placeholder="名前（例: 本契約 / 追加契約）" maxlength="60" style="flex:1;" />
       <button class="btn-action primary" data-ct="add" style="flex-shrink:0;">＋ 登録</button>
@@ -5947,33 +6251,43 @@ function renderPayments() {
 }
 
 async function paymentQuickAction(recId, key, action) {
+  if (paymentBusy) return;
   const rec = state.records.find(r => r.id === recId);
   if (!rec) return;
-  const updated = { ...rec };
+  const pay = paymentsOf(rec).find(x => x.key === key);
+  if (!pay) return;
+  // 画面が古いまま押された（もう入金済み/もう未入金）時は何もしない
+  if (action === 'mark-paid' && pay.isPaid) return;
+  if (action === 'undo-paid' && !pay.isPaid) return;
+  if (action === 'undo-paid' && !confirm(`${rec.name}\n「${pay.kind} ¥${fmt(pay.amount)}」の入金済みを取り消して、未入金に戻しますか？`)) return;
+  const label = pay ? pay.kind : (key === 'init' ? '初期費用' : String(key).replace('m', '') + 'ヶ月目');
+  let updated = { ...rec };
   let activityText = '';
   if (action === 'mark-paid') {
-    if (key === 'init') updated.init_paid_date = todayStr();
-    else if (key.startsWith('m')) updated[`${key}_paid_date`] = todayStr();
-    // フェーズを自動進行
-    if (rec.phase === 'init_unpaid' || rec.phase === 'order') updated.phase = 'init_paid';
-    else if (rec.phase === 'm1_unpaid') updated.phase = 'm1_paid';
-    else if (rec.phase === 'm2_unpaid') updated.phase = 'm2_paid';
-    else if (rec.phase === 'm3_unpaid') updated.phase = 'm3_paid';
-    activityText = `💰 ${key === 'init' ? '初期費用' : key.replace('m', '') + 'ヶ月目'}入金完了`;
+    updated = withPaidDate(rec, key, todayStr());
+    // フェーズを自動進行（1件目の受注の入金だけ。追加受注は取引先のフェーズを動かさない）
+    if (!isAddOrderKey(key)) {
+      if (rec.phase === 'init_unpaid' || rec.phase === 'order') updated.phase = 'init_paid';
+      else if (rec.phase === 'm1_unpaid') updated.phase = 'm1_paid';
+      else if (rec.phase === 'm2_unpaid') updated.phase = 'm2_paid';
+      else if (rec.phase === 'm3_unpaid') updated.phase = 'm3_paid';
+    }
+    activityText = `💰 ${label}入金完了`;
   } else if (action === 'undo-paid') {
-    if (key === 'init') updated.init_paid_date = '';
-    else if (key.startsWith('m')) updated[`${key}_paid_date`] = '';
-    activityText = `↩ ${key === 'init' ? '初期費用' : key.replace('m', '') + 'ヶ月目'}入金取消`;
+    updated = withPaidDate(rec, key, '');
+    updated.phase = phaseAfterUnpay(rec, key);
+    activityText = `↩ ${label}入金取消`;
   }
   showLoading(true);
+  paymentBusy = true;
   try {
-    if (!Array.isArray(updated.activity)) updated.activity = [];
+    updated.activity = Array.isArray(updated.activity) ? [...updated.activity] : [];
     updated.activity.unshift({ at: isoNow(), type: 'payment', text: activityText });
     if (updated.activity.length > 50) updated.activity = updated.activity.slice(0, 50);
     await saveRecord(updated);
     toast('✓ ' + activityText);
   } catch (e) { alert('更新失敗: ' + e.message); }
-  finally { showLoading(false); }
+  finally { paymentBusy = false; showLoading(false); }
 }
 
 // ============== ACTIVE CONTRACTS ==============
@@ -6197,7 +6511,7 @@ function renderCalendarMonth() {
     const isToday = dateStr === todayKey;
     const evList = events[dateStr] || [];
     // 件数上限なし
-    html += `<div class="cal-cell ${dayCls} ${isToday ? 'today' : ''}" data-caldate="${dateStr}"><div class="day-num">${d}</div>${evList.map(calEventHTML).join('')}</div>`;
+    html += `<div class="cal-cell ${dayCls} ${isToday ? 'today' : ''}" data-caldate="${dateStr}"><div class="day-num">${d}<span class="dnw">${'日月火水木金土'[dow]}</span></div>${evList.map(calEventHTML).join('')}</div>`;
   }
   document.getElementById('calGrid').innerHTML = html;
   bindCalEvents();
@@ -6779,7 +7093,7 @@ function buildDetailBody(id) {
   const pays = paymentsOf(rec);
   let paymentGridHTML = '';
   if (pays.length) {
-    paymentGridHTML = `<div class="payment-grid">` + pays.slice(0, 8).map(p => {
+    paymentGridHTML = `<div class="payment-grid">` + pays.slice(0, 40).map(p => {
       const s = paymentStatusOf(p, today);
       const statusLabel = p.isPaid ? `✓ ${fmtDate(p.paid)}`
         : s === 'overdue' ? `⚠ 期限切れ`
@@ -6792,11 +7106,22 @@ function buildDetailBody(id) {
     }).join('') + `</div>`;
   }
 
+  // v13以前に2件目の受注で上書きされた取引先 → 分けて直すボタン
+  const unsplit = unsplitWonDeals(rec);
+  const splitHTML = unsplit.length ? `<div class="detail-section" style="border:1px solid var(--red); border-radius:4px; padding:12px;">
+      <div class="detail-section-title" style="color:var(--red);">// ⚠ 受注が${unsplit.length}件あるのに入金欄が1件分です</div>
+      <div style="font-size:13px; line-height:1.7; margin:6px 0 10px;">以前の版で、2件目の受注が1件目の金額を上書きしていました。下のボタンで受注ごとに分けて直せます。<br>
+      ${unsplit.map((d, i) => `${i === 0 ? '1件目' : '追加'}：${esc(d.dealName || '')}（${d.closeDate ? fmtDate(d.closeDate) : '日付なし'}／初期¥${fmt(d.amount_init)}・月費¥${fmt(d.amount_monthly)}）`).join('<br>')}</div>
+      <button class="qa paid" data-act="split-orders">受注ごとに分けて直す</button>
+    </div>` : '';
+
   // クイックアクション
   let quickActionsHTML = '';
   pays.forEach(p => {
     if (!p.isPaid) {
       quickActionsHTML += `<button class="qa paid" data-act="pay" data-key="${esc(p.key)}">✓ ${esc(p.kind)}入金完了</button>`;
+    } else {
+      quickActionsHTML += `<button class="qa unpay" data-act="unpay" data-key="${esc(p.key)}">↩ ${esc(p.kind)}の入金を取消</button>`;
     }
   });
   if (rec.phase === 'm3_paid' && !rec.m3_confirmed) {
@@ -6862,8 +7187,9 @@ function buildDetailBody(id) {
       <div class="detail-row"><div class="label">商談日時</div><div class="value">${fmtDateTime(rec.meetingDate)}</div></div>
     </div>` : ''}
 
+    ${splitHTML}
     ${pays.length ? `<div class="detail-section">
-      <div class="detail-section-title">// 入金状況</div>
+      <div class="detail-section-title">// 入金状況${addOrdersOf(rec).length ? `（受注${1 + addOrdersOf(rec).length}件）` : ''}</div>
       <div class="detail-row"><div class="label">サービス</div><div class="value">${esc(rec.service || '—')}</div></div>
       <div class="detail-row"><div class="label">契約開始</div><div class="value">${fmtDate(rec.contract_start)}</div></div>
       <div class="detail-row"><div class="label">合計受領</div><div class="value mono" style="color:var(--green); font-weight:700;">¥${fmt(totalReceived(rec))}</div></div>
@@ -6927,23 +7253,63 @@ function buildDetailBody(id) {
 }
 
 async function detailQuickAction(act, key) {
+  if ((act === 'pay' || act === 'unpay') && paymentBusy) return;
   const rec = state.records.find(r => r.id === state.detailId);
   if (!rec) return;
   const updated = { ...rec };
-  if (!Array.isArray(updated.activity)) updated.activity = [];
+  updated.activity = Array.isArray(updated.activity) ? [...updated.activity] : [];
   let activityText = '';
 
-  if (act === 'pay') {
+  if (act === 'unpay') {
     const p = paymentsOf(rec).find(x => x.key === key);
-    if (!p) return;
-    if (key === 'init') updated.init_paid_date = todayStr();
-    else if (key.startsWith('m')) updated[`${key}_paid_date`] = todayStr();
-    // フェーズ自動進行
-    if (rec.phase === 'init_unpaid' || rec.phase === 'order') updated.phase = 'init_paid';
-    else if (rec.phase === 'm1_unpaid') updated.phase = 'm1_paid';
-    else if (rec.phase === 'm2_unpaid') updated.phase = 'm2_paid';
-    else if (rec.phase === 'm3_unpaid') updated.phase = 'm3_paid';
+    if (!p || !p.isPaid) return;
+    if (!confirm(`「${p.kind} ¥${fmt(p.amount)}」の入金済み（${fmtDate(p.paid)}）を取り消して、未入金に戻しますか？`)) return;
+    Object.assign(updated, withPaidDate(rec, key, ''), { activity: updated.activity });
+    updated.phase = phaseAfterUnpay(rec, key);
+    activityText = `↩ ${p.kind}入金取消 (¥${fmt(p.amount)})`;
+  } else if (act === 'pay') {
+    const p = paymentsOf(rec).find(x => x.key === key);
+    if (!p || p.isPaid) return;
+    Object.assign(updated, withPaidDate(rec, key, todayStr()), { activity: updated.activity });
+    // フェーズ自動進行（1件目の受注の入金だけ）
+    if (!isAddOrderKey(key)) {
+      if (rec.phase === 'init_unpaid' || rec.phase === 'order') updated.phase = 'init_paid';
+      else if (rec.phase === 'm1_unpaid') updated.phase = 'm1_paid';
+      else if (rec.phase === 'm2_unpaid') updated.phase = 'm2_paid';
+      else if (rec.phase === 'm3_unpaid') updated.phase = 'm3_paid';
+    }
     activityText = `💰 ${p.kind}入金完了 (¥${fmt(p.amount)})`;
+  } else if (act === 'split-orders') {
+    const won = unsplitWonDeals(rec);
+    if (!won.length) return;
+    const first = won[0], rest = won.slice(1);
+    const msg = `受注を分けて直します。\n\n` +
+      `■1件目: ${first.dealName}（${first.closeDate || '日付なし'}）初期¥${fmt(first.amount_init)} / 月費¥${fmt(first.amount_monthly)}\n` +
+      `  → 今までの入金済みの記録はこの1件目に付けます\n` +
+      rest.map(d => `■追加: ${d.dealName}（${d.closeDate || '日付なし'}）初期¥${fmt(d.amount_init)} / 月費¥${fmt(d.amount_monthly)} → 未入金で登録`).join('\n') +
+      `\n\n入金済みが2件目の分だった場合は、直した後に入金管理で付け替えてください。よろしいですか？`;
+    if (!confirm(msg)) return;
+    const fi = Number(first.amount_init) || 0, fm = Number(first.amount_monthly) || 0;
+    updated.primaryDealId = first.id;
+    updated.init_amount = fi; updated.monthly_amount = fm;
+    updated.planType = (fi && fm) ? 'full' : fi ? 'init_only' : fm ? 'monthly_only' : 'none';
+    if (first.closeDate) updated.orderDate = first.closeDate;
+    updated.contract_start = rec.contract_start || first.closeDate || todayStr();
+    if (fi && !updated.init_due) updated.init_due = addDays(updated.contract_start, 14);
+    if (fm) [1, 2, 3].forEach(m => { if (!updated[`m${m}_due`]) updated[`m${m}_due`] = addMonths(updated.contract_start, m); });
+    const keep = addOrdersOf(rec).filter(o => o.dealId !== first.id);
+    const have = new Set(keep.map(o => o.dealId));
+    rest.forEach(d => {
+      if (have.has(d.id)) return;
+      const st = d.closeDate || todayStr();
+      const o = { dealId: d.id, dealName: String(d.dealName || '').slice(0, 100), product: d.product || '', orderDate: st, contract_start: st,
+        init_amount: Number(d.amount_init) || 0, monthly_amount: Number(d.amount_monthly) || 0, salesOwner: d.salesOwner || '' };
+      if (o.init_amount) o.init_due = addDays(st, 14);
+      if (o.monthly_amount) [1, 2, 3].forEach(m => { o[`m${m}_due`] = addMonths(st, m); });
+      keep.push(o);
+    });
+    updated.addOrders = keep;
+    activityText = `🔧 受注を分けて修正: 1件目「${first.dealName}」＋追加${rest.length}件`;
   } else if (act === 'confirm-m3') {
     updated.phase = 'continuing';
     updated.m3_confirmed = true;
@@ -6960,15 +7326,16 @@ async function detailQuickAction(act, key) {
     return;
   }
 
-  updated.activity.unshift({ at: isoNow(), type: act === 'pay' ? 'payment' : 'system', text: activityText });
+  updated.activity.unshift({ at: isoNow(), type: (act === 'pay' || act === 'unpay') ? 'payment' : 'system', text: activityText });
   if (updated.activity.length > 50) updated.activity = updated.activity.slice(0, 50);
   showLoading(true);
+  paymentBusy = true;
   try {
     await saveRecord(updated);
     toast('✓ ' + activityText);
     setTimeout(() => openDetail(state.detailId), 300);
   } catch (e) { alert('失敗: ' + e.message); }
-  finally { showLoading(false); }
+  finally { showLoading(false); paymentBusy = false; }
 }
 
 function closeDetail() {
@@ -6994,6 +7361,9 @@ document.getElementById('detailCloneBtn').addEventListener('click', () => {
   delete cloned.updatedAt;
   delete cloned.orderDate;
   delete cloned.init_paid_date;
+  delete cloned.addOrders;
+  Object.keys(cloned).forEach(k => { if (/^m\d+_paid_date$/.test(k)) delete cloned[k]; });
+  delete cloned.primaryDealId;
   delete cloned.m1_paid_date;
   delete cloned.m2_paid_date;
   delete cloned.m3_paid_date;
@@ -7069,29 +7439,201 @@ const BACKUP_COLLECTIONS = [
   ['records', 'crm_customers'], ['deals', 'crm_deals'], ['chatter', 'crm_chatter'],
   ['calls', 'crm_calls'], ['events', 'crm_events'], ['meta', 'crm_meta']
 ];
-function stripServerTs(o) { const c = { ...o }; delete c._updatedServer; return c; }
+// 復元で上書きしない管理用の設定（版番号・バックアップ一覧）
+const META_SYSTEM_IDS = ['app', 'backups'];
+function stripServerTs(o) {
+  const c = { ...o }; delete c._updatedServer;
+  // Firestoreの時刻型は文字にしておく（JSONにそのまま入らないため）
+  Object.keys(c).forEach(k => { const v = c[k]; if (v && typeof v === 'object' && typeof v.toMillis === 'function') c[k] = new Date(v.toMillis()).toISOString(); });
+  return c;
+}
+// 全データを集める（手動JSONバックアップ・自動バックアップ共通）
+async function collectBackupPayload() {
+  const payload = { version: 8, appVersion: APP_VERSION, exportedAt: isoNow() };
+  const counts = {};
+  for (const [key, coll] of BACKUP_COLLECTIONS) {
+    // 架電は全期間を取る（画面は直近3ヶ月だけ読むが、バックアップは全部）
+    const snap = await getDocs(collection(state.db, coll));
+    const arr = [];
+    snap.forEach(d => arr.push(stripServerTs({ id: d.id, ...d.data() })));
+    payload[key] = arr;
+    counts[key] = arr.length;
+  }
+  return { payload, counts };
+}
+function downloadJson(payload, filename) {
+  const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+}
 document.getElementById('backupBtn').addEventListener('click', async () => {
   try {
-    const payload = { version: 8, exportedAt: isoNow() };
-    const counts = [];
-    for (const [key, coll] of BACKUP_COLLECTIONS) {
-      // 架電は全期間を取る（画面は直近3ヶ月だけ読むが、バックアップは全部）
-      const snap = await getDocs(collection(state.db, coll));
-      const arr = [];
-      snap.forEach(d => arr.push(stripServerTs({ id: d.id, ...d.data() })));
-      payload[key] = arr;
-      counts.push(`${key} ${arr.length}`);
-    }
-    const all = payload.records;
-    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = `yamato-crm-backup-${todayStr()}.json`;
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-    toast(`✓ バックアップ完了（${counts.join(' / ')}）`);
+    const { payload, counts } = await collectBackupPayload();
+    downloadJson(payload, `yamato-crm-backup-${todayStr()}.json`);
+    toast(`✓ バックアップ完了（${Object.entries(counts).map(([k, v]) => `${k} ${v}`).join(' / ')}）`);
   } catch (e) { alert('バックアップ失敗: ' + e.message); }
 });
+
+// ---- 自動バックアップ（Firestoreの crm_backups に保存。最新10件を保持） ----
+const BACKUP_STORE = 'crm_backups';
+const BACKUP_KEEP = 10;
+const BACKUP_CHUNK_CHARS = 250000;   // 1ドキュメント1MiB制限に対し、日本語3バイト換算でも750KB以内
+const BACKUP_DAILY_MS = 24 * 3600 * 1000;
+state.backupIndex = [];
+state.safeReady = false;
+async function createAutoBackup(reason) {
+  const { payload, counts } = await collectBackupPayload();
+  const json = JSON.stringify(payload);
+  const id = 'b_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 6);
+  const parts = Math.max(1, Math.ceil(json.length / BACKUP_CHUNK_CHARS));
+  for (let i = 0; i < parts; i++) {
+    await fsSetDoc(doc(state.db, BACKUP_STORE, `${id}_${i}`), { backupId: id, part: i, parts, data: json.slice(i * BACKUP_CHUNK_CHARS, (i + 1) * BACKUP_CHUNK_CHARS) });
+  }
+  // 一覧を更新（最新を読んでから足す: 2人同時でも消し合わない）
+  let list = [];
+  try { const cur = await getDoc(doc(state.db, META_COLLECTION, 'backups')); list = cur.exists() && Array.isArray(cur.data().list) ? cur.data().list : []; } catch {}
+  list = [{ id, at: isoNow(), reason: String(reason).slice(0, 60), appVersion: APP_VERSION, parts, by: getMe() || '', counts }, ...list.filter(x => x && x.id !== id)];
+  const keep = list.slice(0, BACKUP_KEEP), drop = list.slice(BACKUP_KEEP);
+  await fsSetDoc(doc(state.db, META_COLLECTION, 'backups'), { list: keep, updatedAt: isoNow() });
+  state.backupIndex = keep;
+  for (const b of drop) {
+    for (let i = 0; i < (Number(b.parts) || 1); i++) { try { await fsDeleteDoc(doc(state.db, BACKUP_STORE, `${b.id}_${i}`)); } catch {} }
+  }
+  return { id, counts };
+}
+async function loadAutoBackup(b) {
+  let json = '';
+  for (let i = 0; i < (Number(b.parts) || 1); i++) {
+    const d = await getDoc(doc(state.db, BACKUP_STORE, `${b.id}_${i}`));
+    if (!d.exists()) throw new Error(`バックアップの一部(${i + 1}/${b.parts})が見つかりません`);
+    json += d.data().data || '';
+  }
+  const data = JSON.parse(json);
+  if (!Array.isArray(data.records)) throw new Error('バックアップの中身が不正です');
+  return data;
+}
+
+// ---- 版の確認: 新しい版が出ていたら古い画面は読むだけにする ----
+function onAppVersionSeen(v) {
+  if (v > APP_VERSION && !writeLocked) lockOldVersion(v);
+}
+function lockOldVersion(v) {
+  writeLocked = true;
+  state.safeReady = false;
+  let bar = document.getElementById('oldVersionBar');
+  if (!bar) {
+    bar = document.createElement('div');
+    bar.id = 'oldVersionBar';
+    bar.style.cssText = 'position:fixed;left:0;right:0;top:0;z-index:2000;background:#c0392b;color:#fff;padding:10px 14px;font-size:13px;font-weight:700;display:flex;gap:10px;align-items:center;flex-wrap:wrap;box-shadow:0 2px 10px rgba(0,0,0,.3);';
+    bar.innerHTML = `<span>⚠ 新しい版(v${Number(v) || '?'})が公開されています。この画面(v${APP_VERSION})は古いので保存できません。</span>
+      <button type="button" id="oldVersionReload" style="background:#fff;color:#c0392b;border:none;padding:6px 12px;font-weight:700;border-radius:3px;">再読み込み</button>
+      <button type="button" id="oldVersionOverride" style="background:transparent;color:#fff;border:1px solid #fff;padding:5px 10px;font-size:11px;border-radius:3px;">わざと古い版に戻した</button>`;
+    document.body.appendChild(bar);
+    document.getElementById('oldVersionReload').addEventListener('click', () => location.reload());
+    document.getElementById('oldVersionOverride').addEventListener('click', async () => {
+      if (!confirm(`公開中の版を v${APP_VERSION} に戻したのは「わざと」ですか？\n\n（不具合で前の版に戻した時だけ「OK」。単に再読み込みしていないだけなら「キャンセル」して再読み込みしてください）`)) return;
+      try {
+        await createAutoBackup(`v${APP_VERSION}に戻す前`);
+        await fsSetDoc(doc(state.db, META_COLLECTION, 'app'), { version: APP_VERSION, at: isoNow(), by: getMe() || '', rolledBack: true });
+        writeLocked = false; state.safeReady = true;
+        bar.remove();
+        toast(`✓ v${APP_VERSION} を公開中の版にしました`);
+      } catch (e) { alert('切り替え失敗: ' + e.message); }
+    });
+  }
+}
+// ログイン直後: 版の確認 → 必要なら自動バックアップ → それから自動処理を許可
+async function ensureSafeVersion() {
+  let stored = 0;
+  try {
+    const d = await getDoc(doc(state.db, META_COLLECTION, 'app'));
+    stored = d.exists() ? (Number(d.data().version) || 0) : 0;
+  } catch (e) { console.warn('version check', e); }
+  if (stored > APP_VERSION) { lockOldVersion(stored); return; }
+  const last = (state.backupIndex && state.backupIndex[0]) || null;
+  let backupOk = true;
+  if (stored < APP_VERSION) {
+    // 新しい版を初めて開いた: 何かを書き込む前に全データを保存
+    try { await createAutoBackup(stored ? `v${stored}→v${APP_VERSION} 更新前` : `v${APP_VERSION} 初回`); }
+    catch (e) { backupOk = false; console.error('auto backup', e); }
+    try { await fsSetDoc(doc(state.db, META_COLLECTION, 'app'), { version: APP_VERSION, at: isoNow(), by: getMe() || '' }); }
+    catch (e) { console.error('version write', e); }
+  } else {
+    // 毎日1回の自動バックアップ（最後のバックアップから24時間以上たっていたら）
+    let idx = state.backupIndex || [];
+    if (!idx.length) { try { const d = await getDoc(doc(state.db, META_COLLECTION, 'backups')); idx = d.exists() && Array.isArray(d.data().list) ? d.data().list : []; } catch {} }
+    const lastAt = idx[0] ? Date.parse(idx[0].at) || 0 : 0;
+    if (Date.now() - lastAt > BACKUP_DAILY_MS) {
+      try { await createAutoBackup('毎日の自動バックアップ'); } catch (e) { backupOk = false; console.error('daily backup', e); }
+    }
+  }
+  if (!backupOk) {
+    toast('⚠ 自動バックアップに失敗しました。設定 →「JSONバックアップ」を手動で取ってください', true);
+    state.backupFailed = true;
+  }
+  state.safeReady = true;
+  renderBackupList();
+  scheduleAutoCancel();
+}
+
+// ---- 設定画面: 自動バックアップの一覧 ----
+function renderBackupList() {
+  const el = document.getElementById('autoBackupList');
+  if (!el) return;
+  const list = state.backupIndex || [];
+  const warn = state.backupFailed ? `<div style="color:var(--red); font-size:12px; margin-bottom:8px;">⚠ 直近の自動バックアップに失敗しました。Firestoreのルールで <code>crm_backups</code> への読み書きを許可してください。</div>` : '';
+  if (!list.length) { el.innerHTML = warn + `<div style="font-size:12px; color:var(--text3);">まだ自動バックアップはありません</div>`; return; }
+  el.innerHTML = warn + list.map(b => {
+    const c = b.counts || {};
+    return `<div style="border-bottom:1px solid var(--border); padding:8px 0; font-size:12px; line-height:1.6;">
+      <div><strong>${esc(fmtDateTime(b.at))}</strong>　${esc(b.reason || '')}</div>
+      <div style="color:var(--text3);">v${esc(String(b.appVersion || ''))}・取引先等 ${Number(c.records) || 0}件・商談 ${Number(c.deals) || 0}件・チャッター ${Number(c.chatter) || 0}件${b.by ? '・' + esc(b.by) : ''}</div>
+      <div style="margin-top:4px; display:flex; gap:6px; flex-wrap:wrap;">
+        <button type="button" class="btn-action" style="padding:4px 10px; min-height:28px; font-size:11px;" data-bk-dl="${esc(b.id)}">📥 ダウンロード</button>
+        <button type="button" class="btn-action" style="padding:4px 10px; min-height:28px; font-size:11px; border-color:var(--red); color:var(--red);" data-bk-restore="${esc(b.id)}">⏪ この時点に戻す</button>
+      </div>
+    </div>`;
+  }).join('');
+  el.querySelectorAll('[data-bk-dl]').forEach(btn => btn.addEventListener('click', async () => {
+    const b = (state.backupIndex || []).find(x => x.id === btn.dataset.bkDl); if (!b) return;
+    showLoading(true);
+    try { const data = await loadAutoBackup(b); downloadJson(data, `yamato-crm-auto-backup-${String(b.at).slice(0, 10)}.json`); toast('✓ ダウンロードしました'); }
+    catch (e) { alert('ダウンロード失敗: ' + e.message); }
+    finally { showLoading(false); }
+  }));
+  el.querySelectorAll('[data-bk-restore]').forEach(btn => btn.addEventListener('click', () => {
+    const b = (state.backupIndex || []).find(x => x.id === btn.dataset.bkRestore); if (b) restoreFromAutoBackup(b);
+  }));
+}
+// この時点に戻す: バックアップにある全データで上書き（バックアップの後に新しく作ったデータは消さずに残す）
+async function restoreFromAutoBackup(b) {
+  const word = prompt(`${fmtDateTime(b.at)}（${b.reason || ''}）の状態に戻します。\n\n・この時点にあったデータは、すべてこの時点の内容で上書きされます\n・この時点より後に新しく作ったデータは消えずに残ります\n・戻す直前の状態も自動でバックアップします\n\n実行するなら「戻す」と入力してください`);
+  if (word !== '戻す') { if (word !== null) alert('「戻す」と入力されなかったので中止しました'); return; }
+  showLoading(true);
+  try {
+    const data = await loadAutoBackup(b);
+    await createAutoBackup(`「${fmtDateTime(b.at)}」に戻す直前`);
+    const lines = [];
+    for (const [key, coll] of BACKUP_COLLECTIONS) {
+      const arr = (Array.isArray(data[key]) ? data[key] : []).filter(x => x && x.id && !(coll === META_COLLECTION && META_SYSTEM_IDS.includes(x.id)));
+      for (let i = 0; i < arr.length; i += 400) {
+        const batch = writeBatch(state.db);
+        arr.slice(i, i + 400).forEach(x => {
+          const clean = {};
+          Object.keys(x).forEach(k => { if (k !== 'id' && x[k] !== undefined) clean[k] = x[k]; });
+          batch.set(doc(state.db, coll, x.id), clean);
+        });
+        await batch.commit();
+      }
+      lines.push(`${key}: ${arr.length}件`);
+    }
+    alert('この時点に戻しました\n' + lines.join('\n'));
+  } catch (e) { alert('戻せませんでした: ' + e.message); }
+  finally { showLoading(false); }
+}
 document.getElementById('exportCsvBtn').addEventListener('click', () => {
   const escCsv = v => { const s = String(v == null ? '' : v); return /[",\n\r]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
   const header = ['ID','屋号','電話','メール','URL','フェーズ','プラン','契約開始','初期費用','初期入金日','月費','m1期限','m1入金','m2期限','m2入金','m3期限','m3入金','合計受領','タグ','メモ','解約日','解約理由','登録','更新'];
@@ -7129,7 +7671,7 @@ document.getElementById('restoreFile').addEventListener('change', async e => {
       if (!arr.length) continue;
       const snap = await getDocs(collection(state.db, coll));
       const have = new Set(); snap.forEach(d => have.add(d.id));
-      const toAdd = arr.filter(x => x && x.id && !have.has(x.id));
+      const toAdd = arr.filter(x => x && x.id && !have.has(x.id) && !(coll === META_COLLECTION && META_SYSTEM_IDS.includes(x.id)));
       for (let i = 0; i < toAdd.length; i += 400) {
         const batch = writeBatch(state.db);
         toAdd.slice(i, i + 400).forEach(x => {
@@ -7163,6 +7705,7 @@ async function initApp() {
   subscribeCalls();
   subscribeEvents();
   subscribeMeta();
+  ensureSafeVersion();
   startChatterAutoRefresh();
   if (state.autoCancelInterval) clearInterval(state.autoCancelInterval);
   state.autoCancelInterval = setInterval(scheduleAutoCancel, 60 * 60 * 1000);
