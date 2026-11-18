@@ -909,7 +909,7 @@ a.ext, a.tel-link { color: var(--accent); }
 <!-- ==================== APP ==================== -->
 <div class="app" id="app">
   <header class="header">
-    <div class="header-brand"><img id="brandLogo" alt="" hidden />YAMATO<span class="sub">CRM v25</span></div>
+    <div class="header-brand"><img id="brandLogo" alt="" hidden />YAMATO<span class="sub">CRM v26</span></div>
     <div class="nav-tabs" id="navTabs">
       <button class="nav-tab active" data-tab="dashboard"><span class="nav-ic">📊</span> <span class="nav-lb"><span class="lb-full">ダッシュボード</span><span class="lb-short">ホーム</span></span></button>
       <button class="nav-tab" data-tab="chatter"><span class="nav-ic">💬</span> <span class="nav-lb">チャッター</span> <span class="badge" id="chatterBadge" style="display:none;">0</span></button>
@@ -2466,7 +2466,7 @@ import {
 // ・この版の番号。新しい index.html を上げる時は必ず1つ上げる（画面左上の「CRM vXX」と同じ数字）
 // ・誰かが新しい版を開くと、古い版の画面は「読むだけ」になる（古い計算で上書きして壊すのを防ぐ）
 // ・新しい版を最初に開いた時、何かを書き込む前に全データを自動バックアップする（毎日1回も自動）
-const APP_VERSION = 25;
+const APP_VERSION = 26;
 let writeLocked = false;
 function guardWrite() {
   if (writeLocked) throw new Error('この画面は古い版です。ページを再読み込みしてから操作してください（データは保護されています）');
@@ -3169,9 +3169,12 @@ function saveConfig(cfg) {
 function clearConfig() { try { localStorage.removeItem(STORAGE_KEY_CONFIG); } catch {} }
 // 接続設定はアプリに入れておく（新しい端末で長い設定を貼らなくていいように）。
 // これはデータの鍵ではなく「どのデータベースか」の住所。データを守るのはFirestoreのルール（メンバーだけ）。
+// ログイン処理はこのサイトと同じアドレス（yu647324-gif.github.io/__/auth/）に置いてある。
+// 同じアドレスだと、iPhoneのホーム画面アプリやSafariの追跡防止でもGoogleログインが通る。
+const SAME_SITE_AUTH_HOST = 'yu647324-gif.github.io';
 const BUILTIN_CONFIG = Object.freeze({
   apiKey: 'AIzaSyDO9lorCu36DFE1J8Vtlz9PoGbtVvHHs2A',
-  authDomain: 'yamato-crm-a3261.firebaseapp.com',
+  authDomain: (typeof location !== 'undefined' && location.hostname === SAME_SITE_AUTH_HOST) ? SAME_SITE_AUTH_HOST : 'yamato-crm-a3261.firebaseapp.com',
   projectId: 'yamato-crm-a3261',
   storageBucket: 'yamato-crm-a3261.firebasestorage.app',
   messagingSenderId: '12693476471',
@@ -3230,7 +3233,7 @@ async function initFirebase(cfg) {
       // 画面移動方式から戻ってきたのにログインできていない（iPhoneのブラウザで起きやすい）
       let flagged = false;
       try { flagged = sessionStorage.getItem('yamato-crm-redirect') === '1'; sessionStorage.removeItem('yamato-crm-redirect'); } catch {}
-      if (flagged && !res) setTimeout(() => { if (!state.authUser) googleError.textContent = '✕ ログインできませんでした。ブラウザの設定で「ポップアップをブロック」をオフにして、もう一度押してください'; }, 1500);
+      if (flagged && !res) setTimeout(() => { if (!state.authUser) googleError.textContent = isStandaloneApp() ? '✕ ログインできませんでした。もう一度押してください。直らない時はSafariで開いてください' : '✕ ログインできませんでした。ブラウザの設定で「ポップアップをブロック」をオフにして、もう一度押してください'; }, 1500);
     }).catch(e => showGoogleError(e));
   } catch (e) { console.warn('auth init', e); state.auth = null; state.authReady = true; }
 }
@@ -3340,12 +3343,21 @@ function showGoogleError(e) {
   else if (code === 'auth/network-request-failed') msg = '✕ 通信できませんでした。電波を確認してもう一度押してください';
   googleError.textContent = msg;
 }
+// ホーム画面に追加したアプリとして開いているか（iPhone）。この時は別窓（ポップアップ）が使えないので画面移動でログインする
+function isStandaloneApp() {
+  try { return window.navigator.standalone === true || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches); } catch { return false; }
+}
 async function googleLogin() {
   googleError.textContent = '';
   if (!state.auth) { googleError.textContent = '✕ ログイン機能を読み込めませんでした。ページを再読み込みしてください'; return; }
   googleLoginBtn.disabled = true;
   const provider = new GoogleAuthProvider();
   provider.setCustomParameters({ prompt: 'select_account' });
+  if (isStandaloneApp()) {
+    try { sessionStorage.setItem('yamato-crm-redirect', '1'); } catch {}
+    try { await signInWithRedirect(state.auth, provider); return; }
+    catch (e) { showGoogleError(e); googleLoginBtn.disabled = false; return; }
+  }
   try {
     await signInWithPopup(state.auth, provider);   // 中に入る処理は onAuthChanged が行う
   } catch (e) {
