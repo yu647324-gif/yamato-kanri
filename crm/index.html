@@ -4,6 +4,8 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
 <meta name="theme-color" content="#10141b" />
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
+<meta name="referrer" content="no-referrer" />
 <title>YAMATO CRM — 顧客管理システム</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -150,6 +152,8 @@ button { font-family: inherit; cursor: pointer; }
 .header { background: var(--surface); border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 0; min-height: 52px; padding: 0 16px; position: sticky; top: 0; z-index: 200; flex-wrap: wrap; }
 .header-brand { font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 3px; color: var(--accent); text-transform: uppercase; padding-right: 16px; border-right: 1px solid var(--border); white-space: nowrap; flex-shrink: 0; }
 .header-brand .sub { color: var(--text3); font-size: 9px; display: block; margin-top: 1px; }
+.header-brand #brandLogo { height: 28px; width: auto; max-width: 64px; object-fit: contain; float: left; margin: 0 8px 0 0; border-radius: 3px; background: #fff; padding: 1px; }
+.header-brand #brandLogo[hidden] { display: none; }
 .nav-tabs { display: flex; align-items: stretch; min-height: 52px; margin-left: 8px; flex: 1; overflow-x: auto; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
 .nav-tabs::-webkit-scrollbar { display: none; }
 .nav-tab { background: none; border: none; border-bottom: 2px solid transparent; color: var(--text2); padding: 0 14px; font-size: 13px; cursor: pointer; transition: all 0.2s; white-space: nowrap; display: flex; align-items: center; gap: 5px; min-height: var(--tap-min); }
@@ -189,6 +193,7 @@ button { font-family: inherit; cursor: pointer; }
 .ch-type.shodan { background: var(--purple-dim); color: var(--purple); }
 .ch-type.juchu { background: var(--green-dim); color: var(--green); }
 .ch-type.shitsuchu { background: var(--red-dim); color: var(--red); }
+.ch-type.nagare { background: rgba(232,163,61,0.15); color: #e8a33d; }
 .ch-type.manual { background: var(--surface3); color: var(--text2); }
 .ch-body { font-size: 14px; line-height: 1.75; color: var(--text); white-space: pre-wrap; word-break: break-word; }
 .ch-link { display: inline-block; margin-top: 9px; font-size: 12px; color: var(--accent); cursor: pointer; text-decoration: underline; }
@@ -627,6 +632,63 @@ tbody tr:last-child td { border-bottom: none; }
   /* カンバンの屋号は省略せず折り返す */
   .kanban-card .name { white-space: normal; overflow: visible; text-overflow: clip; }
 }
+
+/* 商談報告: 追加受注 / 契約変更 の選択 */
+#grp-d-kind { min-width: 0; }
+.d-kind-box { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.form-group label.d-kind-opt { display: flex; gap: 10px; align-items: flex-start; cursor: pointer; font-size: 13px; letter-spacing: 0; text-transform: none; color: var(--text); font-family: inherit; line-height: 1.5;
+  padding: 10px 12px; border: 1px solid var(--border); border-radius: 4px; margin: 0; }
+.form-group label.d-kind-opt:has(input:checked) { border-color: var(--accent); background: var(--accent-dim); }
+.d-kind-opt input[type="radio"] { width: 18px; height: 18px; flex: 0 0 18px; margin: 1px 0 0; min-height: 0; padding: 0; }
+.d-kind-opt span { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+#d-replace { width: 100%; max-width: 100%; min-width: 0; text-overflow: ellipsis; }
+
+/* 取引先ページ: 受注一覧 */
+.orders-list { display: flex; flex-direction: column; gap: 8px; margin-top: 8px; }
+.order-row { border: 1px solid var(--border); border-radius: 4px; padding: 10px 12px; background: var(--surface2); }
+.order-row.old { opacity: 0.55; }
+.order-top { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; font-size: 14px; }
+.order-top a, .order-top strong { flex: 1 1 140px; min-width: 0; overflow-wrap: anywhere; font-weight: 700; }
+.order-top a { color: var(--accent); text-decoration: none; }
+.order-tag { font-size: 11px; padding: 2px 8px; border-radius: 100px; background: var(--surface3); color: var(--text2); white-space: nowrap; }
+.order-tag.first { background: var(--accent-dim); color: var(--accent); }
+.order-tag.add { background: var(--green-dim); color: var(--green); }
+.order-st { font-size: 11px; color: var(--text3); white-space: nowrap; }
+.order-sub { font-size: 12px; color: var(--text2); margin-top: 4px; line-height: 1.6; overflow-wrap: anywhere; }
+
+/* 取引先ページのタブ（詳細 / 制作） */
+.rec-tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--border); margin: 6px 0 4px; }
+.rec-tab { background: none; border: none; border-bottom: 2px solid transparent; color: var(--text2); padding: 10px 14px; font-size: 13px; font-weight: 700; cursor: pointer; font-family: inherit; }
+.rec-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.rec-tab .cnt { font-size: 11px; color: var(--text3); margin-left: 4px; font-weight: 400; }
+/* 制作物 */
+.works-form { display: grid; grid-template-columns: minmax(0, 140px) minmax(0, 1fr); gap: 8px; margin: 10px 0 14px; }
+.works-form .full { grid-column: 1 / -1; }
+.works-form input, .works-form select, .works-form textarea { width: 100%; min-width: 0; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 10px 12px; font-size: 16px; outline: none; border-radius: 2px; min-height: var(--tap-min); font-family: inherit; color-scheme: dark light; }
+.works-form input:focus, .works-form select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-dim); }
+.work-url a { color: var(--accent); }
+.works-list { display: flex; flex-direction: column; gap: 8px; }
+.work-row { border: 1px solid var(--border); border-radius: 4px; padding: 10px 12px; background: var(--surface2); }
+.work-top { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.work-top strong { flex: 1 1 140px; min-width: 0; overflow-wrap: anywhere; }
+.work-type { font-size: 11px; padding: 2px 8px; border-radius: 100px; background: var(--accent-dim); color: var(--accent); white-space: nowrap; }
+.work-url { font-size: 12px; margin-top: 4px; overflow-wrap: anywhere; }
+.work-sub { font-size: 12px; color: var(--text2); margin-top: 4px; line-height: 1.6; white-space: pre-wrap; overflow-wrap: anywhere; }
+.work-btns { display: flex; gap: 6px; margin-top: 8px; }
+.work-btns button { padding: 4px 10px; min-height: 28px; font-size: 11px; }
+@media (max-width: 640px) { .works-form { grid-template-columns: minmax(0, 1fr); } }
+
+/* ログインできるメンバー */
+.acc-row { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; padding: 8px 0; border-bottom: 1px solid var(--border); font-size: 12px; }
+.acc-row strong { min-width: 60px; }
+.acc-mail { flex: 1 1 160px; min-width: 0; overflow-wrap: anywhere; color: var(--text2); }
+.acc-seen { font-size: 10px; color: var(--green); white-space: nowrap; }
+.acc-notyet { font-size: 10px; color: var(--text3); white-space: nowrap; }
+.acc-admin { font-size: 10px; padding: 2px 8px; border-radius: 100px; background: var(--accent-dim); color: var(--accent); white-space: nowrap; }
+.acc-btn { padding: 2px 8px !important; min-height: 26px !important; font-size: 11px !important; }
+.acc-add { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 120px) auto; gap: 8px; margin-top: 12px; }
+.acc-add input, .acc-add select { min-width: 0; width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 8px 10px; font-size: 16px; border-radius: 2px; }
+@media (max-width: 640px) { .acc-add { grid-template-columns: minmax(0, 1fr); } }
 </style>
 <style>
 /* === V2 ADDITIONS === */
@@ -752,23 +814,10 @@ tbody tr:last-child td { border-bottom: none; }
     <h1 class="auth-title">YAMATO CRM — 初期設定</h1>
     <p class="auth-sub">Firebase Firestore でデータをチームで共有します。無料で運用可能。下記手順で5分ほどで設定できます。</p>
 
-    <div class="setup-step"><strong>1.</strong> <a href="https://console.firebase.google.com/" target="_blank" rel="noopener">Firebase Console</a> でGoogleアカウントでログイン</div>
-    <div class="setup-step"><strong>2.</strong> 「プロジェクトを追加」→ 名前(例: yamato-crm)で作成。Analyticsはオフでも可</div>
-    <div class="setup-step"><strong>3.</strong> 左メニュー「Firestore Database」→「データベースの作成」→ ロケーション <code>asia-northeast1</code>(東京)、<strong>本番モード</strong>で開始</div>
-    <div class="setup-step">
-      <strong>4.</strong> Firestore の「ルール」タブを開き、以下に置き換えて「公開」:
-      <pre>rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /{document=**} {
-      allow read, write: if true;
-    }
-  }
-}</pre>
-      <p style="font-size:11px; color:var(--text3); margin-top:8px;">※ パスワード認証はクライアント側で行います。URLを知っている人にしか公開しないでください。</p>
-    </div>
-    <div class="setup-step"><strong>5.</strong> プロジェクト概要 → ⚙️設定 → 「全般」の「マイアプリ」で <strong>&lt;/&gt; ウェブ</strong> → アプリ名入力 → 「アプリを登録」 → 表示される <code>firebaseConfig</code> をコピー</div>
-    <div class="setup-step"><strong>6.</strong> 下のテキスト欄にその config を貼り付けて「保存して開始」</div>
+    <div class="setup-step"><strong>1.</strong> 管理者から <code>firebaseConfig</code>（接続設定）を受け取ってください。<br>
+      <span style="font-size:11px; color:var(--text3);">管理者は Firebase コンソール → ⚙️設定 →「全般」の「マイアプリ」で確認できます。</span></div>
+    <div class="setup-step"><strong>⚠</strong> Firestore の「ルール」は管理者が設定済みです。<strong>絶対に書き換えないでください</strong>（書き換えると顧客データが外から見えるようになります）。</div>
+    <div class="setup-step"><strong>2.</strong> 下のテキスト欄にその config を貼り付けて「保存して開始」</div>
 
     <label class="auth-label" style="margin-top:20px;">Firebase Config (JSON または JS オブジェクト)</label>
     <textarea class="auth-textarea" id="setupConfigInput" placeholder='const firebaseConfig = { apiKey: "...", projectId: "...", ... };'></textarea>
@@ -785,10 +834,25 @@ service cloud.firestore {
     <h1 class="auth-title">YAMATO CRM</h1>
     <p class="auth-sub">顧客管理システム · チーム共有 · リアルタイム同期</p>
 
-    <label class="auth-label" for="loginPass">PASSWORD</label>
-    <input type="password" id="loginPass" class="auth-input" placeholder="••••••••" autocomplete="current-password" />
-    <div class="auth-error" id="loginError"></div>
-    <button class="btn-primary" id="loginBtn">ログイン / SIGN IN</button>
+    <div id="googleBox">
+      <button class="btn-primary" id="googleLoginBtn" type="button">Googleでログイン</button>
+      <div class="auth-error" id="googleError"></div>
+      <p style="font-size:11px; color:var(--text3); line-height:1.7; margin-top:8px;">押しても何も出ない時は、ブラウザの「ポップアップをブロック」をオフにしてください（Brave: 設定 → ポップアップをブロック／Safari: 設定アプリ → Safari → ポップアップブロック）</p>
+    </div>
+    <div id="pendingBox" style="display:none; font-size:13px; line-height:1.8; color:var(--text2); margin-top:4px;">
+      <div id="pendingText"></div>
+      <button class="btn-primary" id="pendingRetryBtn" type="button" style="margin-top:12px;">承認されたか確認する</button>
+      <button class="link" id="pendingLogoutBtn" type="button" style="margin-top:10px;">別のGoogleアカウントにする</button>
+    </div>
+    <details id="passwordLoginBox" style="margin-top:14px;">
+      <summary style="font-size:12px; color:var(--text3); cursor:pointer;">パスワードでログイン（Googleログインへの移行期間のみ）</summary>
+      <div style="margin-top:12px;">
+        <label class="auth-label" for="loginPass">PASSWORD</label>
+        <input type="password" id="loginPass" class="auth-input" placeholder="••••••••" autocomplete="current-password" />
+        <div class="auth-error" id="loginError"></div>
+        <button class="btn-primary" id="loginBtn" style="background:var(--surface3); color:var(--text);">ログイン / SIGN IN</button>
+      </div>
+    </details>
 
     <div class="connection-pill" id="connectionPill">
       <span class="dot"></span>
@@ -801,7 +865,7 @@ service cloud.firestore {
 <!-- ==================== APP ==================== -->
 <div class="app" id="app">
   <header class="header">
-    <div class="header-brand">YAMATO<span class="sub">CRM v17</span></div>
+    <div class="header-brand"><img id="brandLogo" alt="" hidden />YAMATO<span class="sub">CRM v24</span></div>
     <div class="nav-tabs" id="navTabs">
       <button class="nav-tab active" data-tab="dashboard"><span class="nav-ic">📊</span> <span class="nav-lb">ダッシュボード</span></button>
       <button class="nav-tab" data-tab="chatter"><span class="nav-ic">💬</span> <span class="nav-lb">チャッター</span> <span class="badge" id="chatterBadge" style="display:none;">0</span></button>
@@ -971,6 +1035,7 @@ service cloud.firestore {
         <button class="ch-filter" data-f="shodan">商談報告</button>
         <button class="ch-filter" data-f="juchu">受注</button>
         <button class="ch-filter" data-f="shitsuchu">失注</button>
+        <button class="ch-filter" data-f="nagare">アポ流れ</button>
         <button class="ch-filter" data-f="manual">その他</button>
       </div>
 
@@ -1007,7 +1072,7 @@ service cloud.firestore {
           </div>
         </div>
         <div class="rec-grid">
-          <div class="rec-main" id="detailBody"></div>
+          <div class="rec-main" id="detailWrap"><div class="rec-tabs" id="recTabs"></div><div id="detailBody"></div></div>
           <div class="rec-side" id="recordSide"></div>
         </div>
         <div style="margin-top:14px;"><button class="btn-action" id="detailCloseBtn">← 一覧へ戻る</button></div>
@@ -1493,6 +1558,23 @@ service cloud.firestore {
           </p>
           <button class="btn-action primary" id="notifEnableBtn">🔔 通知を有効にする</button>
           <button class="btn-action" id="notifTestBtn" style="margin-left:8px;">テスト通知</button>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><div class="panel-title"><span class="mono">// LOGIN</span>ログインできるメンバー（Google）</div></div>
+        <div style="padding: 16px 18px;" id="accessPanel"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><div class="panel-title"><span class="mono">// LOGO</span>ロゴ</div></div>
+        <div style="padding: 16px 18px;">
+          <p style="font-size: 12px; color: var(--text2); line-height: 1.7; margin-bottom: 10px;">
+            ログイン後の画面左上とタブのアイコンに表示します。ログイン画面やページのソースには出ません（データベースに保存）。
+          </p>
+          <div id="logoPreview" style="margin-bottom:10px;"><span style="font-size:12px; color:var(--text3);">未設定</span></div>
+          <label class="btn-action primary" style="cursor:pointer; display:inline-flex; align-items:center;">🖼 画像を選ぶ<input type="file" id="logoFile" accept="image/png,image/jpeg,image/webp" style="display:none;" /></label>
+          <button class="btn-action" id="logoClearBtn" style="margin-left:8px;">外す</button>
         </div>
       </div>
 
@@ -2278,6 +2360,15 @@ service cloud.firestore {
           <input type="number" id="d-monthly" min="0" step="1" inputmode="numeric" placeholder="0" />
         </div>
 
+        <div class="form-group collapse full" id="grp-d-kind">
+          <label class="required">この受注は？（この取引先には他に受注があります）</label>
+          <div class="d-kind-box">
+            <label class="d-kind-opt"><input type="radio" name="d-kind" value="add" /><span><strong>追加受注</strong>：別の契約を追加する（前の受注はそのまま）</span></label>
+            <label class="d-kind-opt"><input type="radio" name="d-kind" value="replace" /><span><strong>契約変更</strong>：金額・支払い方法を変えた（前の受注を置き換える）</span></label>
+            <select id="d-replace" style="display:none;"></select>
+          </div>
+        </div>
+
         <div class="form-group collapse full" id="grp-d-lost">
           <label class="required" for="d-lost-reason">失注理由</label>
           <select id="d-lost-reason">
@@ -2327,6 +2418,9 @@ window.addEventListener('unhandledrejection', e => console.error('[Unhandled Rej
 <script type="module">
 import { initializeApp, getApps, deleteApp } from 'https://www.gstatic.com/firebasejs/12.13.0/firebase-app.js';
 import {
+  getAuth, GoogleAuthProvider, signInWithPopup, signInWithRedirect, getRedirectResult, signOut, onAuthStateChanged
+} from 'https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js';
+import {
   getFirestore, collection, doc, setDoc as fsSetDoc, getDoc, getDocs, deleteDoc as fsDeleteDoc,
   query, where, onSnapshot, serverTimestamp, writeBatch as fsWriteBatch
 } from 'https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js';
@@ -2337,7 +2431,7 @@ import {
 // ・この版の番号。新しい index.html を上げる時は必ず1つ上げる（画面左上の「CRM vXX」と同じ数字）
 // ・誰かが新しい版を開くと、古い版の画面は「読むだけ」になる（古い計算で上書きして壊すのを防ぐ）
 // ・新しい版を最初に開いた時、何かを書き込む前に全データを自動バックアップする（毎日1回も自動）
-const APP_VERSION = 17;
+const APP_VERSION = 24;
 let writeLocked = false;
 function guardWrite() {
   if (writeLocked) throw new Error('この画面は古い版です。ページを再読み込みしてから操作してください（データは保護されています）');
@@ -2352,7 +2446,7 @@ function writeBatch(db) {
 }
 
 // ============== CONSTANTS ==============
-const PASSWORD_HASH = '34b87405a52f95ea5c888d255bb8aad4fc29061ab96734b3c1e2887941574e57'; // Yamato0999
+const PASSWORD_HASH = '34b87405a52f95ea5c888d255bb8aad4fc29061ab96734b3c1e2887941574e57';
 const PAGE_SIZE = 30;
 const STORAGE_KEY_CONFIG = 'yamato-crm-firebase-config-v1';
 const STORAGE_KEY_NOTIF = 'yamato-crm-notif-pref-v1';
@@ -2621,9 +2715,26 @@ function healthHTML(rec) {
 // 1社で2件目以降の受注は、取引先の addOrders に「商談ごとに1件」ずつ持つ。
 // 1件目の受注は従来どおり取引先の入金欄（init_amount / m1_due など）。primaryDealId がその商談。
 // 追加受注の入金キーは「x:<商談ID>:init / m1 / m2 / m3」。
-const isWonDealPhase = ph => ph === 'juchu' || ph === 'kaishu';
+// 受注・失注の判定はここだけで行う（画面ごとにバラバラに書くと食い違うため）
+// 受注は「受注」だけ。回収待ちは受注ではない（まだ決着していない扱い）
+const isWonDealPhase = ph => ph === 'juchu';
+// アポ流れは失注ではない（商談まで行っていない）。アポ取得者の成績として数える
+const isLostDealPhase = ph => ph === 'lost';
+const isNagareDealPhase = ph => ph === 'nagare_r' || ph === 'nagare_o';
+// 営業者の決着（受注率の分母）は受注と失注だけ
+const isDecidedDealPhase = ph => isWonDealPhase(ph) || isLostDealPhase(ph);
 function addOrdersOf(rec) { return Array.isArray(rec && rec.addOrders) ? rec.addOrders.filter(o => o && o.dealId) : []; }
-function addOrderHasPayment(o) { return !!(o && (o.init_paid_date || o.m1_paid_date || o.m2_paid_date || o.m3_paid_date)); }
+// 入金済みの記録があるか（4ヶ月目以降も含む）
+function addOrderHasPayment(o) { return !!(o && Object.keys(o).some(k => (k === 'init_paid_date' || /^m\d+_paid_date$/.test(k)) && o[k])); }
+// 入金済みの月（4ヶ月目以降）
+function paidMonthsFrom(obj, from) {
+  return Object.keys(obj || {}).map(k => /^m(\d+)_paid_date$/.exec(k)).filter(m => m && Number(m[1]) >= from && obj[m[0]]).map(m => Number(m[1])).sort((a, b) => a - b);
+}
+function monthsSince(start) {
+  const s0 = new Date(start); const t = new Date();
+  if (isNaN(s0)) return 0;
+  return (t.getFullYear() - s0.getFullYear()) * 12 + (t.getMonth() - s0.getMonth());
+}
 function addOrderLabel(o) { const t = String(o.dealName || o.product || '追加'); return t.length > 16 ? t.slice(0, 16) + '…' : t; }
 function addOrderPayments(rec) {
   const list = [];
@@ -2634,17 +2745,30 @@ function addOrderPayments(rec) {
       kind: `初期費用（${label}）`, amount: Number(o.init_amount) || 0, due: o.init_due || '',
       paid: o.init_paid_date || '', isPaid: !!o.init_paid_date, key: `x:${o.dealId}:init`, monthIndex: 0, addOrder: true, dealId: o.dealId
     });
-    if (Number(o.monthly_amount) > 0) [1, 2, 3].forEach(m => list.push({
-      kind: `${m}ヶ月目（${label}）`, amount: Number(o.monthly_amount) || 0, due: o[`m${m}_due`] || addMonths(start, m),
-      paid: o[`m${m}_paid_date`] || '', isPaid: !!o[`m${m}_paid_date`], key: `x:${o.dealId}:m${m}`, monthIndex: m, addOrder: true, dealId: o.dealId
-    }));
+    if (Number(o.monthly_amount) > 0) {
+      const amt = Number(o.monthly_amount) || 0;
+      const item = (m, paid) => ({
+        kind: `${m}ヶ月目（${label}）`, amount: amt, due: o[`m${m}_due`] || addMonths(start, m),
+        paid: paid || '', isPaid: !!paid, key: `x:${o.dealId}:m${m}`, monthIndex: m, addOrder: true, dealId: o.dealId
+      });
+      // 最低契約の3ヶ月（解約していても請求は残す）
+      [1, 2, 3].forEach(m => list.push(item(m, o[`m${m}_paid_date`])));
+      // 4ヶ月目以降: 入金済みの月は履歴として出す
+      paidMonthsFrom(o, 4).forEach(m => list.push(item(m, o[`m${m}_paid_date`])));
+      // 解約していなければ、3ヶ月目の入金後は毎月の次回請求を出す（1件目の「継続中」と同じ考え方）
+      if (!o.cancelled_date && o.m3_paid_date) {
+        let nextM = Math.max(4, monthsSince(start) + 1);
+        while (o[`m${nextM}_paid_date`] && nextM < 600) nextM++;
+        list.push(item(nextM, ''));
+      }
+    }
   });
   return list;
 }
 // 入金日をキーで付け外しした取引先のコピーを返す（1件目・追加受注どちらも）
 function withPaidDate(rec, key, date) {
   const updated = { ...rec };
-  const m = /^x:(.+):(init|m[1-3])$/.exec(String(key));
+  const m = /^x:(.+):(init|m\d+)$/.exec(String(key));
   if (m) {
     updated.addOrders = addOrdersOf(rec).map(o => o.dealId === m[1] ? { ...o, [`${m[2]}_paid_date`]: date } : o);
   } else if (key === 'init') updated.init_paid_date = date;
@@ -2681,6 +2805,177 @@ function promoteAddOrder(upd) {
   upd.phase = o.m3_paid_date ? 'm3_paid' : o.m2_paid_date ? 'm2_paid' : o.m1_paid_date ? 'm1_paid' : o.init_paid_date ? 'init_paid' : 'order';
   upd.addOrders = list.filter(x => x.dealId !== o.dealId);
   return true;
+}
+
+// ================== 制作物（取引先ページの「制作」タブ） ==================
+const WORK_TYPES = ['ホームページ', 'LP', '動画', 'SNS', 'チャットボット', '口コミ', 'その他'];
+function worksOf(rec) { return Array.isArray(rec && rec.works) ? rec.works.filter(w => w && w.id) : []; }
+function renderRecTabs(rec) {
+  const el = document.getElementById('recTabs');
+  if (!el) return;
+  const n = worksOf(rec).length;
+  const tab = state.recTab === 'works' ? 'works' : 'detail';
+  el.innerHTML = `<button type="button" class="rec-tab${tab === 'detail' ? ' active' : ''}" data-rtab="detail">📋 詳細</button>
+    <button type="button" class="rec-tab${tab === 'works' ? ' active' : ''}" data-rtab="works">🎬 制作<span class="cnt">${n}</span></button>`;
+  el.querySelectorAll('[data-rtab]').forEach(b => b.addEventListener('click', () => {
+    state.recTab = b.dataset.rtab; state.workEditId = null;
+    renderRecordPage();
+  }));
+  if (tab === 'works') renderWorksPanel(rec);
+}
+function renderWorksPanel(rec) {
+  const body = document.getElementById('detailBody');
+  if (!body) return;
+  const list = worksOf(rec).slice().sort((a, b) => String(b.date || b.at || '').localeCompare(String(a.date || a.at || '')));
+  const ed = state.workEditId ? list.find(w => w.id === state.workEditId) : null;
+  // 入力途中に他の人の更新で画面が描き直されても、打ちかけの内容を消さない
+  const key = rec.id + '|' + (state.workEditId || '');
+  const draft = state.workDraftKey === key ? (state.workDraft || {}) : {};
+  state.workDraftKey = key;
+  body.innerHTML = `<div class="detail-section">
+    <div class="detail-section-title">// 制作物（${list.length}件）</div>
+    <div class="works-form">
+      <select id="w-type">${WORK_TYPES.map(t => `<option${ed && ed.type === t ? ' selected' : ''}>${esc(t)}</option>`).join('')}</select>
+      <input type="text" id="w-title" maxlength="100" placeholder="名前（例: 店舗紹介動画）" value="${ed ? esc(ed.title || '') : ''}" />
+      <input type="url" id="w-url" class="full" maxlength="1000" inputmode="url" placeholder="URL（https://…）" value="${ed ? esc(ed.url || '') : ''}" />
+      <input type="date" id="w-date" value="${ed ? esc(ed.date || '') : ''}" title="納品日・公開日" />
+      <input type="text" id="w-memo" maxlength="500" placeholder="メモ（任意）" value="${ed ? esc(ed.memo || '') : ''}" />
+      <div class="full" style="display:flex; gap:8px;">
+        <button type="button" class="btn-action primary" id="w-save">${ed ? '✓ 更新' : '＋ 追加'}</button>
+        ${ed ? '<button type="button" class="btn-action" id="w-cancel">やめる</button>' : ''}
+      </div>
+    </div>
+    ${list.length ? `<div class="works-list">${list.map(w => `<div class="work-row">
+      <div class="work-top"><span class="work-type">${esc(w.type || 'その他')}</span><strong>${esc(w.title || '（名前なし）')}</strong>${w.date ? `<span style="font-size:11px; color:var(--text3);">${esc(fmtDate(w.date))}</span>` : ''}</div>
+      ${w.url ? `<div class="work-url">${extLink(w.url)}</div>` : ''}
+      ${w.memo ? `<div class="work-sub">${esc(w.memo)}</div>` : ''}
+      <div class="work-btns"><button type="button" class="btn-action" data-wedit="${esc(w.id)}">編集</button><button type="button" class="btn-action" data-wdel="${esc(w.id)}">削除</button></div>
+    </div>`).join('')}</div>` : `<div style="font-size:12px; color:var(--text3);">まだ制作物はありません。動画・LP・ホームページなどのURLをここに登録できます。</div>`}
+  </div>`;
+  Object.keys(draft).forEach(id => { const el = document.getElementById(id); if (el) el.value = draft[id]; });
+  document.getElementById('w-save').addEventListener('click', () => saveWork(rec.id));
+  const cc = document.getElementById('w-cancel');
+  if (cc) cc.addEventListener('click', () => { state.workEditId = null; state.workDraftKey = ''; renderRecordPage(); });
+  body.querySelectorAll('[data-wedit]').forEach(b => b.addEventListener('click', () => { state.workEditId = b.dataset.wedit; state.workDraftKey = ''; renderRecordPage(); }));
+  body.querySelectorAll('[data-wdel]').forEach(b => b.addEventListener('click', () => deleteWork(rec.id, b.dataset.wdel)));
+}
+let workBusy = false;
+async function saveWork(recId) {
+  if (workBusy) return;
+  const rec = state.records.find(r => r.id === recId);
+  if (!rec) return;
+  const type = document.getElementById('w-type').value;
+  const title = document.getElementById('w-title').value.trim();
+  const url = document.getElementById('w-url').value.trim();
+  const date = document.getElementById('w-date').value || '';
+  const memo = document.getElementById('w-memo').value.trim();
+  if (!title && !url) { toast('名前かURLを入れてください', true); return; }
+  if (url && !safeUrl(url)) { toast('URLの形が正しくありません（https://… で入れてください）', true); return; }
+  const list = worksOf(rec);
+  const editing = state.workEditId ? list.find(w => w.id === state.workEditId) : null;
+  const w = { ...(editing || { id: 'w_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 6), at: isoNow(), by: getMe() || '' }),
+    type: WORK_TYPES.includes(type) ? type : 'その他', title: title.slice(0, 100), url: url.slice(0, 1000), date, memo: memo.slice(0, 500), updatedAt: isoNow() };
+  const works = editing ? list.map(x => x.id === w.id ? w : x) : [...list, w];
+  const act = Array.isArray(rec.activity) ? [...rec.activity] : [];
+  act.unshift({ at: isoNow(), type: 'system', text: `🎬 制作物を${editing ? '更新' : '追加'}: ${w.type}「${w.title || w.url}」` });
+  workBusy = true;
+  try {
+    await saveRecord({ ...rec, works, activity: act.slice(0, 50), updatedAt: isoNow() });
+    state.workEditId = null; state.workDraftKey = '';
+    toast(`✓ 制作物を${editing ? '更新' : '追加'}しました`);
+    renderRecordPage();
+  } catch (e) { alert('保存できませんでした: ' + e.message); }
+  finally { workBusy = false; }
+}
+async function deleteWork(recId, wid) {
+  if (workBusy) return;
+  const rec = state.records.find(r => r.id === recId);
+  const w = rec ? worksOf(rec).find(x => x.id === wid) : null;
+  if (!w) return;
+  if (!confirm(`制作物「${w.title || w.url}」を削除しますか？`)) return;
+  const act = Array.isArray(rec.activity) ? [...rec.activity] : [];
+  act.unshift({ at: isoNow(), type: 'system', text: `🗑 制作物を削除: ${w.type}「${w.title || w.url}」` });
+  workBusy = true;
+  try {
+    await saveRecord({ ...rec, works: worksOf(rec).filter(x => x.id !== wid), activity: act.slice(0, 50), updatedAt: isoNow() });
+    if (state.workEditId === wid) state.workEditId = null;
+    toast('✓ 削除しました');
+    renderRecordPage();
+  } catch (e) { alert('削除できませんでした: ' + e.message); }
+  finally { workBusy = false; }
+}
+
+// 取引先ページの「受注一覧」
+function buildOrdersListHTML(rec) {
+  const pays = paymentsOf(rec);
+  const today = todayStr();
+  const rows = [];
+  const dealOf = id => state.deals.find(d => d.id === id);
+  const summary = list => {
+    const paid = list.filter(p => p.isPaid), unpaid = list.filter(p => !p.isPaid);
+    const overdue = unpaid.filter(p => p.due && p.due < today);
+    return { paidAmt: paid.reduce((s2, p) => s2 + p.amount, 0), paidN: paid.length, unpaidN: unpaid.length, overdueN: overdue.length };
+  };
+  const primPays = pays.filter(p => !p.addOrder);
+  if (rec.orderDate || primPays.length) {
+    const d = dealOf(rec.primaryDealId);
+    const ended = rec.phase === 'cancelled' || rec.phase === 'lost';
+    rows.push({ tag: '1件目', name: d ? d.dealName : (rec.product || '受注'), dealId: d && d.id, date: rec.orderDate, init: rec.init_amount, monthly: rec.monthly_amount,
+      st: ended ? '解約' : (rec.phase === 'continuing' || rec.m3_paid_date) && Number(rec.monthly_amount) > 0 ? '継続中' : '契約中', sum: summary(primPays) });
+  }
+  addOrdersOf(rec).forEach(o => {
+    const op = pays.filter(p => p.addOrder && p.dealId === o.dealId);
+    rows.push({ tag: '追加', name: o.dealName || '追加受注', dealId: o.dealId, date: o.orderDate, init: o.init_amount, monthly: o.monthly_amount,
+      st: o.cancelled_date ? `解約(${fmtDate(o.cancelled_date)})` : o.m3_paid_date && Number(o.monthly_amount) > 0 ? '継続中' : '契約中', sum: summary(op) });
+  });
+  state.deals.filter(d => d.customerId === rec.id && d.dealPhase === 'changed').forEach(d => {
+    rows.push({ tag: '置換済', name: d.dealName, dealId: d.id, date: d.closeDate, init: d.amount_init, monthly: d.amount_monthly, st: '契約変更で置き換え', old: true });
+  });
+  if (!rows.length) return '';
+  const active = rows.filter(r => !r.old).length;
+  return `<div class="detail-section">
+    <div class="detail-section-title">// 受注一覧（${active}件）</div>
+    <div class="orders-list">${rows.map(r => `<div class="order-row${r.old ? ' old' : ''}">
+      <div class="order-top"><span class="order-tag ${r.tag === '1件目' ? 'first' : r.tag === '追加' ? 'add' : ''}">${esc(r.tag)}</span>
+        ${r.dealId ? `<a class="ext" href="${routeHash({ type: 'deal', id: r.dealId })}">${esc(r.name)}</a>` : `<strong>${esc(r.name)}</strong>`}
+        <span class="order-st">${esc(r.st)}</span></div>
+      <div class="order-sub">${r.date ? esc(fmtDate(r.date)) + '受注 ・ ' : ''}初期¥${fmt(r.init)} ・ 月¥${fmt(r.monthly)}${r.sum ? ` ・ 入金済 ¥${fmt(r.sum.paidAmt)}（${r.sum.paidN}回）${r.sum.unpaidN ? ` ・ 未入金${r.sum.unpaidN}件` : ''}${r.sum.overdueN ? ` <span style="color:var(--red);">期限切れ${r.sum.overdueN}件</span>` : ''}` : ''}</div>
+    </div>`).join('')}</div>
+  </div>`;
+}
+
+// 受注フェーズではないのに取引先の受注（入金欄）に入っている商談（以前の版で回収待ちを受注扱いしていた名残）
+function kaishuCountedDeals(rec) {
+  if (!rec) return [];
+  const mine = state.deals.filter(d => d.customerId === rec.id);
+  const added = new Set(addOrdersOf(rec).map(o => o.dealId));
+  const out = mine.filter(d => !isWonDealPhase(d.dealPhase) && d.dealPhase === 'kaishu' && (rec.primaryDealId === d.id || added.has(d.id)));
+  // primaryDealId が無い古いデータ: 受注商談が無く、回収待ち商談があり、取引先が受注状態
+  if (!rec.primaryDealId && !mine.some(d => isWonDealPhase(d.dealPhase)) && rec.orderDate && rec.phase === 'order') {
+    mine.filter(d => d.dealPhase === 'kaishu' && !out.includes(d)).slice(0, 1).forEach(d => out.push(d));
+  }
+  return out;
+}
+// 指定の商談を取引先の受注（1件目・追加受注）から外す。入金済みのものは外さない
+function unlinkDealsFromOrders(upd, dealIds) {
+  const done = [], kept = [];
+  dealIds.forEach(id => {
+    const ao = addOrdersOf(upd).find(o => o.dealId === id);
+    if (ao) {
+      if (addOrderHasPayment(ao)) { kept.push(id); return; }
+      upd.addOrders = addOrdersOf(upd).filter(o => o.dealId !== id); done.push(id); return;
+    }
+    if (upd.primaryDealId === id || !upd.primaryDealId) {
+      if (primaryHasPayment(upd)) { kept.push(id); return; }
+      upd.primaryDealId = '';
+      if (addOrdersOf(upd).length) { promoteAddOrder(upd); done.push(id); return; }
+      ['init_due', 'm1_due', 'm2_due', 'm3_due', 'contract_start', 'orderDate'].forEach(k => { upd[k] = ''; });
+      upd.init_amount = 0; upd.monthly_amount = 0; upd.planType = 'none';
+      if (upd.phase === 'order' || upd.phase === 'init_unpaid') upd.phase = 'appo';
+      done.push(id);
+    }
+  });
+  return { done, kept };
 }
 
 // 受注の一覧（1件目＋追加受注）。ダッシュボードの「受注件数・受注額」用
@@ -2773,8 +3068,8 @@ function paymentsOf(rec) {
       kind: `${n}ヶ月目`, amount: Number(rec.monthly_amount) || 0, due: rec[`m${n}_due`] || addMonths(start, n),
       paid: rec[`m${n}_paid_date`], isPaid: true, key: `m${n}`, monthIndex: n
     }));
-    // 継続課金中は次回請求を1件出す（入金済みの月は飛ばして次の月へ）
-    if (rec.phase === 'continuing') {
+    // 3ヶ月目の入金が済んだら、解約を押すまで毎月の次回請求を出す（継続意思確認は不要）
+    if (rec.phase === 'continuing' || (rec.m3_paid_date && rec.phase !== 'cancelled' && rec.phase !== 'lost')) {
       const startMonth = new Date(start);
       const today = new Date();
       const monthsElapsed = (today.getFullYear() - startMonth.getFullYear()) * 12 + (today.getMonth() - startMonth.getMonth());
@@ -2816,6 +3111,10 @@ function getMonthlyMRR() {
     const plan = PLAN_TYPES[r.planType] || PLAN_TYPES['none'];
     if (!plan.hasMonthly) return sum;
     return sum + (Number(r.monthly_amount) || 0);
+  }, 0) + state.records.reduce((sum, r) => {
+    // 追加受注の月費も、解約するまでは月次に入れる（最低3ヶ月・それ以降も続く。解約・失注の取引先は除く）
+    if (r.phase === 'cancelled' || r.phase === 'lost') return sum;
+    return sum + addOrdersOf(r).filter(o => Number(o.monthly_amount) > 0 && !o.cancelled_date).reduce((s2, o) => s2 + (Number(o.monthly_amount) || 0), 0);
   }, 0);
 }
 
@@ -2853,8 +3152,23 @@ async function initFirebase(cfg) {
     const existing = getApps();
     for (const a of existing) await deleteApp(a);
   } catch {}
-  state.firebaseApp = initializeApp(cfg);
+  // Googleログインに必要（古い設定に無い場合は標準の値を使う）
+  const full = { ...cfg };
+  if (!full.authDomain && full.projectId) full.authDomain = `${full.projectId}.firebaseapp.com`;
+  state.firebaseApp = initializeApp(full);
   state.db = getFirestore(state.firebaseApp);
+  state.auth = null; state.authReady = false;
+  try {
+    state.auth = getAuth(state.firebaseApp);
+    if (state.authUnsub) { try { state.authUnsub(); } catch {} }
+    state.authUnsub = onAuthStateChanged(state.auth, user => onAuthChanged(user));
+    getRedirectResult(state.auth).then(res => {
+      // 画面移動方式から戻ってきたのにログインできていない（iPhoneのブラウザで起きやすい）
+      let flagged = false;
+      try { flagged = sessionStorage.getItem('yamato-crm-redirect') === '1'; sessionStorage.removeItem('yamato-crm-redirect'); } catch {}
+      if (flagged && !res) setTimeout(() => { if (!state.authUser) googleError.textContent = '✕ ログインできませんでした。ブラウザの設定で「ポップアップをブロック」をオフにして、もう一度押してください'; }, 1500);
+    }).catch(e => showGoogleError(e));
+  } catch (e) { console.warn('auth init', e); state.auth = null; state.authReady = true; }
 }
 
 // ============== SCREEN SWITCH ==============
@@ -2881,7 +3195,7 @@ document.getElementById('setupSaveBtn').addEventListener('click', async () => {
     await initFirebase(cfg);
     saveConfig(cfg);
     toast('✓ 設定保存しました');
-    showScreen('login');
+    if (!state.appEntered) showLoginChoice();
     updateConnectionPill(true);
   } catch (e) { errEl.textContent = '✕ 初期化失敗: ' + (e.message || ''); }
   finally { showLoading(false); }
@@ -2890,8 +3204,9 @@ document.getElementById('setupSaveBtn').addEventListener('click', async () => {
 document.getElementById('resetSetupBtn').addEventListener('click', () => {
   if (!confirm('Firebase設定をリセットして再設定しますか?\n(データ自体は削除されません)')) return;
   clearConfig();
-  if (state.unsubscribe) { try { state.unsubscribe(); } catch {} state.unsubscribe = null; }
-  showScreen('setup');
+  const so = state.auth && state.authUser ? signOut(state.auth).catch(() => {}) : Promise.resolve();
+  if (state.appEntered) doLogout(true);
+  so.then(() => location.reload());
 });
 
 function updateConnectionPill(online) {
@@ -2916,9 +3231,17 @@ async function tryLogin() {
   try {
     const inputHash = await sha256(v);
     if (inputHash === PASSWORD_HASH) {
+      // このブラウザがGoogleでログイン中なら、パスワードではなくGoogleの確認に回す（外された人がパスワードで入り込まないように）
+      if (state.authUser) { passwordInput.value = ''; checkGoogleAccess(state.authUser); return; }
+      // 鍵（ルール）をかけた後は、パスワードでは中のデータを読めない → 空の画面に入れずに案内する
+      try { await getDoc(doc(state.db, META_COLLECTION, 'app')); }
+      catch (e) {
+        passwordInput.value = '';
+        if (e && e.code === 'permission-denied') { loginError.textContent = '✕ パスワードでのログインは終了しました。「Googleでログイン」から入ってください'; return; }
+        loginError.textContent = '✕ 通信できませんでした。電波を確認してもう一度押してください'; return;
+      }
       loginError.textContent = ''; passwordInput.value = '';
-      showScreen('app');
-      await initApp();
+      await enterApp('password');
     } else {
       loginError.textContent = '✕ パスワードが違います';
       passwordInput.value = ''; passwordInput.focus();
@@ -2927,12 +3250,144 @@ async function tryLogin() {
   finally { loginBtn.disabled = false; loginBtn.textContent = 'ログイン / SIGN IN'; }
 }
 loginBtn.addEventListener('click', tryLogin);
+
+// ============== GOOGLE LOGIN ==============
+// 入れるのは、管理者が「ログインできるメンバー」(crm_meta/access) に入れたGoogleアカウントだけ。
+// 一覧に無い人がログインすると「承認待ち」になり、管理者の画面に申請が出る（自動では入れない）。
+const googleLoginBtn = document.getElementById('googleLoginBtn');
+const googleError = document.getElementById('googleError');
+const ACCESS_DOC = 'access';
+const REQUESTS_COLLECTION = 'crm_requests';
+state.appEntered = false; state.authUser = null; state.loginMethod = ''; state.access = null; state.lockedName = '';
+function normEmail(e) { return String(e || '').trim().toLowerCase(); }
+function showGoogleError(e) {
+  const code = (e && e.code) || '';
+  if (!code || code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request' || code === 'auth/user-cancelled') return;
+  let msg = '✕ ログインできませんでした（' + code + '）';
+  if (code === 'auth/unauthorized-domain') msg = '✕ このサイトのアドレスがFirebaseに登録されていません（管理者に連絡してください）';
+  else if (code === 'auth/operation-not-allowed') msg = '✕ FirebaseでGoogleログインがまだ有効になっていません（管理者に連絡してください）';
+  else if (code === 'auth/network-request-failed') msg = '✕ 通信できませんでした。電波を確認してもう一度押してください';
+  googleError.textContent = msg;
+}
+async function googleLogin() {
+  googleError.textContent = '';
+  if (!state.auth) { googleError.textContent = '✕ ログイン機能を読み込めませんでした。ページを再読み込みしてください'; return; }
+  googleLoginBtn.disabled = true;
+  const provider = new GoogleAuthProvider();
+  provider.setCustomParameters({ prompt: 'select_account' });
+  try {
+    await signInWithPopup(state.auth, provider);   // 中に入る処理は onAuthChanged が行う
+  } catch (e) {
+    const code = (e && e.code) || '';
+    if (code === 'auth/popup-blocked' || code === 'auth/operation-not-supported-in-this-environment') {
+      try { sessionStorage.setItem('yamato-crm-redirect', '1'); } catch {}
+      try { await signInWithRedirect(state.auth, provider); return; } catch (e2) { showGoogleError(e2); }
+    } else showGoogleError(e);
+  } finally { googleLoginBtn.disabled = false; }
+}
+googleLoginBtn.addEventListener('click', googleLogin);
+document.getElementById('pendingRetryBtn').addEventListener('click', () => { if (state.authUser) checkGoogleAccess(state.authUser); });
+document.getElementById('pendingLogoutBtn').addEventListener('click', () => { if (state.auth) signOut(state.auth).catch(() => {}); showLoginChoice(); });
+function showLoginChoice() {
+  document.getElementById('googleBox').style.display = '';
+  document.getElementById('pendingBox').style.display = 'none';
+  document.getElementById('passwordLoginBox').style.display = '';
+  showScreen('login');
+}
+function onAuthChanged(user) {
+  const first = !state.authReady;
+  state.authReady = true;
+  const prevUid = state.authUser && state.authUser.uid;
+  state.authUser = user || null;
+  if (user) {
+    // 別のアカウントに切り替わった → 一度閉じて入り直す
+    if (state.appEntered && state.loginMethod === 'google' && prevUid && prevUid !== user.uid) { doLogout(true); }
+    if (!state.appEntered) checkGoogleAccess(user);
+    else if (state.loginMethod === 'password') renderAccessPanel();   // 設定画面から管理者登録する時
+  } else {
+    if (state.appEntered && state.loginMethod === 'google') doLogout(true);
+    else if (!state.appEntered && first) showLoginChoice();
+    else renderAccessPanel();
+  }
+}
+// ログインできるメンバーか確認して中へ
+async function checkGoogleAccess(user) {
+  const email = normEmail(user.email);
+  const uid = user.uid;
+  googleError.textContent = '確認中…';
+  let access = null, denied = false;
+  try {
+    const d = await getDoc(doc(state.db, META_COLLECTION, ACCESS_DOC));
+    access = d.exists() ? d.data() : null;
+  } catch (e) {
+    if (e && e.code === 'permission-denied') denied = true;   // 鍵をかけた後: 読めない＝まだ許可されていない
+    else {
+      if (!state.authUser || state.authUser.uid !== uid) return;
+      googleError.textContent = '✕ 確認できませんでした（' + ((e && e.code) || '通信エラー') + '）。もう一度押してください';
+      showLoginChoice(); return;
+    }
+  }
+  // 確認している間に別の操作（パスワードで入った・アカウントを替えた）があったら、この結果は使わない
+  if (state.appEntered || !state.authUser || state.authUser.uid !== uid) return;
+  googleError.textContent = '';
+  const memberEmails = access && Array.isArray(access.memberEmails) ? access.memberEmails.map(normEmail) : [];
+  const members = access && Array.isArray(access.members) ? access.members : [];
+  const me = memberEmails.includes(email) ? (members.find(m => m && normEmail(m.email) === email) || { email, name: '' }) : null;
+  if (denied) access = access || { denied: true };
+  if (me && user.emailVerified === true) {
+    state.access = access;
+    state.lockedName = String(me.name || '').trim();
+    if (state.lockedName) setMe(state.lockedName);
+    await enterApp('google');
+    return;
+  }
+  // 一覧に無い → 申請を出して承認待ち
+  if (me && user.emailVerified !== true) { googleError.textContent = '✕ このGoogleアカウントはメールアドレスの確認が済んでいません'; showLoginChoice(); return; }
+  const box = document.getElementById('pendingBox');
+  document.getElementById('googleBox').style.display = 'none';
+  document.getElementById('passwordLoginBox').style.display = access ? 'none' : '';
+  box.style.display = '';
+  document.getElementById('pendingText').innerHTML = access
+    ? `<strong>${esc(email)}</strong> は、まだメンバーとして許可されていません。<br>管理者の画面に申請を出しました。許可されたら下のボタンを押してください。`
+    : `Googleログインはまだ準備中です。<br>今は下の「パスワードでログイン」から入ってください。`;
+  if (access) {
+    try {
+      await fsSetDoc(doc(state.db, REQUESTS_COLLECTION, user.uid), { email, name: String(user.displayName || '').slice(0, 40), at: isoNow() });
+    } catch (e) { console.warn('request', e); }
+  }
+  showScreen('login');
+}
+async function enterApp(method) {
+  if (state.appEntered) return;
+  state.appEntered = true;
+  state.loginMethod = method;
+  if (method !== 'google') state.lockedName = '';
+  googleError.textContent = '';
+  showScreen('app');
+  await initApp();
+  if (method === 'google' && state.authUser) {
+    // 「Googleで実際に入れた」記録（管理者が鍵をかける前に、全員入れたか確かめるため）
+    const email = normEmail(state.authUser.email);
+    const seen = state.googleSeen || {};
+    if (Date.now() - (Date.parse(seen[email] || '') || 0) > 6 * 3600 * 1000) {
+      setDoc(doc(state.db, META_COLLECTION, 'googleSeen'), { byEmail: { [email]: isoNow() } }, { merge: true }).catch(e => console.warn('seen', e));
+    }
+    if (iAmAdmin()) loadRequests().then(renderAccessPanel);
+  }
+  renderAccessPanel();
+}
 passwordInput.addEventListener('keydown', e => { if (e.key === 'Enter') tryLogin(); });
 
-document.getElementById('logoutBtn').addEventListener('click', () => {
+document.getElementById('logoutBtn').addEventListener('click', () => doLogout(false));
+function doLogout(fromAuth) {
+  if (!fromAuth && state.auth && state.authUser) { signOut(state.auth).catch(() => {}); }
+  state.appEntered = false; state.loginMethod = ''; state.access = null;
+  state.googleSeen = {}; state.accessRequests = []; state.reqLoadedAt = 0;
+  // 同じ端末を別の人が使う時に、前の人の名前のまま投稿しないように
+  if (state.lockedName) { state.lockedName = ''; state.me = ''; try { localStorage.removeItem(STORAGE_KEY_ME); } catch {} }
   if (state.unsubscribe) { try { state.unsubscribe(); } catch {} state.unsubscribe = null; }
   if (state.reminderTimer) { clearInterval(state.reminderTimer); state.reminderTimer = null; }
-  ['chatterUnsub', 'dealsUnsub', 'callsUnsub', 'eventsUnsub', 'metaUnsub'].forEach(k => {
+  ['chatterUnsub', 'dealsUnsub', 'callsUnsub', 'eventsUnsub', 'metaUnsub', 'accessUnsub'].forEach(k => {
     if (state[k]) { try { state[k](); } catch {} state[k] = null; }
   });
   if (state.chatterTimer) { clearInterval(state.chatterTimer); state.chatterTimer = null; }
@@ -2943,8 +3398,9 @@ document.getElementById('logoutBtn').addEventListener('click', () => {
   document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
   state.records = []; state.isInitialLoad = true; state.notifiedIds.clear();
   state.safeReady = false;
-  showScreen('login'); passwordInput.focus();
-});
+  applyLogo('');
+  showLoginChoice();
+}
 
 // ============== FIRESTORE OPS ==============
 async function saveRecord(rec) {
@@ -3008,7 +3464,10 @@ function subscribeAll() {
       const msg = err.message || '';
       let hint = '';
       if (code === 'permission-denied' || /permission/i.test(msg)) {
-        hint = '\n\n【対処】Firestore のルールが正しくありません。\nルールタブで以下を貼り付けて「公開」:\n\nrules_version = \'2\';\nservice cloud.firestore {\n  match /databases/{database}/documents {\n    match /{document=**} {\n      allow read, write: if true;\n    }\n  }\n}';
+        // 「ルールを全部許可に戻せ」とは絶対に案内しない（鍵を開けてしまうため）
+        hint = state.loginMethod !== 'google'
+          ? '\n\n【対処】ログアウトして「Googleでログイン」から入ってください。'
+          : `\n\n【対処】このGoogleアカウント（${state.authUser && state.authUser.email || ''}）は許可されていません。管理者に追加してもらってください。`;
       } else if (/offline|network|unavailable/i.test(msg)) {
         hint = '\n\n【対処】ネットワーク接続を確認してください。';
       }
@@ -3043,7 +3502,7 @@ async function addActivity(rec, type, text) {
 // ============== TAB SWITCH ==============
 const VIEW_NAMES = ['dashboard','chatter','calendar','leadlist','all','deals','payments','active','dup','reports','settings','record','dealpage'];
 // タブ切替はURL（#/タブ名）経由で行う。戻るボタン・ブックマークが効くようにするため
-function switchTab(name) { navigate({ type: 'tab', name }); }
+function switchTab(name) { navigate({ type: 'tab', name }); if (name === 'settings' && iAmAdmin()) loadRequests().then(renderAccessPanel); }
 function showTab(name) {
   state.detailId = null; state.dealPageId = null;
   document.title = 'YAMATO CRM — 顧客管理システム';
@@ -3162,7 +3621,7 @@ function getActionItems() {
       }
     });
     // 3ヶ月目入金済の継続意思確認
-    if (r.phase === 'm3_paid' && !r.m3_confirmed) {
+    if (false) {
       const m3PaidDate = r.m3_paid_date;
       if (m3PaidDate) {
         const days = daysBetween(new Date(m3PaidDate), today);
@@ -3301,6 +3760,7 @@ const CH_TYPES = {
   shodan:    { label: '商談報告', cls: 'shodan' },
   juchu:     { label: '受注',     cls: 'juchu' },
   shitsuchu: { label: '失注',     cls: 'shitsuchu' },
+  nagare:    { label: 'アポ流れ', cls: 'nagare' },
   manual:    { label: '共有',     cls: 'manual' }
 };
 
@@ -3310,7 +3770,15 @@ function getMe() {
   return state.me;
 }
 function setMe(name) {
-  state.me = (name || '').trim().slice(0, 30);
+  const n = (name || '').trim().slice(0, 30);
+  if (state.lockedName && n !== state.lockedName) {
+    toast('名前はGoogleアカウントに紐づいています。変更は管理者が設定画面で行います', true);
+    state.me = state.lockedName;
+    try { refreshMemberSelects(); } catch {}
+    updateMeLabels();
+    return;
+  }
+  state.me = n;
   localStorage.setItem(STORAGE_KEY_ME, state.me);
   updateMeLabels();
 }
@@ -3648,10 +4116,11 @@ const DEAL_PHASES = [
   { key: 'kaitou',    label: '回答待ち',                 cls: ''     },
   { key: 'risuke',    label: 'リスケ',                   cls: ''     },
   { key: 'juchu',     label: '受注',                     cls: 'win'  },
-  { key: 'kaishu',    label: '回収待ち',                 cls: 'win'  },
+  { key: 'kaishu',    label: '回収待ち',                 cls: ''     },
   { key: 'nagare_r',  label: 'アポ流れ(先方連絡あり)',    cls: 'lost' },
   { key: 'nagare_o',  label: 'アポ流れ(音信不通)',        cls: 'lost' },
-  { key: 'lost',      label: '失注',                     cls: 'lost' }
+  { key: 'lost',      label: '失注',                     cls: 'lost' },
+  { key: 'changed',   label: '契約変更(置き換え済)',      cls: ''     }
 ];
 const DEAL_PHASE_MAP = Object.fromEntries(DEAL_PHASES.map(d => [d.key, d]));
 function dealPhaseInfo(k) { return DEAL_PHASE_MAP[k] || DEAL_PHASES[0]; }
@@ -3679,6 +4148,37 @@ const META_COLLECTION = 'crm_meta';
 async function saveMeta(key, value) {
   await setDoc(doc(state.db, META_COLLECTION, key), { list: value, updatedAt: isoNow(), _updatedServer: serverTimestamp() });
 }
+// メンバー一覧を単独で購読（鍵をかけた後、外された人には「読めない」エラーが届く → その場で閉じる）
+function subscribeAccess() {
+  if (state.accessUnsub) { try { state.accessUnsub(); } catch {} state.accessUnsub = null; }
+  state.accessUnsub = onSnapshot(doc(state.db, META_COLLECTION, ACCESS_DOC), d => {
+    // 電波が悪い時の「まだ届いていない」状態では判断しない（正しいメンバーを誤って追い出さない）
+    if (!d.exists() && d.metadata && d.metadata.fromCache) return;
+    const data = d.exists() ? d.data() : null;
+    state.access = data;
+    if (state.loginMethod === 'google' && state.authUser) {
+      const email = normEmail(state.authUser.email);
+      const ok = data && Array.isArray(data.memberEmails) && data.memberEmails.map(normEmail).includes(email);
+      if (!ok) { kickOut(); return; }
+      const mine = accessMembers().find(m => normEmail(m.email) === email);
+      if (mine && mine.name && mine.name !== state.lockedName) {
+        state.lockedName = mine.name; state.me = mine.name;
+        try { localStorage.setItem(STORAGE_KEY_ME, mine.name); } catch {}
+        updateMeLabels(); try { refreshMemberSelects(); } catch {}
+      }
+    }
+    renderAccessPanel();
+  }, err => {
+    if (err && err.code === 'permission-denied' && state.loginMethod === 'google') kickOut();
+    else console.warn('access snapshot', err);
+  });
+}
+function kickOut() {
+  if (!state.appEntered) return;
+  doLogout(false);
+  googleError.textContent = '✕ ログインできるメンバーから外されたため、ログアウトしました';
+}
+
 function subscribeMeta() {
   if (state.metaUnsub) { try { state.metaUnsub(); } catch {} }
   const q = query(collection(state.db, META_COLLECTION));
@@ -3687,6 +4187,9 @@ function subscribeMeta() {
       const data = d.data();
       if (d.id === 'app' && data) { onAppVersionSeen(Number(data.version) || 0); return; }
       if (d.id === 'backups' && data) { state.backupIndex = Array.isArray(data.list) ? data.list : []; return; }
+      if (d.id === 'logo') { applyLogo(data && data.data); return; }
+      if (d.id === ACCESS_DOC) return;   // メンバー一覧は subscribeAccess で単独に見る
+      if (d.id === 'googleSeen') { state.googleSeen = data && data.byEmail && typeof data.byEmail === 'object' ? data.byEmail : {}; renderAccessPanel(); return; }
       if (!data || !Array.isArray(data.list)) return;
       if (d.id === 'members') state.members = data.list;
       if (d.id === 'products') state.products = data.list;
@@ -4236,14 +4739,15 @@ function recordMatchesSearch(r, raw) {
   if (!r) return false;
   if (SEARCH_TEXT_FIELDS.some(k => searchText(r[k]).includes(q.text))) return true;
   if (q.tel && [r.tel, r.mobile].some(v => { const d = normalTel(v); return !!d && d.includes(q.tel); })) return true;
+  const workUrls = Array.isArray(r.works) ? r.works.map(w => w && w.url).filter(Boolean) : [];
   if (q.urlText || q.urlKey) {
-    for (const k of SEARCH_URL_FIELDS) {
-      const v = r[k];
+    for (const v of SEARCH_URL_FIELDS.map(k => r[k]).concat(workUrls)) {
       if (!v) continue;
       if (q.urlText && stripUrlText(v).includes(q.urlText)) return true;
       if (q.urlKey && urlKeyCached(v) === q.urlKey) return true;
     }
   }
+  if (Array.isArray(r.works) && r.works.some(w => w && searchText(w.title).includes(q.text))) return true;
   return false;
 }
 // 商談: 商談名 + 紐づく取引先の全項目（取引先が削除済みなら保存時の会社名）
@@ -4592,12 +5096,47 @@ ${memo}`;
 const shodanModal = document.getElementById('shodanModal');
 function updateDealFields() {
   const v = document.getElementById('d-phase').value;
-  const isWin = v === 'juchu' || v === 'kaishu';
-  const isLost = v === 'lost' || v === 'nagare_r' || v === 'nagare_o';
+  const isWin = isWonDealPhase(v);
+  const isLost = isLostDealPhase(v);
+  const isNagare = isNagareDealPhase(v);
   document.getElementById('grp-d-init').classList.toggle('show', isWin);
   document.getElementById('grp-d-monthly').classList.toggle('show', isWin);
   document.getElementById('grp-d-lost').classList.toggle('show', isLost);
+  // アポ流れはアポ取得者の報告: アポ取得者を必須、営業者は不要
+  const apoLbl = document.querySelector('label[for="d-apo-owner"]'), salesLbl = document.querySelector('label[for="d-sales"]');
+  if (apoLbl) apoLbl.classList.toggle('required', isNagare);
+  if (salesLbl) salesLbl.classList.toggle('required', !isNagare);
+  if (isNagare && !document.getElementById('d-apo-owner').value) {
+    const c = state.records.find(r => r.id === document.getElementById('d-target').value);
+    if (c && c.apo_owner) document.getElementById('d-apo-owner').value = c.apo_owner;
+  }
+  updateDealKindField();
 }
+// この取引先の「他の受注商談」（編集中の商談は除く）
+function otherWonDeals(customerId, dealId) {
+  return state.deals.filter(x => x.customerId === customerId && x.id !== dealId && isWonDealPhase(x.dealPhase))
+    .sort((a, b) => String(a.closeDate || a.createdAt || '').localeCompare(String(b.closeDate || b.createdAt || '')));
+}
+function updateDealKindField() {
+  const grp = document.getElementById('grp-d-kind');
+  if (!grp) return;
+  const v = document.getElementById('d-phase').value;
+  const isWin = isWonDealPhase(v);
+  const cid = document.getElementById('d-target').value;
+  const cur = state.editingDealId ? state.deals.find(x => x.id === state.editingDealId) : null;
+  // 既に受注として登録済みの商談を編集する時は聞かない（新しく受注にする時だけ）
+  const already = cur && cur.customerId === cid && isWonDealPhase(cur.dealPhase);
+  const others = cid ? otherWonDeals(cid, state.editingDealId) : [];
+  const show = isWin && !already && others.length > 0;
+  grp.classList.toggle('show', show);
+  const sel = document.getElementById('d-replace');
+  const prevVal = sel.value;
+  sel.innerHTML = others.slice().reverse().map(d => `<option value="${esc(d.id)}">${d.closeDate ? esc(fmtDate(d.closeDate)) : '日付なし'} 初期¥${fmt(d.amount_init)} 月¥${fmt(d.amount_monthly)}／${esc(d.dealName || '')}</option>`).join('');
+  if (prevVal && others.some(d => d.id === prevVal)) sel.value = prevVal;
+  const kind = (document.querySelector('input[name="d-kind"]:checked') || {}).value;
+  sel.style.display = show && kind === 'replace' && others.length ? '' : 'none';
+}
+document.querySelectorAll('input[name="d-kind"]').forEach(r => r.addEventListener('change', updateDealKindField));
 function openDealModal(dealId, customerId) {
   if (!ensureMe()) return;
   refreshMemberSelects();
@@ -4606,6 +5145,7 @@ function openDealModal(dealId, customerId) {
   document.getElementById('shodanDeleteBtn').style.display = dealId ? '' : 'none';
   ['d-name','d-init','d-monthly','d-memo','d-first','d-close'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('d-lost-reason').value = '';
+  document.querySelectorAll('input[name="d-kind"]').forEach(r => { r.checked = false; });
   document.getElementById('d-phase').value = 'shodanka';
   document.getElementById('d-sales').value = getMe();
 
@@ -4644,6 +5184,7 @@ function applyDealTarget(id) {
   if (c.apo_owner) document.getElementById('d-apo-owner').value = c.apo_owner;
   if (c.product) document.getElementById('d-product').value = c.product;
   if (c.meetingDate && !document.getElementById('d-first').value) document.getElementById('d-first').value = c.meetingDate.slice(0, 10);
+  updateDealKindField();
 }
 initPicker('d-target', {
   getItems: () => pickerItemsFromRecords(r => recKind(r) !== 'lead').sort((a, b) => String(a.name).localeCompare(String(b.name), 'ja')),
@@ -4701,15 +5242,34 @@ document.getElementById('shodanConfirmBtn').addEventListener('click', async () =
   if (!customerId) { toast('取引先を選択してください', true); return; }
   if (!dealName) { toast('商談名を入力してください', true); return; }
   if (!memo) { toast('商談内容を入力してください', true); return; }
-  if (!sales) { toast('営業者を選択してください', true); return; }
-  const isWin = phase === 'juchu' || phase === 'kaishu';
-  const isLost = phase === 'lost' || phase === 'nagare_r' || phase === 'nagare_o';
+  const isWin = isWonDealPhase(phase);
+  const isLost = isLostDealPhase(phase);
+  const isNagare = isNagareDealPhase(phase);
+  const apoOwnerSel = document.getElementById('d-apo-owner').value;
+  if (isNagare && !apoOwnerSel) { toast('アポ流れはアポ取得者を選んでください（アポ取得者の成績に付きます）', true); return; }
+  if (!isNagare && !sales) { toast('営業者を選択してください', true); return; }
   if (isLost && !lostReason) { toast('失注理由を選択してください', true); return; }
 
   const customer = state.records.find(r => r.id === customerId);
+  // 他に受注がある取引先で新しく受注にする時は「追加受注か契約変更か」を必ず選ぶ
+  let replaceDeal = null;
+  if (document.getElementById('grp-d-kind').classList.contains('show')) {
+    const kind = (document.querySelector('input[name="d-kind"]:checked') || {}).value;
+    if (!kind) { toast('「追加受注」か「契約変更」かを選んでください', true); return; }
+    if (kind === 'replace') {
+      replaceDeal = state.deals.find(x => x.id === document.getElementById('d-replace').value && x.customerId === customerId && isWonDealPhase(x.dealPhase)) || null;
+      if (!replaceDeal) { toast('置き換える受注を選んでください', true); return; }
+      const rAdd = customer ? addOrdersOf(customer).find(o => o.dealId === replaceDeal.id) : null;
+      const rPrim = customer && (customer.primaryDealId ? customer.primaryDealId === replaceDeal.id : !rAdd);
+      if ((rAdd && addOrderHasPayment(rAdd)) || (rPrim && !rAdd && primaryHasPayment(customer))) {
+        alert(`置き換える受注「${replaceDeal.dealName}」には入金済みの記録があります。\n入金済みの分を残したいなら「追加受注」で登録してください。\n間違えて入金済みにしていた場合は、先に取引先ページで入金を取消してください。`);
+        return;
+      }
+    }
+  }
   const init = Number(document.getElementById('d-init').value) || 0;
   const monthly = Number(document.getElementById('d-monthly').value) || 0;
-  const closeDate = document.getElementById('d-close').value || ((isWin || isLost) ? todayStr() : '');
+  const closeDate = document.getElementById('d-close').value || ((isWin || isLost || isNagare) ? todayStr() : '');
 
   // 受注済みの商談を別の取引先に付け替える場合: 元の取引先の受注・入金の記録をどうするか先に確認
   const prevForMove = state.editingDealId ? state.deals.find(x => x.id === state.editingDealId) : null;
@@ -4766,20 +5326,41 @@ document.getElementById('shodanConfirmBtn').addEventListener('click', async () =
       }
     }
 
+    // 契約変更: 前の受注商談を「契約変更(置き換え済)」にする
+    let replacedPrimary = false;
+    if (replaceDeal) {
+      await saveDeal({ ...replaceDeal, dealPhase: 'changed', replacedBy: deal.id, updatedAt: isoNow() });
+    }
+
     // 取引先レコード側も同期(入金管理・レポートが動くように)
     if (customer) {
       const upd = { ...customer, kind: 'account', updatedAt: isoNow() };
       const act = Array.isArray(customer.activity) ? [...customer.activity] : [];
+      if (replaceDeal) {
+        const rAdd = addOrdersOf(customer).find(o => o.dealId === replaceDeal.id);
+        if (rAdd) {
+          upd.addOrders = addOrdersOf(customer).filter(o => o.dealId !== replaceDeal.id);
+        } else {
+          // 1件目の受注を置き換え: 前のプランの金額・期限を全部外す（入金済みは無いことを確認済み）
+          replacedPrimary = true;
+          upd.primaryDealId = '';
+          ['init_due', 'init_paid_date', 'm1_due', 'm1_paid_date', 'm2_due', 'm2_paid_date', 'm3_due', 'm3_paid_date', 'contract_start'].forEach(k => { upd[k] = ''; });
+          upd.init_amount = 0; upd.monthly_amount = 0;
+        }
+        act.unshift({ at: isoNow(), type: 'system', text: `🔁 契約変更: 「${replaceDeal.dealName}」(初期¥${fmt(replaceDeal.amount_init)}/月¥${fmt(replaceDeal.amount_monthly)}) → 「${dealName}」(初期¥${fmt(init)}/月¥${fmt(monthly)}) (${sales})` });
+      }
       // クロスセル判定: この取引先に「他の受注商談」があるか / この商談が既に追加受注か
-      const otherWon = state.deals.filter(x => x.customerId === customer.id && x.id !== deal.id && isWonDealPhase(x.dealPhase))
+      const otherWon = state.deals.filter(x => x.customerId === customer.id && x.id !== deal.id && isWonDealPhase(x.dealPhase) && !(replaceDeal && x.id === replaceDeal.id))
         .sort((a, b) => String(a.closeDate || a.createdAt || '').localeCompare(String(b.closeDate || b.createdAt || '')));
-      const existingAdd = addOrdersOf(customer).find(o => o.dealId === deal.id);
-      const isAdditional = !!existingAdd || (customer.primaryDealId ? customer.primaryDealId !== deal.id : otherWon.length > 0);
+      const existingAdd = addOrdersOf(upd).find(o => o.dealId === deal.id);
+      const isAdditional = replacedPrimary ? false : (!!existingAdd || (upd.primaryDealId ? upd.primaryDealId !== deal.id : otherWon.length > 0));
       // この商談が「1件目の受注」で、受注でなくなる場合 → 追加受注を繰り上げる
       const sameCustomer = !!prev && prev.customerId === customer.id;
-      const isPrimaryDeal = customer.primaryDealId ? customer.primaryDealId === deal.id : (sameCustomer && isWonDealPhase(prev.dealPhase) && !existingAdd);
+      // 前回の保存で受注として取引先に入っていたか（受注フェーズ、または取引先の受注に紐づいている）
+      const prevCounted = !!prev && sameCustomer && (isWonDealPhase(prev.dealPhase) || customer.primaryDealId === deal.id || !!existingAdd);
+      const isPrimaryDeal = customer.primaryDealId ? customer.primaryDealId === deal.id : (prevCounted && !existingAdd);
       const promoteIfPrimaryLeft = () => {
-        if (!isPrimaryDeal || isWin || !sameCustomer || !isWonDealPhase(prev.dealPhase) || !addOrdersOf(upd).length) return false;
+        if (!isPrimaryDeal || isWin || !prevCounted || !addOrdersOf(upd).length) return false;
         if (primaryHasPayment(upd)) {
           toast('⚠ 1件目の受注は入金済みのため、取引先の入金欄はそのままにしています', true);
           return true;
@@ -4795,12 +5376,12 @@ document.getElementById('shodanConfirmBtn').addEventListener('click', async () =
           toast('⚠ この追加受注は入金済みのため、入金の記録は残しています', true);
           return;
         }
-        upd.addOrders = addOrdersOf(customer).filter(x => x.dealId !== deal.id);
+        upd.addOrders = addOrdersOf(upd).filter(x => x.dealId !== deal.id);
         act.unshift({ at: isoNow(), type: 'system', text: `↩ 追加受注「${existingAdd.dealName || dealName}」を取り消し (${sales})` });
       };
       if (isWin && isAdditional) {
         // 2件目以降の受注: 1件目の金額・入金・受注日には一切触らず、この商談の分を別枠で持つ
-        if (!customer.primaryDealId && otherWon.length) upd.primaryDealId = otherWon[0].id;
+        if (!upd.primaryDealId && otherWon.length) upd.primaryDealId = otherWon[0].id;
         const startDay = closeDate || todayStr();
         const o = { ...(existingAdd || {}) };
         o.dealId = deal.id; o.dealName = dealName.slice(0, 100); o.product = deal.product || '';
@@ -4810,7 +5391,7 @@ document.getElementById('shodanConfirmBtn').addEventListener('click', async () =
         o.salesOwner = sales;
         if (init && !o.init_due) o.init_due = addDays(o.contract_start, 14);
         if (monthly) [1, 2, 3].forEach(m => { if (!o[`m${m}_due`]) o[`m${m}_due`] = addMonths(o.contract_start, m); });
-        upd.addOrders = [...addOrdersOf(customer).filter(x => x.dealId !== deal.id), o];
+        upd.addOrders = [...addOrdersOf(upd).filter(x => x.dealId !== deal.id), o];
         act.unshift({ at: isoNow(), type: 'system', text: `🎉 追加受注「${o.dealName}」(${sales}) 初期¥${fmt(init)} / 月費¥${fmt(monthly)}` });
       } else if (isWin) {
         upd.primaryDealId = deal.id;
@@ -4823,15 +5404,16 @@ document.getElementById('shodanConfirmBtn').addEventListener('click', async () =
         upd.init_amount = init; upd.monthly_amount = monthly;
         upd.planType = (init && monthly) ? 'full' : init ? 'init_only' : monthly ? 'monthly_only' : 'none';
         // 入金期限の基準日。未設定だと作成日基準になり即「期限超過」になるため必ず入れる
-        upd.contract_start = customer.contract_start || startDay;
-        if (init && !customer.init_due) upd.init_due = addDays(startDay, 14);
+        upd.contract_start = upd.contract_start || startDay;
+        if (init && !upd.init_due) upd.init_due = addDays(startDay, 14);
         if (monthly) {
-          if (!customer.m1_due) upd.m1_due = addMonths(upd.contract_start, 1);
-          if (!customer.m2_due) upd.m2_due = addMonths(upd.contract_start, 2);
-          if (!customer.m3_due) upd.m3_due = addMonths(upd.contract_start, 3);
+          if (!upd.m1_due) upd.m1_due = addMonths(upd.contract_start, 1);
+          if (!upd.m2_due) upd.m2_due = addMonths(upd.contract_start, 2);
+          if (!upd.m3_due) upd.m3_due = addMonths(upd.contract_start, 3);
         }
+        if (replacedPrimary) { upd.orderDate = closeDate || startDay; upd.phase = 'order'; }
         act.unshift({ at: isoNow(), type: 'system', text: `🎉 受注 (${sales}) 初期¥${fmt(init)} / 月費¥${fmt(monthly)}` });
-      } else if (isLost && (otherWon.length || (PHASE_MAP[customer.phase] && PHASE_MAP[customer.phase].group === 'active' && !(prev && isWonDealPhase(prev.dealPhase))))) {
+      } else if (isLost && (otherWon.length || (PHASE_MAP[customer.phase] && PHASE_MAP[customer.phase].group === 'active' && !prevCounted))) {
         // 既存のお客さん（他に受注あり）への追加提案が失注 → 取引先は失注にしない
         dropAddOrder();
         promoteIfPrimaryLeft();
@@ -4841,21 +5423,33 @@ document.getElementById('shodanConfirmBtn').addEventListener('click', async () =
         upd.phase = 'lost';
         upd.lost_reason = lostReason; upd.lost_date = closeDate || todayStr(); upd.lost_detail = memo.slice(0, 2000);
         act.unshift({ at: isoNow(), type: 'system', text: `✕ 失注: ${LOST_REASONS[lostReason]} (${sales})` });
+      } else if (isNagare) {
+        dropAddOrder();
+        promoteIfPrimaryLeft();
+        const hasWon = otherWon.length || (PHASE_MAP[upd.phase] && PHASE_MAP[upd.phase].group === 'active');
+        if (!hasWon && (upd.phase === 'appo' || upd.phase === 'lead' || upd.phase === 'lost')) upd.phase = 'hold';
+        act.unshift({ at: isoNow(), type: 'system', text: `⚠ アポ流れ: ${dealPhaseInfo(phase).label}（アポ取得者: ${apoOwnerSel}）` });
       } else if (promoteIfPrimaryLeft()) {
         act.unshift({ at: isoNow(), type: 'system', text: `🤝 商談報告: ${dealPhaseInfo(phase).label} (${sales})` });
       } else {
         dropAddOrder();
         act.unshift({ at: isoNow(), type: 'system', text: `🤝 商談報告: ${dealPhaseInfo(phase).label} (${sales})` });
         // 失注/受注にしていた商談を「まだ決着していない」に戻した場合は、取引先も商談中に戻す
-        const prevWin = prev && (prev.dealPhase === 'juchu' || prev.dealPhase === 'kaishu');
-        const prevLost = prev && (prev.dealPhase === 'lost' || prev.dealPhase === 'nagare_r' || prev.dealPhase === 'nagare_o');
-        const otherDecided = state.deals.some(x => x.customerId === customer.id && x.id !== deal.id &&
-          ['juchu', 'kaishu', 'lost', 'nagare_r', 'nagare_o'].includes(x.dealPhase));
+        const prevWin = prevCounted;
+        const prevLost = prev && isLostDealPhase(prev.dealPhase);
+        if (prev && isNagareDealPhase(prev.dealPhase) && customer.phase === 'hold') {
+          upd.phase = 'appo';
+          act.unshift({ at: isoNow(), type: 'system', text: `↩ アポ流れを取り消し → アポ取得に戻しました (${sales})` });
+        }
+        const otherDecided = state.deals.some(x => x.customerId === customer.id && x.id !== deal.id && isDecidedDealPhase(x.dealPhase));
         if (prevLost && customer.phase === 'lost' && !otherDecided) {
           upd.phase = 'appo'; upd.lost_reason = ''; upd.lost_date = ''; upd.lost_detail = '';
           act.unshift({ at: isoNow(), type: 'system', text: `↩ 失注を取り消し → 商談中に戻しました (${sales})` });
         } else if (prevWin && !existingAdd && customer.phase === 'order' && !hasAnyPayment(customer) && !otherDecided) {
           upd.phase = 'appo'; upd.orderDate = ''; upd.primaryDealId = '';
+          // 入金予定（金額・期限）も消す。残すと商談中なのに「未入金」が出続ける
+          ['init_due', 'm1_due', 'm2_due', 'm3_due', 'contract_start'].forEach(k => { upd[k] = ''; });
+          upd.init_amount = 0; upd.monthly_amount = 0; upd.planType = 'none';
           act.unshift({ at: isoNow(), type: 'system', text: `↩ 受注を取り消し → 商談中に戻しました (${sales})` });
         } else if (prevWin && !existingAdd && hasAnyPayment(customer)) {
           toast('⚠ 入金済みのため、取引先のフェーズはそのままにしています。必要なら取引先の「編集」で直してください', true);
@@ -4865,8 +5459,8 @@ document.getElementById('shodanConfirmBtn').addEventListener('click', async () =
       await saveRecord(upd);
     }
 
-    const chType = isWin ? 'juchu' : isLost ? 'shitsuchu' : 'shodan';
-    const head = isWin ? '🎉 受注報告' : isLost ? '✕ 失注報告' : '🤝 商談報告';
+    const chType = isWin ? 'juchu' : isLost ? 'shitsuchu' : isNagare ? 'nagare' : 'shodan';
+    const head = isWin ? '🎉 受注報告' : isLost ? '✕ 失注報告' : isNagare ? '⚠ アポ流れ報告' : '🤝 商談報告';
     const body =
 `${head}
 
@@ -4883,7 +5477,8 @@ document.getElementById('shodanConfirmBtn').addEventListener('click', async () =
 
 【メモ】
 ${memo}`;
-    const ok = await postToChatter(chType, body, { recordId: customerId, recordName: customer ? customer.name : dealName, author: sales });
+    // アポ流れはアポ取得者の名前で流す
+    const ok = await postToChatter(chType, body, { recordId: customerId, recordName: customer ? customer.name : dealName, author: isNagare ? apoOwnerSel : sales });
 
     shodanModal.classList.remove('open');
     toast(ok ? '✓ 商談報告をチャッターに流しました' : '⚠ 保存しましたがチャッター投稿に失敗', !ok);
@@ -5554,13 +6149,13 @@ function computePerformance(monthKey) {
     if (c.result === 'apo') r.apo++;
   });
   state.deals.forEach(d => {
-    const decidedPhases = ['juchu', 'kaishu', 'lost', 'nagare_r', 'nagare_o'];
-    if (!decidedPhases.includes(d.dealPhase)) return;
     if (!d.closeDate || !d.closeDate.startsWith(monthKey)) return;
-    if (d.dealPhase === 'nagare_r' || d.dealPhase === 'nagare_o') row(d.apoOwner).nagare++;
+    // アポ流れはアポ取得者に付ける（営業者の受注率には入れない）
+    if (isNagareDealPhase(d.dealPhase)) { row(d.apoOwner || d.salesOwner).nagare++; return; }
+    if (!isDecidedDealPhase(d.dealPhase)) return;
     const s = row(d.salesOwner);
     s.decided++;
-    if (d.dealPhase === 'juchu' || d.dealPhase === 'kaishu') s.won++;
+    if (isWonDealPhase(d.dealPhase)) s.won++;
     if (d.dealPhase === 'lost') s.lost++;
   });
   const list = Object.values(rows).sort((a, b) => a.name.localeCompare(b.name, 'ja'));
@@ -5799,8 +6394,14 @@ function renderRecordPage() {
   miss.style.display = 'none';
   const draftEl = document.getElementById('newActivityText');
   const draft = draftEl ? draftEl.value : '';
+  // 制作フォームの打ちかけを、描き直す前に控えておく
+  state.workDraft = {};
+  ['w-type', 'w-title', 'w-url', 'w-date', 'w-memo'].forEach(k => { const el = document.getElementById(k); if (el) state.workDraft[k] = el.value; });
+  // 別の会社を開いたら「詳細」タブに戻す
+  if (state.recTabFor !== id) { state.recTab = 'detail'; state.recTabFor = id; state.workEditId = null; }
   buildDetailBody(id);
   if (draft) { const ta = document.getElementById('newActivityText'); if (ta) ta.value = draft; }
+  renderRecTabs(rec);
 
   const isLead = recKind(rec) === 'lead';
   state.detailKind = isLead ? 'lead' : 'account';
@@ -5937,7 +6538,7 @@ function renderDealPage() {
   wrap.style.display = '';
   miss.style.display = 'none';
   const c = state.records.find(r => r.id === d.customerId);
-  const isWin = d.dealPhase === 'juchu' || d.dealPhase === 'kaishu';
+  const isWin = isWonDealPhase(d.dealPhase);
   document.getElementById('dealCrumbName').textContent = d.dealName || '—';
   document.getElementById('dealTitle').textContent = d.dealName || '—';
   document.getElementById('dealMeta').innerHTML = [
@@ -6271,6 +6872,8 @@ async function paymentQuickAction(recId, key, action) {
       else if (rec.phase === 'm1_unpaid') updated.phase = 'm1_paid';
       else if (rec.phase === 'm2_unpaid') updated.phase = 'm2_paid';
       else if (rec.phase === 'm3_unpaid') updated.phase = 'm3_paid';
+      // 3ヶ月目以降の月費が入ったら「4ヶ月目以降継続」に（解約を押すまで続く）
+      if (/^m(\d+)$/.test(key) && Number(key.slice(1)) >= 3 && Number(rec.monthly_amount) > 0 && rec.phase !== 'cancelled' && rec.phase !== 'lost') { updated.phase = 'continuing'; updated.m3_confirmed = true; }
     }
     activityText = `💰 ${label}入金完了`;
   } else if (action === 'undo-paid') {
@@ -6407,7 +7010,7 @@ function buildCalendarEvents() {
     }
     paymentsOf(r).forEach(p => {
       if (p.isPaid || !p.due) return;
-      add(p.due.slice(0,10), { cls: p.key === 'init' ? 'invoice' : 'sub', time: '', label: `💰 ${r.name} ${p.kind}`, id: r.id, sort: '98:00' });
+      add(p.due.slice(0,10), { cls: /(^|:)init$/.test(p.key) ? 'invoice' : 'sub', time: '', label: `💰 ${r.name} ${p.kind}`, id: r.id, sort: '98:00' });
     });
   });
   // 打ち込み式の予定
@@ -7106,6 +7709,24 @@ function buildDetailBody(id) {
     }).join('') + `</div>`;
   }
 
+  // 受注一覧: 1件目・追加受注・置き換え済みを1行ずつ
+  const ordersHTML = buildOrdersListHTML(rec);
+
+  // 回収待ち（受注ではない）の商談が、以前の版で受注として入金欄に入っている → 外すボタン
+  const kaishuLinked = kaishuCountedDeals(rec);
+  const kaishuHTML = kaishuLinked.length ? `<div class="detail-section" style="border:1px solid var(--orange, #e8a33d); border-radius:4px; padding:12px;">
+      <div class="detail-section-title" style="color:var(--orange, #e8a33d);">// ⚠ 回収待ちの商談が受注として入金欄に入っています</div>
+      <div style="font-size:13px; line-height:1.7; margin:6px 0 10px;">回収待ちは受注ではないので、入金欄・受注件数から外します（商談はそのまま残ります）。受注になったら、その商談を「受注」にしてください。<br>
+      ${kaishuLinked.map(d => `・${esc(d.dealName || '')}（初期¥${fmt(d.amount_init)}・月費¥${fmt(d.amount_monthly)}）`).join('<br>')}</div>
+      <button class="qa" data-act="unlink-kaishu">受注から外す</button>
+    </div>` : '';
+
+  // 追加受注（月費あり）の解約・解約取消
+  const aoMonthly = addOrdersOf(rec).filter(o => Number(o.monthly_amount) > 0);
+  const aoHTML = aoMonthly.length ? `<div class="quick-actions" style="margin-top:6px;">${aoMonthly.map(o => o.cancelled_date
+      ? `<button class="qa unpay" data-act="ao-uncancel" data-key="${esc(o.dealId)}">↩ ${esc(addOrderLabel(o))} の解約を取消（${esc(fmtDate(o.cancelled_date))}解約）</button>`
+      : `<button class="qa unpay" data-act="ao-cancel" data-key="${esc(o.dealId)}">⏹ ${esc(addOrderLabel(o))}（月¥${fmt(o.monthly_amount)}）を解約</button>`).join('')}</div>` : '';
+
   // v13以前に2件目の受注で上書きされた取引先 → 分けて直すボタン
   const unsplit = unsplitWonDeals(rec);
   const splitHTML = unsplit.length ? `<div class="detail-section" style="border:1px solid var(--red); border-radius:4px; padding:12px;">
@@ -7125,7 +7746,7 @@ function buildDetailBody(id) {
     }
   });
   if (rec.phase === 'm3_paid' && !rec.m3_confirmed) {
-    quickActionsHTML += `<button class="qa paid" data-act="confirm-m3">🎯 継続意思確認(継続中へ)</button>`;
+    quickActionsHTML += `<button class="qa paid" data-act="confirm-m3">▶ 4ヶ月目以降継続にする</button>`;
     quickActionsHTML += `<button class="qa cancel" data-act="cancel">❌ 解約処理へ</button>`;
   }
 
@@ -7187,6 +7808,8 @@ function buildDetailBody(id) {
       <div class="detail-row"><div class="label">商談日時</div><div class="value">${fmtDateTime(rec.meetingDate)}</div></div>
     </div>` : ''}
 
+    ${ordersHTML}
+    ${kaishuHTML}
     ${splitHTML}
     ${pays.length ? `<div class="detail-section">
       <div class="detail-section-title">// 入金状況${addOrdersOf(rec).length ? `（受注${1 + addOrdersOf(rec).length}件）` : ''}</div>
@@ -7194,7 +7817,8 @@ function buildDetailBody(id) {
       <div class="detail-row"><div class="label">契約開始</div><div class="value">${fmtDate(rec.contract_start)}</div></div>
       <div class="detail-row"><div class="label">合計受領</div><div class="value mono" style="color:var(--green); font-weight:700;">¥${fmt(totalReceived(rec))}</div></div>
       ${paymentGridHTML}
-      ${quickActionsHTML ? `<div class="quick-actions">${quickActionsHTML}</div>` : ''}
+      ${aoHTML}
+    ${quickActionsHTML ? `<div class="quick-actions">${quickActionsHTML}</div>` : ''}
     </div>` : ''}
 
     ${rec.followupDate ? `<div class="detail-section">
@@ -7277,8 +7901,29 @@ async function detailQuickAction(act, key) {
       else if (rec.phase === 'm1_unpaid') updated.phase = 'm1_paid';
       else if (rec.phase === 'm2_unpaid') updated.phase = 'm2_paid';
       else if (rec.phase === 'm3_unpaid') updated.phase = 'm3_paid';
+      // 3ヶ月目以降の月費が入ったら「4ヶ月目以降継続」に（解約を押すまで続く）
+      if (/^m(\d+)$/.test(key) && Number(key.slice(1)) >= 3 && Number(rec.monthly_amount) > 0 && rec.phase !== 'cancelled' && rec.phase !== 'lost') { updated.phase = 'continuing'; updated.m3_confirmed = true; }
     }
     activityText = `💰 ${p.kind}入金完了 (¥${fmt(p.amount)})`;
+  } else if (act === 'ao-cancel' || act === 'ao-uncancel') {
+    const o = addOrdersOf(rec).find(x => x.dealId === key);
+    if (!o) return;
+    if (act === 'ao-cancel') {
+      if (!confirm(`追加受注「${o.dealName || ''}」（月¥${fmt(o.monthly_amount)}）を今日付けで解約しますか？\n\n・次回以降の請求は出なくなります\n・入金済みの記録と、最低3ヶ月分の請求は残ります\n・取引先や他の受注には影響しません`)) return;
+      updated.addOrders = addOrdersOf(rec).map(x => x.dealId === key ? { ...x, cancelled_date: todayStr() } : x);
+      activityText = `⏹ 追加受注「${o.dealName || ''}」を解約`;
+    } else {
+      if (!confirm(`追加受注「${o.dealName || ''}」の解約を取り消して、継続に戻しますか？`)) return;
+      updated.addOrders = addOrdersOf(rec).map(x => { if (x.dealId !== key) return x; const c = { ...x }; delete c.cancelled_date; return c; });
+      activityText = `↩ 追加受注「${o.dealName || ''}」の解約を取消`;
+    }
+  } else if (act === 'unlink-kaishu') {
+    const list = kaishuCountedDeals(rec);
+    if (!list.length) return;
+    if (!confirm(`次の回収待ちの商談を、受注・入金欄から外します。\n\n${list.map(d => '・' + d.dealName).join('\n')}\n\n入金済みの記録があるものは外しません。よろしいですか？`)) return;
+    const res = unlinkDealsFromOrders(updated, list.map(d => d.id));
+    if (!res.done.length) { alert('入金済みの記録があるため外せませんでした。先に入金を取消してください。'); return; }
+    activityText = `↩ 回収待ちの商談を受注から外しました: ${res.done.map(id => (list.find(d => d.id === id) || {}).dealName).join('、')}` + (res.kept.length ? `（入金済みのため残したもの${res.kept.length}件）` : '');
   } else if (act === 'split-orders') {
     const won = unsplitWonDeals(rec);
     if (!won.length) return;
@@ -7362,6 +8007,7 @@ document.getElementById('detailCloneBtn').addEventListener('click', () => {
   delete cloned.orderDate;
   delete cloned.init_paid_date;
   delete cloned.addOrders;
+  delete cloned.works;
   Object.keys(cloned).forEach(k => { if (/^m\d+_paid_date$/.test(k)) delete cloned[k]; });
   delete cloned.primaryDealId;
   delete cloned.m1_paid_date;
@@ -7440,7 +8086,7 @@ const BACKUP_COLLECTIONS = [
   ['calls', 'crm_calls'], ['events', 'crm_events'], ['meta', 'crm_meta']
 ];
 // 復元で上書きしない管理用の設定（版番号・バックアップ一覧）
-const META_SYSTEM_IDS = ['app', 'backups'];
+const META_SYSTEM_IDS = ['app', 'backups', 'access', 'googleSeen'];
 function stripServerTs(o) {
   const c = { ...o }; delete c._updatedServer;
   // Firestoreの時刻型は文字にしておく（JSONにそのまま入らないため）
@@ -7579,12 +8225,266 @@ async function ensureSafeVersion() {
   scheduleAutoCancel();
 }
 
+// ---- ログインできるメンバー（管理者が追加・削除。ルールはこの一覧を直接見る） ----
+const EMAIL_RE = /^[a-z0-9._%+\-]+@[a-z0-9.\-]+\.[a-z]{2,}$/;
+state.accessRequests = [];
+// Firestoreのルール（1回貼れば、以後のメンバー追加・削除はこの画面だけで済む）
+const FIRESTORE_RULES = `rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null && request.auth.token.email_verified == true;
+    }
+    function myEmail() {
+      return request.auth.token.email.lower();
+    }
+    function access() {
+      return get(/databases/$(database)/documents/crm_meta/access).data;
+    }
+    function isMember() {
+      return signedIn() && myEmail() in access().memberEmails;
+    }
+    function isAdmin() {
+      return signedIn() && myEmail() in access().admins;
+    }
+    function validAccess(d) {
+      return d.memberEmails is list && d.admins is list && d.members is list
+        && d.admins.size() > 0
+        && myEmail() in d.admins && myEmail() in d.memberEmails;
+    }
+    // メンバー一覧: 読めるのはメンバー本人だけ。直せるのは管理者だけ（消す・壊す・自分を外すは不可）
+    match /crm_meta/access {
+      allow get: if signedIn() && (resource == null || myEmail() in resource.data.memberEmails);
+      allow update: if isAdmin() && validAccess(request.resource.data);
+      allow create, delete: if false;
+    }
+    // 入れてほしい申請: 本人が自分の分だけ出せる（中身も制限）。見る・消すのは管理者
+    match /crm_requests/{uid} {
+      allow create, update: if signedIn() && request.auth.uid == uid
+        && request.resource.data.keys().hasOnly(['email', 'name', 'at'])
+        && request.resource.data.email == myEmail()
+        && request.resource.data.name is string && request.resource.data.name.size() <= 40
+        && request.resource.data.at is string && request.resource.data.at.size() <= 40;
+      allow read, delete: if isAdmin();
+    }
+    // それ以外の全データ: メンバーだけ（メンバー一覧の書き込みと申請はここでは扱わない）
+    match /{coll}/{docId} {
+      allow read: if isMember() && coll != 'crm_requests';
+      allow write: if isMember() && coll != 'crm_requests'
+        && !(coll == 'crm_meta' && docId == 'access');
+    }
+  }
+}`;
+function accessMembers() { return state.access && Array.isArray(state.access.members) ? state.access.members.filter(m => m && EMAIL_RE.test(normEmail(m.email))) : []; }
+function iAmAdmin() {
+  const me = normEmail(state.authUser && state.authUser.email);
+  return !!me && state.access && Array.isArray(state.access.admins) && state.access.admins.map(normEmail).includes(me);
+}
+// 一覧を保存（memberEmails / admins はルールが使う形に毎回作り直す）
+async function saveAccess(members, admins) {
+  if (!state.safeReady) throw new Error('起動直後の自動バックアップが終わるまで少し待ってから、もう一度押してください');
+  const clean = [];
+  const seen = new Set();
+  members.forEach(m => {
+    const email = normEmail(m && m.email);
+    if (!EMAIL_RE.test(email) || seen.has(email)) return;
+    seen.add(email);
+    clean.push({ email, name: String(m.name || '').trim().slice(0, 30) });
+  });
+  const adm = [...new Set(admins.map(normEmail))].filter(e => seen.has(e));
+  if (!adm.length) throw new Error('管理者が1人もいなくなるので保存できません');
+  const me = normEmail(state.authUser && state.authUser.email);
+  if (state.loginMethod === 'google' && !adm.includes(me)) throw new Error('自分を管理者から外すと、この画面で直せなくなるので保存できません');
+  const data = { members: clean, memberEmails: clean.map(m => m.email), admins: adm, updatedAt: isoNow(), by: getMe() || '' };
+  await setDoc(doc(state.db, META_COLLECTION, ACCESS_DOC), data);
+  state.access = data;
+  renderAccessPanel();
+}
+async function loadAccessFresh() {
+  const d = await getDoc(doc(state.db, META_COLLECTION, ACCESS_DOC));
+  state.access = d.exists() ? d.data() : null;
+  return state.access;
+}
+async function loadRequests() {
+  try {
+    const snap = await getDocs(collection(state.db, REQUESTS_COLLECTION));
+    const arr = []; snap.forEach(d => arr.push({ uid: d.id, ...d.data() }));
+    state.accessRequests = arr.filter(r => r && EMAIL_RE.test(normEmail(r.email)));
+  } catch (e) { state.accessRequests = []; }
+}
+function renderAccessPanel() {
+  const el = document.getElementById('accessPanel');
+  if (!el || !state.appEntered) return;
+  // 管理者: 承認待ちを1分に1回まで読み直す（画面を開いたままでも新しい申請に気づける）
+  if (iAmAdmin() && Date.now() - (state.reqLoadedAt || 0) > 60000) { state.reqLoadedAt = Date.now(); loadRequests().then(renderAccessPanel); }
+  const members = accessMembers();
+  const adminSet = new Set((state.access && Array.isArray(state.access.admins) ? state.access.admins : []).map(normEmail));
+  const me = normEmail(state.authUser && state.authUser.email);
+  const admin = iAmAdmin();
+  const memberNames = (state.members || []).filter(Boolean);
+  // まだ始めていない（一覧が無い）
+  if (!state.access) {
+    el.innerHTML = `<p style="font-size:12px; color:var(--text2); line-height:1.8;">まだGoogleログインを始めていません。<br>
+      ${state.authUser ? `今ログインしているGoogleアカウント <strong>${esc(me)}</strong> を管理者にして始めます。` : '下のボタンで、管理者になるGoogleアカウントでログインしてください。'}</p>
+      <button type="button" class="btn-action primary" id="accessStartBtn">${state.authUser ? '▶ このアカウントを管理者にして始める' : 'Googleでログインする'}</button>`;
+    document.getElementById('accessStartBtn').addEventListener('click', async () => {
+      if (!state.authUser) { googleLoginForSetup(); return; }
+      const name = (getMe() || '').trim();
+      if (!name) { alert('先に画面右上の名前を設定してください'); return; }
+      try {
+        const cur = await loadAccessFresh();
+        if (cur) { renderAccessPanel(); toast('すでに始まっていました'); return; }
+        await saveAccess([{ email: me, name }], [me]);
+        state.loginMethod = 'google'; state.lockedName = name;
+        try { await setDoc(doc(state.db, META_COLLECTION, 'googleSeen'), { byEmail: { [me]: isoNow() } }, { merge: true }); } catch (e) { console.warn('seen', e); }
+        toast('✓ Googleログインを始めました。メンバーを追加してください');
+      } catch (e) { alert('始められませんでした: ' + e.message); }
+    });
+    return;
+  }
+  const reqs = (state.accessRequests || []).filter(r => !members.some(m => normEmail(m.email) === normEmail(r.email)));
+  el.innerHTML = `
+    <p style="font-size:12px; color:var(--text2); line-height:1.7; margin-bottom:10px;">ここに入っているGoogleアカウントだけがログインできます。${admin ? '' : '<br>（追加・削除は管理者だけができます）'}</p>
+    ${members.map(m => `<div class="acc-row">
+        <strong>${esc(m.name || '（名前なし）')}</strong>
+        <span class="acc-mail">${esc(m.email)}</span>
+        ${adminSet.has(normEmail(m.email)) ? '<span class="acc-admin">管理者</span>' : ''}
+        ${(state.googleSeen || {})[normEmail(m.email)] ? '<span class="acc-seen">✓ Googleで入れた</span>' : '<span class="acc-notyet">まだ入っていない</span>'}
+        ${admin && normEmail(m.email) !== me ? `<button type="button" class="btn-action acc-btn" data-acc-rm="${esc(m.email)}">外す</button>
+          <button type="button" class="btn-action acc-btn" data-acc-admin="${esc(m.email)}">${adminSet.has(normEmail(m.email)) ? '管理者を外す' : '管理者にする'}</button>` : ''}
+      </div>`).join('')}
+    ${admin && reqs.length ? `<div style="margin-top:14px; font-size:12px; font-weight:700;">承認待ち（${reqs.length}件）</div>
+      ${reqs.map(r => `<div class="acc-row"><span class="acc-mail">${esc(normEmail(r.email))}</span>${r.name ? `<span style="color:var(--text3);">${esc(r.name)}</span>` : ''}
+        <button type="button" class="btn-action primary acc-btn" data-req-ok="${esc(r.uid)}">許可</button>
+        <button type="button" class="btn-action acc-btn" data-req-ng="${esc(r.uid)}">消す</button></div>`).join('')}` : ''}
+    ${admin ? `<div class="acc-add">
+        <input type="email" id="accEmail" placeholder="追加するGmailアドレス" maxlength="120" autocapitalize="off" />
+        <select id="accName"><option value="">名前を選ぶ</option>${memberNames.map(n => `<option>${esc(n)}</option>`).join('')}</select>
+        <button type="button" class="btn-action primary" id="accAddBtn">＋ 追加</button>
+      </div>
+      ${adminSet.size < 2 ? '<div style="font-size:12px; color:var(--text3); margin-top:10px;">※ 管理者は2人以上にしておくと、1人のGoogleアカウントが使えなくなっても安心です</div>' : ''}
+      ${members.every(m => (state.googleSeen || {})[normEmail(m.email)]) ? `<details style="margin-top:14px;"><summary style="font-size:12px; color:var(--text3); cursor:pointer;">Firestoreのルール（最初に1回だけ設定）</summary>
+        <textarea id="rulesText" readonly style="width:100%; min-height:220px; margin-top:8px; font-family:'JetBrains Mono', monospace; font-size:11px; background:var(--bg); color:var(--text); border:1px solid var(--border); padding:10px;">${esc(FIRESTORE_RULES)}</textarea>
+        <button type="button" class="btn-action" id="copyRulesBtn" style="margin-top:8px;">📋 コピー</button>
+      </details>` : '<div style="font-size:12px; color:var(--text3); margin-top:12px;">全員が「✓ Googleで入れた」になったら、データの鍵（ルール）を設定できます</div>'}` : ''}`;
+  const reload = async () => { try { await loadAccessFresh(); } catch {} return accessMembers(); };
+  el.querySelectorAll('[data-acc-rm]').forEach(b => b.addEventListener('click', async () => {
+    const email = b.dataset.accRm;
+    if (!confirm(`${email} をログインできるメンバーから外しますか？\n外すとすぐにこのCRMを開けなくなります。`)) return;
+    try { const list = await reload(); await saveAccess(list.filter(m => normEmail(m.email) !== email), (state.access.admins || []).filter(a => normEmail(a) !== email)); toast('✓ 外しました'); }
+    catch (e) { alert('外せませんでした: ' + e.message); }
+  }));
+  el.querySelectorAll('[data-acc-admin]').forEach(b => b.addEventListener('click', async () => {
+    const email = b.dataset.accAdmin;
+    try {
+      const list = await reload();
+      const adm = (state.access.admins || []).map(normEmail);
+      await saveAccess(list, adm.includes(email) ? adm.filter(a => a !== email) : [...adm, email]);
+      toast('✓ 変更しました');
+    } catch (e) { alert('変更できませんでした: ' + e.message); }
+  }));
+  const addMember = async (email, name, reqUid) => {
+    email = normEmail(email);
+    if (!EMAIL_RE.test(email)) { alert('メールアドレスの形が正しくありません'); return; }
+    if (!name) { alert('名前を選んでください（チャッターなどに出る名前になります）'); return; }
+    try {
+      const list = await reload();
+      if (list.some(m => normEmail(m.email) === email)) { toast('すでに入っています'); return; }
+      if (list.some(m => m.name === name) && !confirm(`「${name}」は他のアカウントでも使われています。同じ名前で追加しますか？`)) return;
+      await saveAccess([...list, { email, name }], state.access.admins || []);
+      if (reqUid) { try { await deleteDoc(doc(state.db, REQUESTS_COLLECTION, reqUid)); } catch {} await loadRequests(); renderAccessPanel(); }
+      toast(`✓ ${email} を追加しました`);
+    } catch (e) { alert('追加できませんでした: ' + e.message); }
+  };
+  const addBtn = document.getElementById('accAddBtn');
+  if (addBtn) addBtn.addEventListener('click', () => addMember(document.getElementById('accEmail').value, document.getElementById('accName').value));
+  el.querySelectorAll('[data-req-ok]').forEach(b => b.addEventListener('click', () => {
+    const r = state.accessRequests.find(x => x.uid === b.dataset.reqOk); if (!r) return;
+    const name = prompt(`${r.email} を許可します。チャッターなどに出す名前を入れてください`, memberNames.find(n => n === r.name) || '');
+    if (name === null) return;
+    addMember(r.email, name.trim(), r.uid);
+  }));
+  el.querySelectorAll('[data-req-ng]').forEach(b => b.addEventListener('click', async () => {
+    if (!confirm('この申請を消しますか？')) return;
+    try { await deleteDoc(doc(state.db, REQUESTS_COLLECTION, b.dataset.reqNg)); await loadRequests(); renderAccessPanel(); } catch (e) { alert('消せませんでした: ' + e.message); }
+  }));
+  const cp = document.getElementById('copyRulesBtn');
+  if (cp) cp.addEventListener('click', async () => {
+    const t = document.getElementById('rulesText');
+    try { await navigator.clipboard.writeText(t.value); toast('✓ コピーしました'); }
+    catch { t.removeAttribute('readonly'); t.focus(); t.setSelectionRange(0, t.value.length); t.setAttribute('readonly', ''); toast('選択しました。コピーしてください'); }
+  });
+}
+// パスワードで入っている管理者が、設定画面からGoogleアカウントを結びつける
+async function googleLoginForSetup() {
+  if (!state.auth) { alert('ログイン機能を読み込めませんでした。ページを再読み込みしてください'); return; }
+  const provider = new GoogleAuthProvider(); provider.setCustomParameters({ prompt: 'select_account' });
+  try { await signInWithPopup(state.auth, provider); }
+  catch (e) {
+    if (e && e.code === 'auth/popup-blocked') { alert('ポップアップが止められました。ブラウザの「ポップアップをブロック」をオフにして、もう一度押してください'); return; }
+    const t = googleError.textContent; showGoogleError(e); if (googleError.textContent && googleError.textContent !== t) alert(googleError.textContent);
+  }
+}
+
+// ---- ロゴ（ログイン後だけ表示。公開ページのソースには含めない） ----
+const LOGO_MAX_PX = 256;
+function isSafeImageData(u) { return typeof u === 'string' && /^data:image\/(png|jpeg|webp);base64,[A-Za-z0-9+/=]+$/.test(u) && u.length < 400000; }
+function applyLogo(dataUrl) {
+  const ok = isSafeImageData(dataUrl);
+  state.logoData = ok ? dataUrl : '';
+  const img = document.getElementById('brandLogo');
+  if (img) { if (ok) { img.src = dataUrl; img.hidden = false; } else { img.removeAttribute('src'); img.hidden = true; } }
+  // タブのアイコンもログイン中だけ差し替える
+  let fav = document.getElementById('appFavicon');
+  if (ok) {
+    if (!fav) { fav = document.createElement('link'); fav.id = 'appFavicon'; fav.rel = 'icon'; document.head.appendChild(fav); }
+    fav.href = dataUrl;
+  } else if (fav) fav.remove();
+  const prev = document.getElementById('logoPreview');
+  if (prev) prev.innerHTML = ok ? `<img src="${dataUrl}" alt="" style="height:64px; background:#fff; padding:4px; border-radius:4px;" />` : '<span style="font-size:12px; color:var(--text3);">未設定</span>';
+}
+// 画像を正方形の小さいJPEGにしてから保存（データベースの容量・表示速度のため）
+function shrinkImage(file) {
+  return new Promise((resolve, reject) => {
+    if (!file || !/^image\/(png|jpeg|webp)$/.test(file.type)) { reject(new Error('PNG / JPEG / WebP の画像を選んでください')); return; }
+    if (file.size > 10 * 1024 * 1024) { reject(new Error('10MB以下の画像を選んでください')); return; }
+    const url = URL.createObjectURL(file);
+    const im = new Image();
+    im.onload = () => {
+      const scale = Math.min(1, LOGO_MAX_PX / Math.max(im.width, im.height));
+      const w = Math.max(1, Math.round(im.width * scale)), h = Math.max(1, Math.round(im.height * scale));
+      const c = document.createElement('canvas'); c.width = w; c.height = h;
+      const ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h); ctx.drawImage(im, 0, 0, w, h);
+      URL.revokeObjectURL(url);
+      resolve(c.toDataURL('image/jpeg', 0.88));
+    };
+    im.onerror = () => { URL.revokeObjectURL(url); reject(new Error('画像を読み込めませんでした')); };
+    im.src = url;
+  });
+}
+document.getElementById('logoFile').addEventListener('change', async e => {
+  const f = e.target.files && e.target.files[0]; e.target.value = '';
+  if (!f) return;
+  try {
+    const dataUrl = await shrinkImage(f);
+    if (!isSafeImageData(dataUrl)) throw new Error('画像の変換に失敗しました');
+    await setDoc(doc(state.db, META_COLLECTION, 'logo'), { data: dataUrl, at: isoNow(), by: getMe() || '' });
+    applyLogo(dataUrl);
+    toast('✓ ロゴを設定しました');
+  } catch (err) { alert('ロゴを設定できませんでした: ' + err.message); }
+});
+document.getElementById('logoClearBtn').addEventListener('click', async () => {
+  if (!confirm('ロゴを外しますか？')) return;
+  try { await setDoc(doc(state.db, META_COLLECTION, 'logo'), { data: '', at: isoNow(), by: getMe() || '' }); applyLogo(''); toast('✓ ロゴを外しました'); }
+  catch (err) { alert('失敗: ' + err.message); }
+});
+
 // ---- 設定画面: 自動バックアップの一覧 ----
 function renderBackupList() {
   const el = document.getElementById('autoBackupList');
   if (!el) return;
   const list = state.backupIndex || [];
-  const warn = state.backupFailed ? `<div style="color:var(--red); font-size:12px; margin-bottom:8px;">⚠ 直近の自動バックアップに失敗しました。Firestoreのルールで <code>crm_backups</code> への読み書きを許可してください。</div>` : '';
+  const warn = state.backupFailed ? `<div style="color:var(--red); font-size:12px; margin-bottom:8px;">⚠ 直近の自動バックアップに失敗しました。しばらくしてもう一度開くか、上の「JSONバックアップ」で手動で保存してください（ルールは触らないでください）。</div>` : '';
   if (!list.length) { el.innerHTML = warn + `<div style="font-size:12px; color:var(--text3);">まだ自動バックアップはありません</div>`; return; }
   el.innerHTML = warn + list.map(b => {
     const c = b.counts || {};
@@ -7690,9 +8590,9 @@ document.getElementById('restoreFile').addEventListener('change', async e => {
 document.getElementById('resetConfigBtn').addEventListener('click', () => {
   if (!confirm('Firebase設定をリセットしますか?(データ自体は削除されません)')) return;
   clearConfig();
-  if (state.unsubscribe) { try { state.unsubscribe(); } catch {} state.unsubscribe = null; }
-  state.records = [];
-  showScreen('setup');
+  const so = state.auth && state.authUser ? signOut(state.auth).catch(() => {}) : Promise.resolve();
+  doLogout(true);
+  so.then(() => location.reload());
 });
 
 // ============== INIT ==============
@@ -7705,6 +8605,7 @@ async function initApp() {
   subscribeCalls();
   subscribeEvents();
   subscribeMeta();
+  subscribeAccess();
   ensureSafeVersion();
   startChatterAutoRefresh();
   if (state.autoCancelInterval) clearInterval(state.autoCancelInterval);
@@ -7734,9 +8635,9 @@ async function startup() {
   showLoading(true);
   try {
     await initFirebase(cfg);
-    showScreen('login');
     updateConnectionPill(true);
-    passwordInput.focus();
+    if (!state.auth || state.authReady) { if (!state.appEntered && !state.authUser) showLoginChoice(); }
+    else setTimeout(() => { if (!state.authReady && !state.appEntered) showLoginChoice(); }, 4000);
   } catch (e) {
     console.error(e);
     alert('Firebase初期化失敗: ' + (e.message || ''));
