@@ -69,7 +69,7 @@
   --purple-dim: rgba(109,40,217,0.10);
   --text: #14203a;
   --text2: #4a5876;
-  --text3: #6b7891;
+  --text3: #5a6680;
   --shadow-card: 0 1px 2px rgba(20,32,58,0.08);
   --accent-hover: #075985;
   --shadow-modal: 0 20px 50px rgba(20,32,58,0.20);
@@ -527,6 +527,8 @@ tbody tr:last-child td { border-bottom: none; }
   opacity: 0; transition: all 0.3s; z-index: 600; max-width: calc(100vw - 32px); text-align: center;
 }
 .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+.toast { pointer-events: none; visibility: hidden; }
+.toast.show { pointer-events: auto; visibility: visible; }
 .toast.error { border-color: var(--red); box-shadow: 0 12px 32px rgba(0,0,0,0.5), 0 0 20px rgba(255,59,59,0.3); }
 
 /* LOADING */
@@ -556,9 +558,8 @@ tbody tr:last-child td { border-bottom: none; }
   }
   .nav-tab.active { background: var(--accent-dim); border-bottom: none; }
   .nav-tab .badge { position: absolute; transform: translate(16px, -14px); font-size: 8px; padding: 1px 4px; }
-  .main { padding-bottom: 130px; }
   .modal-foot { bottom: 0; }
-  .main { padding: 16px 12px 60px; }
+  .main { padding: 16px 12px calc(140px + env(safe-area-inset-bottom)); }
   .section-head { gap: 8px; }
   .section-title { font-size: 18px; }
   .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
@@ -803,6 +804,49 @@ tbody tr:last-child td { border-bottom: none; }
 @media (max-width: 480px) {
 
 }
+
+/* ==== v25 スマホ点検の修正 ==== */
+.health-bar .fill { display: block; }
+a.ext, a.tel-link { color: var(--accent); }
+.rec-meta .rm-item { display: inline-flex; align-items: center; gap: 4px; min-width: 0; max-width: 100%; overflow-wrap: anywhere; }
+.picker-input:placeholder-shown + .picker-clear { display: none; }
+.form-group .picker-input { padding-right: 40px; }
+.ch-comment-body .ch-comment-meta { margin-bottom: 2px; }
+.nav-tab .lb-short { display: none; }
+.w-date-l { display: flex; flex-direction: column; gap: 4px; font-size: 11px; color: var(--text3); min-width: 0; }
+.acc-btn + .acc-btn { margin-left: 12px; }
+[data-bk-restore] { margin-left: 12px; }
+@media (max-width: 900px), (pointer: coarse) {
+  #chText, #chSearch, .ch-comment-input input, #chAuthorSel, #paymentsFilter, #activeFilter,
+  .ct-form input, .ct-form select { font-size: 16px !important; }
+  #chAuthorSel { min-height: 40px; }
+  .btn-action, .acc-btn, .qa { min-height: 44px !important; }
+  .page-ctrl button { min-height: 44px; min-width: 44px; }
+  .ch-act, .ch-filter { min-height: 44px; }
+  .ch-act { padding: 4px 8px; }
+  .btn-icon { min-height: 40px; min-width: 40px; }
+  .member-chip button { min-width: 36px; min-height: 36px; margin: -8px -6px -8px 0; }
+  .ct-del { min-width: 44px; min-height: 44px; }
+  .detail-row a[href^="tel:"], a.tel-link { display: inline-block; padding: 10px 0; }
+  .ch-link { padding: 10px 0; margin-top: 0; }
+  .modal-foot { padding-bottom: calc(14px + env(safe-area-inset-bottom)); }
+  .picker-clear { min-width: 40px; min-height: 40px; right: 2px; }
+  .form-group .picker-input { padding-right: 44px; }
+  .rec-meta a[href^="tel:"], .ct-main a.ext { display: inline-block; padding: 10px 0; }
+  #passwordLoginBox summary { padding: 12px 0; }
+  .modal-close { min-width: 44px; min-height: 44px; }
+}
+@media (max-width: 900px) {
+  .toast { bottom: calc(130px + env(safe-area-inset-bottom)); }
+  .search-bar > select:nth-last-child(2):nth-child(even) { grid-column: 1 / -1; }
+}
+@media (max-width: 640px) {
+  .modal-overlay { padding: 0; }
+}
+@media (max-width: 400px) {
+  .nav-tab .lb-full { display: none; }
+  .nav-tab .lb-short { display: inline; }
+}
 </style>
 </head>
 <body>
@@ -841,8 +885,9 @@ tbody tr:last-child td { border-bottom: none; }
     </div>
     <div id="pendingBox" style="display:none; font-size:13px; line-height:1.8; color:var(--text2); margin-top:4px;">
       <div id="pendingText"></div>
+      <div id="pendingStatus" style="font-size:12px; color:var(--text3); margin-top:8px;"></div>
       <button class="btn-primary" id="pendingRetryBtn" type="button" style="margin-top:12px;">承認されたか確認する</button>
-      <button class="link" id="pendingLogoutBtn" type="button" style="margin-top:10px;">別のGoogleアカウントにする</button>
+      <button id="pendingLogoutBtn" type="button" style="margin-top:12px; display:block; min-height:var(--tap-min); background:none; border:none; padding:6px 0; color:var(--accent); text-decoration:underline; font-size:13px; cursor:pointer; font-family:inherit;">別のGoogleアカウントにする</button>
     </div>
     <details id="passwordLoginBox" style="margin-top:14px;">
       <summary style="font-size:12px; color:var(--text3); cursor:pointer;">パスワードでログイン（Googleログインへの移行期間のみ）</summary>
@@ -858,16 +903,15 @@ tbody tr:last-child td { border-bottom: none; }
       <span class="dot"></span>
       <span id="connectionText">接続待機中...</span>
     </div>
-    <p class="auth-foot"><button class="link" id="resetSetupBtn">Firebase設定をやり直す</button></p>
   </div>
 </div>
 
 <!-- ==================== APP ==================== -->
 <div class="app" id="app">
   <header class="header">
-    <div class="header-brand"><img id="brandLogo" alt="" hidden />YAMATO<span class="sub">CRM v24</span></div>
+    <div class="header-brand"><img id="brandLogo" alt="" hidden />YAMATO<span class="sub">CRM v25</span></div>
     <div class="nav-tabs" id="navTabs">
-      <button class="nav-tab active" data-tab="dashboard"><span class="nav-ic">📊</span> <span class="nav-lb">ダッシュボード</span></button>
+      <button class="nav-tab active" data-tab="dashboard"><span class="nav-ic">📊</span> <span class="nav-lb"><span class="lb-full">ダッシュボード</span><span class="lb-short">ホーム</span></span></button>
       <button class="nav-tab" data-tab="chatter"><span class="nav-ic">💬</span> <span class="nav-lb">チャッター</span> <span class="badge" id="chatterBadge" style="display:none;">0</span></button>
       <button class="nav-tab" data-tab="calendar"><span class="nav-ic">📅</span> <span class="nav-lb">カレンダー</span></button>
       <button class="nav-tab" data-tab="leadlist"><span class="nav-ic">📇</span> <span class="nav-lb">リード</span> <span class="badge" id="leadBadge">0</span></button>
@@ -1677,15 +1721,6 @@ tbody tr:last-child td { border-bottom: none; }
         </div>
       </div>
 
-      <div class="panel">
-        <div class="panel-head"><div class="panel-title"><span class="mono">// RESET</span>設定リセット</div></div>
-        <div style="padding: 16px 18px;">
-          <p style="font-size: 12px; color: var(--red); line-height: 1.7; margin-bottom: 14px;">
-            ⚠ Firebase設定をリセットすると、再設定が必要になります(データ自体は削除されません)。
-          </p>
-          <button class="btn-action danger" id="resetConfigBtn">Firebase設定リセット</button>
-        </div>
-      </div>
     </section>
 
   </main>
@@ -2431,7 +2466,7 @@ import {
 // ・この版の番号。新しい index.html を上げる時は必ず1つ上げる（画面左上の「CRM vXX」と同じ数字）
 // ・誰かが新しい版を開くと、古い版の画面は「読むだけ」になる（古い計算で上書きして壊すのを防ぐ）
 // ・新しい版を最初に開いた時、何かを書き込む前に全データを自動バックアップする（毎日1回も自動）
-const APP_VERSION = 24;
+const APP_VERSION = 25;
 let writeLocked = false;
 function guardWrite() {
   if (writeLocked) throw new Error('この画面は古い版です。ページを再読み込みしてから操作してください（データは保護されています）');
@@ -2838,7 +2873,7 @@ function renderWorksPanel(rec) {
       <select id="w-type">${WORK_TYPES.map(t => `<option${ed && ed.type === t ? ' selected' : ''}>${esc(t)}</option>`).join('')}</select>
       <input type="text" id="w-title" maxlength="100" placeholder="名前（例: 店舗紹介動画）" value="${ed ? esc(ed.title || '') : ''}" />
       <input type="url" id="w-url" class="full" maxlength="1000" inputmode="url" placeholder="URL（https://…）" value="${ed ? esc(ed.url || '') : ''}" />
-      <input type="date" id="w-date" value="${ed ? esc(ed.date || '') : ''}" title="納品日・公開日" />
+      <label class="w-date-l">納品日・公開日（任意）<input type="date" id="w-date" value="${ed ? esc(ed.date || '') : ''}" /></label>
       <input type="text" id="w-memo" maxlength="500" placeholder="メモ（任意）" value="${ed ? esc(ed.memo || '') : ''}" />
       <div class="full" style="display:flex; gap:8px;">
         <button type="button" class="btn-action primary" id="w-save">${ed ? '✓ 更新' : '＋ 追加'}</button>
@@ -3004,7 +3039,7 @@ function unsplitWonDeals(rec) {
 
 // ================== スマホ用: 一覧表のセルに列見出しを付ける ==================
 // thead の見出しを各セルの data-label に入れる。CSS(640px以下)でカード表示にした時の左ラベルになる
-const M_CARD_TABLES = ['leadListTable', 'dealTable', 'allTable', 'paymentsTable', 'activeTable', 'dupTable'];
+const M_CARD_TABLES = ['leadListTable', 'dealTable', 'allTable', 'paymentsTable', 'activeTable', 'dupTable', 'slotTable'];
 function labelTableCells(tbody) {
   const table = tbody && tbody.closest('table');
   if (!table) return;
@@ -3132,6 +3167,35 @@ function saveConfig(cfg) {
   try { localStorage.setItem(STORAGE_KEY_CONFIG, JSON.stringify(cfg)); return true; } catch { return false; }
 }
 function clearConfig() { try { localStorage.removeItem(STORAGE_KEY_CONFIG); } catch {} }
+// 接続設定はアプリに入れておく（新しい端末で長い設定を貼らなくていいように）。
+// これはデータの鍵ではなく「どのデータベースか」の住所。データを守るのはFirestoreのルール（メンバーだけ）。
+const BUILTIN_CONFIG = Object.freeze({
+  apiKey: 'AIzaSyDO9lorCu36DFE1J8Vtlz9PoGbtVvHHs2A',
+  authDomain: 'yamato-crm-a3261.firebaseapp.com',
+  projectId: 'yamato-crm-a3261',
+  storageBucket: 'yamato-crm-a3261.firebasestorage.app',
+  messagingSenderId: '12693476471',
+  appId: '1:12693476471:web:c213799f821b4bfc302272'
+});
+// この端末で使う設定: 未設定・切れた設定・古い鍵は、アプリに入っている正しい設定に置き換える（別プロジェクトの設定だけはそのまま）
+function effectiveConfig() {
+  const stored = loadConfig();
+  if (stored && stored.projectId !== BUILTIN_CONFIG.projectId && isCompleteConfig(stored)) return stored;
+  const want = { ...BUILTIN_CONFIG };
+  const same = stored && Object.keys(stored).length === 6 && ['apiKey', 'authDomain', 'projectId', 'appId', 'storageBucket', 'messagingSenderId'].every(k => stored[k] === want[k]);
+  if (!same) {
+    if (stored) { try { localStorage.setItem(STORAGE_KEY_CONFIG + '-backup', JSON.stringify(stored)); } catch {} }
+    saveConfig(want);
+  }
+  return want;
+}
+// 接続設定の形が正しいか（別プロジェクトの設定を使う端末の判定用）
+const API_KEY_RE = /^AIza[0-9A-Za-z_\-]{35}$/;
+function isCompleteConfig(c) {
+  return !!c && API_KEY_RE.test(String(c.apiKey || '')) && /^[a-z0-9-]{4,40}$/.test(String(c.projectId || ''))
+    && String(c.authDomain || '') === `${c.projectId}.firebaseapp.com`
+    && /^\d+:\d+:web:[0-9a-f]+$/.test(String(c.appId || ''));
+}
 
 function parseConfigInput(text) {
   const trimmed = text.trim();
@@ -3201,7 +3265,7 @@ document.getElementById('setupSaveBtn').addEventListener('click', async () => {
   finally { showLoading(false); }
 });
 
-document.getElementById('resetSetupBtn').addEventListener('click', () => {
+document.getElementById('resetSetupBtn')?.addEventListener('click', () => {
   if (!confirm('Firebase設定をリセットして再設定しますか?\n(データ自体は削除されません)')) return;
   clearConfig();
   const so = state.auth && state.authUser ? signOut(state.auth).catch(() => {}) : Promise.resolve();
@@ -3232,7 +3296,13 @@ async function tryLogin() {
     const inputHash = await sha256(v);
     if (inputHash === PASSWORD_HASH) {
       // このブラウザがGoogleでログイン中なら、パスワードではなくGoogleの確認に回す（外された人がパスワードで入り込まないように）
-      if (state.authUser) { passwordInput.value = ''; checkGoogleAccess(state.authUser); return; }
+      if (state.authUser) {
+        let accessExists = true;
+        try { const d = await getDoc(doc(state.db, META_COLLECTION, ACCESS_DOC)); accessExists = d.exists(); }
+        catch (e) { accessExists = true; }   // 読めない＝鍵をかけた後（一覧はある）
+        if (accessExists) { passwordInput.value = ''; checkGoogleAccess(state.authUser); return; }
+        // まだ管理者を決める前: パスワードで入って設定画面から始められるようにする
+      }
       // 鍵（ルール）をかけた後は、パスワードでは中のデータを読めない → 空の画面に入れずに案内する
       try { await getDoc(doc(state.db, META_COLLECTION, 'app')); }
       catch (e) {
@@ -3264,7 +3334,8 @@ function showGoogleError(e) {
   const code = (e && e.code) || '';
   if (!code || code === 'auth/popup-closed-by-user' || code === 'auth/cancelled-popup-request' || code === 'auth/user-cancelled') return;
   let msg = '✕ ログインできませんでした（' + code + '）';
-  if (code === 'auth/unauthorized-domain') msg = '✕ このサイトのアドレスがFirebaseに登録されていません（管理者に連絡してください）';
+  if (/api-key-not-valid|invalid-api-key/.test(code)) msg = '✕ 接続設定を確認できませんでした。アプリを閉じて開き直してください。直らない時は管理者に連絡してください';
+  else if (code === 'auth/unauthorized-domain') msg = '✕ このサイトのアドレスがFirebaseに登録されていません（管理者に連絡してください）';
   else if (code === 'auth/operation-not-allowed') msg = '✕ FirebaseでGoogleログインがまだ有効になっていません（管理者に連絡してください）';
   else if (code === 'auth/network-request-failed') msg = '✕ 通信できませんでした。電波を確認してもう一度押してください';
   googleError.textContent = msg;
@@ -3286,12 +3357,20 @@ async function googleLogin() {
   } finally { googleLoginBtn.disabled = false; }
 }
 googleLoginBtn.addEventListener('click', googleLogin);
-document.getElementById('pendingRetryBtn').addEventListener('click', () => { if (state.authUser) checkGoogleAccess(state.authUser); });
+document.getElementById('pendingRetryBtn').addEventListener('click', async () => {
+  if (!state.authUser) return;
+  const st = document.getElementById('pendingStatus');
+  st.textContent = '確認中…';
+  await checkGoogleAccess(state.authUser);
+  if (!state.appEntered) st.textContent = `まだ許可されていません（${new Date().toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' })} に確認）`;
+});
 document.getElementById('pendingLogoutBtn').addEventListener('click', () => { if (state.auth) signOut(state.auth).catch(() => {}); showLoginChoice(); });
 function showLoginChoice() {
   document.getElementById('googleBox').style.display = '';
   document.getElementById('pendingBox').style.display = 'none';
   document.getElementById('passwordLoginBox').style.display = '';
+  document.getElementById('passwordLoginBox').open = false;
+  document.getElementById('pendingStatus').textContent = '';
   showScreen('login');
 }
 function onAuthChanged(user) {
@@ -3350,6 +3429,8 @@ async function checkGoogleAccess(user) {
   document.getElementById('pendingText').innerHTML = access
     ? `<strong>${esc(email)}</strong> は、まだメンバーとして許可されていません。<br>管理者の画面に申請を出しました。許可されたら下のボタンを押してください。`
     : `Googleログインはまだ準備中です。<br>今は下の「パスワードでログイン」から入ってください。`;
+  document.getElementById('pendingRetryBtn').style.display = access ? '' : 'none';
+  if (!access) document.getElementById('passwordLoginBox').open = true;
   if (access) {
     try {
       await fsSetDoc(doc(state.db, REQUESTS_COLLECTION, user.uid), { email, name: String(user.displayName || '').slice(0, 40), at: isoNow() });
@@ -3933,10 +4014,7 @@ function renderChatter() {
       <div class="ch-comments" id="cmt-${esc(post.id)}" style="display:${comments.length ? '' : 'none'};">
         ${comments.map(c => `<div class="ch-comment">
           <div class="ch-avatar">${esc(initial(c.author))}</div>
-          <div class="ch-comment-body">
-            <div class="ch-comment-meta">${esc(c.author || '匿名')} · ${esc(chatterTimeLabel(c.at))}</div>
-            ${linkifyText(c.text)}
-          </div>
+          <div class="ch-comment-body"><div class="ch-comment-meta">${esc(c.author || '匿名')} · ${esc(chatterTimeLabel(c.at))}</div>${linkifyText(c.text)}</div>
         </div>`).join('')}
         <div class="ch-comment-input">
           <input type="text" placeholder="コメントを入力..." data-cinput="${esc(post.id)}" maxlength="1000" />
@@ -4352,8 +4430,8 @@ function renderLeadList() {
   tbody.innerHTML = page.map(r => `<tr data-id="${esc(r.id)}">
     <td>${leadStatusBadge(r.leadStatus)}</td>
     <td><strong>${esc(r.name)}</strong>${r.pref ? `<br><span style="font-size:11px;color:var(--text3);">${esc(r.pref)}</span>` : ''}</td>
-    <td class="mono">${esc(r.tel || '—')}</td>
-    <td class="mono">${esc(r.mobile || '—')}</td>
+    <td class="mono">${r.tel ? `<a class="tel-link" href="tel:${esc(r.tel)}">${esc(r.tel)}</a>` : '—'}</td>
+    <td class="mono">${r.mobile ? `<a class="tel-link" href="tel:${esc(r.mobile)}">${esc(r.mobile)}</a>` : '—'}</td>
     <td style="font-size:11px; max-width:220px; overflow:hidden; text-overflow:ellipsis;">${r.url ? extLink(r.url) : '—'}</td>
     <td style="font-size:11px;">${esc(r.industry || '—')}</td>
     <td>${callResultBadge(r.lastCallResult)}${r.callCount ? `<span style="font-size:10px;color:var(--text3);margin-left:4px;">×${r.callCount}</span>` : ''}${r.lastCallAt ? `<div style="font-size:10px;color:var(--text3);">${esc(relativeDate(r.lastCallAt.slice(0,10)))}</div>` : ''}</td>
@@ -6421,7 +6499,7 @@ function renderRecordPage() {
     rec.url ? `🌐 ${extLink(rec.url)}` : '',
     rec.apo_owner ? `アポ: ${esc(rec.apo_owner)}` : '',
     rec.sales_owner ? `営業: ${esc(rec.sales_owner)}` : ''
-  ].filter(Boolean).join('<span style="color:var(--border2);">|</span>');
+  ].filter(Boolean).map(h => `<span class="rm-item">${h}</span>`).join('');
   document.getElementById('recDealBtn').style.display = isLead ? 'none' : '';
   document.title = `${rec.name} | YAMATO CRM`;
   renderRecordSide(rec);
@@ -6546,7 +6624,7 @@ function renderDealPage() {
     c ? `🏢 <a class="ext" href="${routeHash({ type: 'account', id: c.id })}">${esc(c.name)}</a>` : `🏢 ${esc(d.customerName || '—')}（削除済み）`,
     `営業: ${esc(d.salesOwner || '—')}`,
     `アポ: ${esc(d.apoOwner || '—')}`
-  ].join('<span style="color:var(--border2);">|</span>');
+  ].map(h => `<span class="rm-item">${h}</span>`).join('');
   const row = (l, v) => `<div class="detail-row"><div class="label">${l}</div><div class="value">${v}</div></div>`;
   document.getElementById('dealBody').innerHTML = `
     <div class="detail-section">
@@ -6617,7 +6695,7 @@ function contractRowsHTML(items, showDeal = true) {
       <span style="font-size:18px;">📄</span>
       <div class="ct-main">
         ${extLink(c.url, c.label || '契約書')}
-        <div class="ct-sub">${showDeal ? esc(deal.dealName) + ' ／ ' : ''}${esc(c.addedBy || '—')} · ${esc(c.addedAt ? fmtDateTime(c.addedAt) : '')}</div>
+        <div class="ct-sub">${showDeal ? esc(deal.dealName) + ' ／ ' : ''}${esc([c.addedBy, c.addedAt ? fmtDateTime(c.addedAt) : ''].filter(Boolean).join(' · ') || '—')}</div>
       </div>
       <button class="ct-del" title="登録を外す（ドライブのファイルは消えません）" data-ctdel="${esc(deal.id)}|${esc(c.id)}">×</button>
     </div>`).join('');
@@ -6756,7 +6834,7 @@ function renderAllTable() {
     return `<tr data-id="${esc(r.id)}">
       <td>${phaseBadge(r.phase)}</td>
       <td><strong>${esc(r.name)}</strong></td>
-      <td class="mono">${esc(r.tel || '—')}<br><span style="color:var(--text3); font-size:11px;">${esc(r.email || '')}</span>${r.url ? `<div style="font-size:11px; max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${extLink(r.url)}</div>` : ''}</td>
+      <td class="mono">${r.tel ? `<a class="tel-link" href="tel:${esc(r.tel)}">${esc(r.tel)}</a>` : '—'}<br><span style="color:var(--text3); font-size:11px;">${esc(r.email || '')}</span>${r.url ? `<div style="font-size:11px; max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${extLink(r.url)}</div>` : ''}</td>
       <td style="font-size:11px;">${esc(planLabel)}</td>
       <td class="right mono">¥${fmt(total)}</td>
       <td>${healthHTML(r)}</td>
@@ -8086,7 +8164,7 @@ const BACKUP_COLLECTIONS = [
   ['calls', 'crm_calls'], ['events', 'crm_events'], ['meta', 'crm_meta']
 ];
 // 復元で上書きしない管理用の設定（版番号・バックアップ一覧）
-const META_SYSTEM_IDS = ['app', 'backups', 'access', 'googleSeen'];
+const META_SYSTEM_IDS = ['app', 'backups', 'access', 'googleSeen', 'webConfig'];
 function stripServerTs(o) {
   const c = { ...o }; delete c._updatedServer;
   // Firestoreの時刻型は文字にしておく（JSONにそのまま入らないため）
@@ -8587,7 +8665,7 @@ document.getElementById('restoreFile').addEventListener('change', async e => {
   } catch (err) { alert('復元失敗: ' + err.message); }
   finally { showLoading(false); e.target.value = ''; }
 });
-document.getElementById('resetConfigBtn').addEventListener('click', () => {
+document.getElementById('resetConfigBtn')?.addEventListener('click', () => {
   if (!confirm('Firebase設定をリセットしますか?(データ自体は削除されません)')) return;
   clearConfig();
   const so = state.auth && state.authUser ? signOut(state.auth).catch(() => {}) : Promise.resolve();
@@ -8630,8 +8708,7 @@ async function startup() {
   if (!window.crypto || !window.crypto.subtle) {
     alert('⚠ このアプリはHTTPS環境でのみ動作します。GitHub Pagesは自動的にHTTPSなので問題ありません。');
   }
-  const cfg = loadConfig();
-  if (!cfg) { showScreen('setup'); return; }
+  const cfg = effectiveConfig();
   showLoading(true);
   try {
     await initFirebase(cfg);
@@ -8640,8 +8717,8 @@ async function startup() {
     else setTimeout(() => { if (!state.authReady && !state.appEntered) showLoginChoice(); }, 4000);
   } catch (e) {
     console.error(e);
-    alert('Firebase初期化失敗: ' + (e.message || ''));
-    showScreen('setup');
+    showLoginChoice();
+    googleError.textContent = '✕ 接続できませんでした。電波を確認して、ページを開き直してください';
   } finally { showLoading(false); }
 }
 startup();
