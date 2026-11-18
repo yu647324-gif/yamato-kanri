@@ -207,7 +207,7 @@ button { font-family: inherit; cursor: pointer; }
 .ch-comment-body { flex: 1; background: var(--surface2); border-radius: 3px; padding: 8px 11px; font-size: 13px; line-height: 1.6; color: var(--text); white-space: pre-wrap; word-break: break-word; }
 .ch-comment-meta { font-size: 10px; color: var(--text3); margin-bottom: 3px; font-weight: 700; }
 .ch-comment-input { display: flex; gap: 8px; margin-top: 9px; }
-.ch-comment-input input { flex: 1; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 9px 11px; font-size: 14px; border-radius: 2px; outline: none; min-height: 38px; }
+.ch-comment-input input { flex: 1; min-width: 0; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 9px 11px; font-size: 14px; border-radius: 2px; outline: none; min-height: 38px; }
 .ch-comment-input input:focus { border-color: var(--accent); }
 .ch-del { margin-left: auto; background: none; border: none; color: var(--text3); font-size: 15px; cursor: pointer; padding: 0 4px; }
 .ch-del:hover { color: var(--red); }
@@ -847,6 +847,55 @@ a.ext, a.tel-link { color: var(--accent); }
   .nav-tab .lb-full { display: none; }
   .nav-tab .lb-short { display: inline; }
 }
+.me-fixed { display: flex; align-items: center; min-height: var(--tap-min); padding: 10px 12px; background: var(--surface2); border: 1px solid var(--border); border-radius: 2px; font-size: 15px; font-weight: 700; color: var(--text); }
+.me-fixed.inline { display: inline-flex; min-height: 0; padding: 4px 10px; font-size: 13px; vertical-align: middle; }
+
+/* 変更履歴 */
+.hist-list { display: flex; flex-direction: column; gap: 8px; }
+.hist-row { border: 1px solid var(--border); border-radius: 4px; padding: 8px 10px; background: var(--surface2); }
+.hist-head { display: flex; gap: 8px; align-items: baseline; flex-wrap: wrap; font-size: 13px; margin-bottom: 4px; }
+.hist-act { font-size: 11px; padding: 1px 7px; border-radius: 100px; background: var(--accent-dim); color: var(--accent); }
+.hist-time { font-size: 11px; color: var(--text3); margin-left: auto; font-family: 'JetBrains Mono', monospace; }
+.hist-chg { font-size: 12px; line-height: 1.6; display: flex; flex-wrap: wrap; gap: 4px 6px; align-items: baseline; overflow-wrap: anywhere; }
+.hist-k { color: var(--text2); font-weight: 700; }
+.hist-k::after { content: ':'; }
+.hist-from { color: var(--text3); text-decoration: line-through; }
+.hist-arrow { color: var(--text3); }
+.hist-to { color: var(--text); }
+
+/* 通知（ベル）・メンション・いいねした人 */
+.btn-icon.bell { position: relative; font-size: 15px; line-height: 1; }
+.bell-badge { position: absolute; top: -6px; right: -6px; min-width: 18px; height: 18px; padding: 0 5px; border-radius: 9px; background: var(--red); color: #fff; font-size: 10px; font-weight: 700; line-height: 18px; text-align: center; }
+.notif-panel { position: fixed; top: 58px; right: 12px; width: min(380px, calc(100vw - 24px)); max-height: min(70vh, 560px); display: flex; flex-direction: column; background: var(--surface); border: 1px solid var(--border2); border-radius: 6px; box-shadow: var(--shadow-modal); z-index: 550; }
+.notif-head { display: flex; align-items: center; gap: 8px; padding: 8px 10px 8px 14px; border-bottom: 1px solid var(--border); }
+.notif-head strong { margin-right: auto; font-size: 14px; }
+.notif-list { overflow-y: auto; -webkit-overflow-scrolling: touch; }
+.notif-row { display: flex; gap: 10px; width: 100%; text-align: left; background: none; border: none; border-bottom: 1px solid var(--border); padding: 12px 14px; color: var(--text); font: inherit; cursor: pointer; min-height: 44px; }
+.notif-row.unread { background: var(--accent-dim); }
+.notif-row.unread .notif-text { font-weight: 700; }
+.notif-ic { flex-shrink: 0; width: 22px; text-align: center; font-size: 15px; }
+.notif-main { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.notif-text { font-size: 13px; line-height: 1.5; overflow-wrap: anywhere; }
+.notif-time { font-size: 11px; color: var(--text3); }
+.mention { color: var(--accent); font-weight: 700; background: var(--accent-dim); border-radius: 3px; padding: 0 2px; }
+.ch-likers { font-size: 12px; color: var(--text2); margin-top: 4px; overflow-wrap: anywhere; }
+.at-btn { white-space: nowrap; }
+.mention-picker { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; width: 100%; }
+.mention-picker button { background: var(--surface2); border: 1px solid var(--border2); color: var(--text); border-radius: 100px; padding: 6px 12px; font: inherit; font-size: 13px; min-height: 40px; cursor: pointer; }
+@media (max-width: 900px) { .notif-panel { top: 52px; right: 8px; left: 8px; width: auto; max-height: calc(100dvh - 52px - 140px - env(safe-area-inset-bottom)); } }
+
+.hist-target { font-size: 12px; color: var(--accent); overflow-wrap: anywhere; display: inline-block; padding: 6px 0; }
+@media (max-width: 400px) { .rec-tab { padding: 10px 9px; font-size: 12px; white-space: nowrap; } }
+
+@media (max-width: 400px) {
+  .header-right { gap: 6px; }
+  .header-right .btn-icon { padding: 6px 8px; }
+  .me-pill { padding: 4px 8px; font-size: 11px; }
+}
+@media (max-width: 900px), (pointer: coarse) { .btn-icon.bell { min-width: 44px; min-height: 44px; } }
+
+@keyframes flashToday { 0% { box-shadow: 0 0 0 3px var(--accent); } 100% { box-shadow: 0 0 0 0 transparent; } }
+.flash-today { animation: flashToday 1.4s ease-out; }
 </style>
 </head>
 <body>
@@ -889,7 +938,7 @@ a.ext, a.tel-link { color: var(--accent); }
       <button class="btn-primary" id="pendingRetryBtn" type="button" style="margin-top:12px;">承認されたか確認する</button>
       <button id="pendingLogoutBtn" type="button" style="margin-top:12px; display:block; min-height:var(--tap-min); background:none; border:none; padding:6px 0; color:var(--accent); text-decoration:underline; font-size:13px; cursor:pointer; font-family:inherit;">別のGoogleアカウントにする</button>
     </div>
-    <details id="passwordLoginBox" style="margin-top:14px;">
+    <details id="passwordLoginBox" style="margin-top:14px; display:none;">
       <summary style="font-size:12px; color:var(--text3); cursor:pointer;">パスワードでログイン（Googleログインへの移行期間のみ）</summary>
       <div style="margin-top:12px;">
         <label class="auth-label" for="loginPass">PASSWORD</label>
@@ -909,7 +958,7 @@ a.ext, a.tel-link { color: var(--accent); }
 <!-- ==================== APP ==================== -->
 <div class="app" id="app">
   <header class="header">
-    <div class="header-brand"><img id="brandLogo" alt="" hidden />YAMATO<span class="sub">CRM v26</span></div>
+    <div class="header-brand"><img id="brandLogo" alt="" hidden />YAMATO<span class="sub">CRM v27</span></div>
     <div class="nav-tabs" id="navTabs">
       <button class="nav-tab active" data-tab="dashboard"><span class="nav-ic">📊</span> <span class="nav-lb"><span class="lb-full">ダッシュボード</span><span class="lb-short">ホーム</span></span></button>
       <button class="nav-tab" data-tab="chatter"><span class="nav-ic">💬</span> <span class="nav-lb">チャッター</span> <span class="badge" id="chatterBadge" style="display:none;">0</span></button>
@@ -925,11 +974,16 @@ a.ext, a.tel-link { color: var(--accent); }
     </div>
     <div class="header-right">
       <span class="sync-pill" id="syncPill"><span class="dot"></span><span id="syncText">同期中</span></span>
+      <button class="btn-icon bell" id="bellBtn" type="button" title="通知" aria-label="通知" style="display:none;">🔔<span class="bell-badge" id="bellBadge" style="display:none;"></span></button>
       <span class="me-pill" id="mePill" title="表示名を変更">👤 <span id="meName">—</span></span>
       <button class="btn-icon" id="themeBtn" title="テーマ切替">🌙</button>
       <button class="btn-icon logout" id="logoutBtn">LOGOUT</button>
     </div>
   </header>
+  <div class="notif-panel" id="notifPanel" role="dialog" aria-label="通知" style="display:none;">
+    <div class="notif-head"><strong>🔔 通知</strong><button type="button" class="btn-action" id="notifAllRead">すべて既読</button><button type="button" class="modal-close" id="notifClose" aria-label="閉じる">×</button></div>
+    <div class="notif-list" id="notifList"></div>
+  </div>
 
   <main class="main">
 
@@ -1063,7 +1117,7 @@ a.ext, a.tel-link { color: var(--accent); }
           <span style="font-size:11px; color:var(--text3);">投稿者:
             <select id="chAuthorSel" style="background:var(--bg); border:1px solid var(--border); color:var(--text); padding:5px 8px; border-radius:2px; font-size:12px;"></select>
           </span>
-          <button class="btn-action primary" id="chPostBtn">共有</button>
+          <span style="display:flex; gap:8px;"><button type="button" class="btn-action at-btn" id="chAtBtn" title="人を呼ぶ（メンション）">＠ 人を呼ぶ</button><button class="btn-action primary" id="chPostBtn">共有</button></span>
         </div>
       </div>
 
@@ -1608,6 +1662,15 @@ a.ext, a.tel-link { color: var(--accent); }
       <div class="panel">
         <div class="panel-head"><div class="panel-title"><span class="mono">// LOGIN</span>ログインできるメンバー（Google）</div></div>
         <div style="padding: 16px 18px;" id="accessPanel"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-head"><div class="panel-title"><span class="mono">// HISTORY</span>変更履歴（全体）</div></div>
+        <div style="padding: 16px 18px;">
+          <p style="font-size:12px; color:var(--text2); line-height:1.7; margin-bottom:10px;">全員の変更を新しい順に100件表示します。削除した顧客・商談や、まとめて変えた記録もここで見られます。</p>
+          <button type="button" class="btn-action" id="globalHistBtn">🕘 変更履歴を見る</button>
+          <div id="globalHistBox" style="margin-top:12px;"></div>
+        </div>
       </div>
 
       <div class="panel">
@@ -2457,7 +2520,8 @@ import {
 } from 'https://www.gstatic.com/firebasejs/12.13.0/firebase-auth.js';
 import {
   getFirestore, collection, doc, setDoc as fsSetDoc, getDoc, getDocs, deleteDoc as fsDeleteDoc,
-  query, where, onSnapshot, serverTimestamp, writeBatch as fsWriteBatch
+  query, where, onSnapshot, serverTimestamp, writeBatch as fsWriteBatch,
+  updateDoc as fsUpdateDoc, arrayUnion, arrayRemove, deleteField, orderBy, limit
 } from 'https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js';
 
 'use strict';
@@ -2466,13 +2530,22 @@ import {
 // ・この版の番号。新しい index.html を上げる時は必ず1つ上げる（画面左上の「CRM vXX」と同じ数字）
 // ・誰かが新しい版を開くと、古い版の画面は「読むだけ」になる（古い計算で上書きして壊すのを防ぐ）
 // ・新しい版を最初に開いた時、何かを書き込む前に全データを自動バックアップする（毎日1回も自動）
-const APP_VERSION = 26;
+const APP_VERSION = 27;
 let writeLocked = false;
 function guardWrite() {
   if (writeLocked) throw new Error('この画面は古い版です。ページを再読み込みしてから操作してください（データは保護されています）');
 }
 async function setDoc(...a) { guardWrite(); return fsSetDoc(...a); }
-async function deleteDoc(...a) { guardWrite(); return fsDeleteDoc(...a); }
+async function updateDoc(...a) { guardWrite(); return fsUpdateDoc(...a); }
+async function deleteDoc(ref) {
+  guardWrite();
+  const coll = refCollection(ref);
+  const before = coll ? auditCache(coll, ref.id) : null;
+  const r = await fsDeleteDoc(ref);
+  if (before) logHistory(coll, ref.id, before, 'delete', []);
+  return r;
+}
+function refCollection(ref) { return ref ? String((ref.parent && ref.parent.id) || ref.col || '') : ''; }
 function writeBatch(db) {
   const b = fsWriteBatch(db);
   const commit = b.commit.bind(b);
@@ -2481,7 +2554,8 @@ function writeBatch(db) {
 }
 
 // ============== CONSTANTS ==============
-const PASSWORD_HASH = '34b87405a52f95ea5c888d255bb8aad4fc29061ab96734b3c1e2887941574e57';
+// パスワードでのログインは終了（v27）。データの鍵（ルール）がGoogleログインのメンバーだけを通すので、パスワードの痕跡もページに残さない
+const PASSWORD_HASH = '';
 const PAGE_SIZE = 30;
 const STORAGE_KEY_CONFIG = 'yamato-crm-firebase-config-v1';
 const STORAGE_KEY_NOTIF = 'yamato-crm-notif-pref-v1';
@@ -2544,7 +2618,7 @@ const CANCEL_REASONS = {
 // ============== STATE ==============
 const state = {
   firebaseApp: null, db: null, unsubscribe: null,
-  records: [],
+  records: [], recPristine: new Map(), dealPristine: new Map(),
   isInitialLoad: true,
   online: false,
   editingId: null, detailId: null,
@@ -2849,14 +2923,22 @@ function renderRecTabs(rec) {
   const el = document.getElementById('recTabs');
   if (!el) return;
   const n = worksOf(rec).length;
-  const tab = state.recTab === 'works' ? 'works' : 'detail';
+  const tab = ['works', 'history'].includes(state.recTab) ? state.recTab : 'detail';
   el.innerHTML = `<button type="button" class="rec-tab${tab === 'detail' ? ' active' : ''}" data-rtab="detail">📋 詳細</button>
-    <button type="button" class="rec-tab${tab === 'works' ? ' active' : ''}" data-rtab="works">🎬 制作<span class="cnt">${n}</span></button>`;
+    <button type="button" class="rec-tab${tab === 'works' ? ' active' : ''}" data-rtab="works">🎬 制作<span class="cnt">${n}</span></button>
+    <button type="button" class="rec-tab${tab === 'history' ? ' active' : ''}" data-rtab="history">🕘 変更履歴</button>`;
   el.querySelectorAll('[data-rtab]').forEach(b => b.addEventListener('click', () => {
     state.recTab = b.dataset.rtab; state.workEditId = null;
     renderRecordPage();
   }));
   if (tab === 'works') renderWorksPanel(rec);
+  if (tab === 'history') {
+    const body = document.getElementById('detailBody');
+    if (body) {
+      watchHistory(rec.id);
+      body.innerHTML = `<div class="detail-section"><div class="detail-section-title">// 変更履歴（いつ・誰が・何を変えたか）</div><div id="histBox" data-for="${esc(rec.id)}">${historyHTML(state.histList)}</div></div>`;
+    }
+  } else if (state.histFor === rec.id) stopHistoryWatch();
 }
 function renderWorksPanel(rec) {
   const body = document.getElementById('detailBody');
@@ -3293,6 +3375,7 @@ const loginError = document.getElementById('loginError');
 async function tryLogin() {
   const v = passwordInput.value;
   if (!v) return;
+  if (!PASSWORD_HASH) { loginError.textContent = '✕ パスワードでのログインは終了しました。「Googleでログイン」から入ってください'; return; }
   if (!state.db) { loginError.textContent = '✕ Firebase未初期化'; return; }
   loginBtn.disabled = true; loginBtn.textContent = '確認中...';
   try {
@@ -3380,7 +3463,7 @@ document.getElementById('pendingLogoutBtn').addEventListener('click', () => { if
 function showLoginChoice() {
   document.getElementById('googleBox').style.display = '';
   document.getElementById('pendingBox').style.display = 'none';
-  document.getElementById('passwordLoginBox').style.display = '';
+  document.getElementById('passwordLoginBox').style.display = PASSWORD_HASH ? '' : 'none';
   document.getElementById('passwordLoginBox').open = false;
   document.getElementById('pendingStatus').textContent = '';
   showScreen('login');
@@ -3436,13 +3519,13 @@ async function checkGoogleAccess(user) {
   if (me && user.emailVerified !== true) { googleError.textContent = '✕ このGoogleアカウントはメールアドレスの確認が済んでいません'; showLoginChoice(); return; }
   const box = document.getElementById('pendingBox');
   document.getElementById('googleBox').style.display = 'none';
-  document.getElementById('passwordLoginBox').style.display = access ? 'none' : '';
+  document.getElementById('passwordLoginBox').style.display = (access || !PASSWORD_HASH) ? 'none' : '';
   box.style.display = '';
   document.getElementById('pendingText').innerHTML = access
     ? `<strong>${esc(email)}</strong> は、まだメンバーとして許可されていません。<br>管理者の画面に申請を出しました。許可されたら下のボタンを押してください。`
-    : `Googleログインはまだ準備中です。<br>今は下の「パスワードでログイン」から入ってください。`;
+    : (PASSWORD_HASH ? `Googleログインはまだ準備中です。<br>今は下の「パスワードでログイン」から入ってください。` : `ログインの準備ができていません。管理者に連絡してください。`);
   document.getElementById('pendingRetryBtn').style.display = access ? '' : 'none';
-  if (!access) document.getElementById('passwordLoginBox').open = true;
+  if (!access && PASSWORD_HASH) document.getElementById('passwordLoginBox').open = true;
   if (access) {
     try {
       await fsSetDoc(doc(state.db, REQUESTS_COLLECTION, user.uid), { email, name: String(user.displayName || '').slice(0, 40), at: isoNow() });
@@ -3466,6 +3549,7 @@ async function enterApp(method) {
       setDoc(doc(state.db, META_COLLECTION, 'googleSeen'), { byEmail: { [email]: isoNow() } }, { merge: true }).catch(e => console.warn('seen', e));
     }
     if (iAmAdmin()) loadRequests().then(renderAccessPanel);
+    subscribeNotifications();
   }
   renderAccessPanel();
 }
@@ -3480,7 +3564,11 @@ function doLogout(fromAuth) {
   if (state.lockedName) { state.lockedName = ''; state.me = ''; try { localStorage.removeItem(STORAGE_KEY_ME); } catch {} }
   if (state.unsubscribe) { try { state.unsubscribe(); } catch {} state.unsubscribe = null; }
   if (state.reminderTimer) { clearInterval(state.reminderTimer); state.reminderTimer = null; }
-  ['chatterUnsub', 'dealsUnsub', 'callsUnsub', 'eventsUnsub', 'metaUnsub', 'accessUnsub'].forEach(k => {
+  stopHistoryWatch();
+  state.recPristine = new Map(); state.dealPristine = new Map(); state.likeNotified = new Set();
+  state.notifs = []; state.notifSeen = null; renderBell(); closeNotifPanel();
+  { const bb = document.getElementById('bellBtn'); if (bb) bb.style.display = 'none'; }
+  ['chatterUnsub', 'dealsUnsub', 'callsUnsub', 'eventsUnsub', 'metaUnsub', 'accessUnsub', 'notifUnsub'].forEach(k => {
     if (state[k]) { try { state[k](); } catch {} state[k] = null; }
   });
   if (state.chatterTimer) { clearInterval(state.chatterTimer); state.chatterTimer = null; }
@@ -3505,9 +3593,7 @@ async function saveRecord(rec) {
     if (v === undefined) return; // skip undefined
     clean[k] = v;
   });
-  clean.updatedAt = isoNow();
-  clean._updatedServer = serverTimestamp();
-  await setDoc(ref, clean);
+  await saveAudited(COLLECTION, ref, rec.id, clean, rec[BASE]);
 }
 async function deleteRecordFromDb(id) {
   await deleteDoc(doc(state.db, COLLECTION, id));
@@ -3528,6 +3614,213 @@ async function batchSaveRecords(records) {
     });
     await batch.commit();
   }
+  logBulkHistory(COLLECTION, `${records.length}件をまとめて更新`);
+}
+
+// ============== 変更履歴（誰が・いつ・何を変えたか） ==============
+// ・取引先/リード（crm_customers）と商談（crm_deals）の保存は、変わった項目だけを書く（同時に別の項目を直した人の変更を消さない）
+// ・変わった内容は crm_history に1件ずつ残す。ルールで「本人のメールでしか書けない・書き換え/削除できない」
+const HISTORY_COLLECTION = 'crm_history';
+// 画面が読み込んだ時点のデータ（保存する人が「元にした版」）。{...rec} でコピーしても付いて回り、保存・JSONには出ない
+const BASE = Symbol('base');
+// スナップショットから「元の状態」の控えを作る。変わった文書だけコピーし直す（件数が多くても重くならないように）
+function updatePristine(map, snap) {
+  const next = new Map(map);
+  let changes = null;
+  try { changes = typeof snap.docChanges === 'function' ? snap.docChanges() : null; } catch { changes = null; }
+  if (changes && map.size) {
+    changes.forEach(ch => {
+      if (ch.type === 'removed') next.delete(ch.doc.id);
+      else { try { next.set(ch.doc.id, JSON.parse(JSON.stringify(ch.doc.data()))); } catch {} }
+    });
+    return next;
+  }
+  const all = new Map();
+  snap.forEach(d => { const x = d.data(); if (x) { try { all.set(d.id, JSON.parse(JSON.stringify(x))); } catch {} } });
+  return all;
+}
+const AUDIT_IGNORE = new Set(['id', 'updatedAt', 'updatedBy', '_updatedServer', 'createdAt', 'activity', 'callCount', 'lastCallAt', 'lastCallResult', 'primaryDealId']);
+const AUDIT_LABELS = {
+  name: '屋号', rep_name: '代表者', tel: '電話', mobile: '携帯', email: 'メール', url: 'URL', url2: 'URL2', url3: 'URL3', pref: '都道府県',
+  industry: '業種', place: '住所・場所', map: '地図', phase: 'フェーズ', kind: '種別', leadStatus: 'リードの状況', apo_owner: 'アポ取得者', sales_owner: '営業者',
+  meetingDate: '商談日時', meetingEnd: '商談終了', meet_tool: '商談方法', zoom: 'Zoom', product: '商材', planType: 'プラン', service: 'サービス', tags: 'タグ',
+  init_amount: '初期費用', monthly_amount: '月額', orderDate: '受注日', contract_start: '契約開始日', cancelled_date: '解約日', cancel_reason: '解約理由',
+  init_due: '初期費用の期限', init_paid_date: '初期費用の入金日', m1_due: '1ヶ月目の期限', m2_due: '2ヶ月目の期限', m3_due: '3ヶ月目の期限',
+  m1_paid_date: '1ヶ月目の入金日', m2_paid_date: '2ヶ月目の入金日', m3_paid_date: '3ヶ月目の入金日', m3_confirmed: '継続確認',
+  followupDate: '次回フォロー日', followupTime: '次回フォロー時刻', memo: 'メモ', apo_memo: 'アポメモ', addOrders: '追加受注', works: '制作物', contracts: '契約書',
+  dealName: '商談名', dealPhase: 'フェーズ', customerId: '取引先', customerName: '取引先名', amount_init: '初期費用', amount_monthly: '月額',
+  closeDate: '受注日・失注日', lostReason: '失注理由', apoOwner: 'アポ取得者', salesOwner: '営業者', firstMeetingDate: '初回商談日',
+  meet_place: '商談場所', zoom_send: '会議URLの送り方', mapUrl: '地図URL', cancel_date: '解約日', cancel_detail: '解約の詳細',
+  mail_sent: 'メール送付', mail_sent_at: 'メール送付日時', lost_reason: '失注理由', lost_date: '失注日', lost_detail: '失注の詳細',
+  auto_cancel_done: '自動解約', auto_cancel_prev_phase: '自動解約前のフェーズ', replacedBy: '置き換え先', end: '終了', monthly_day: '毎月の請求日'
+};
+function auditLabel(k) {
+  if (AUDIT_LABELS[k]) return AUDIT_LABELS[k];
+  let m = /^m(\d+)_(paid_date|due)$/.exec(k);
+  if (m) return `${m[1]}ヶ月目の${m[2] === 'due' ? '期限' : '入金日'}`;
+  if (k === 'auto_cancelled_at') return '自動解約した日時';
+  if (/^auto_cancel/.test(k)) return '自動解約（' + k.replace(/^auto_cancel(led)?_?/, '') + '）';
+  return String(k).slice(0, 40);
+}
+const AUDIT_LIST_FIELDS = new Set(['addOrders', 'works', 'contracts']);
+function stableJson(v) {
+  if (v === undefined) return 'undefined';
+  if (v === null || typeof v !== 'object') return JSON.stringify(v);
+  if (Array.isArray(v)) return '[' + v.map(stableJson).join(',') + ']';
+  return '{' + Object.keys(v).sort().map(k => JSON.stringify(k) + ':' + stableJson(v[k])).join(',') + '}';
+}
+function auditCache(coll, id) {
+  const m = coll === COLLECTION ? state.recPristine : coll === DEALS_COLLECTION ? state.dealPristine : null;
+  return m ? (m.get(id) || null) : null;
+}
+function isEmptyVal(v) { return v === undefined || v === null || v === '' || (Array.isArray(v) && !v.length); }
+// 変わった項目（無視する項目以外）。空→空（''↔なし）は変化とみなさない
+function changedKeys(before, after) {
+  const keys = new Set([...Object.keys(before || {}), ...Object.keys(after || {})]);
+  return [...keys].filter(k => !AUDIT_IGNORE.has(k)).filter(k => {
+    const a = (before || {})[k], b = (after || {})[k];
+    if (isEmptyVal(a) && isEmptyVal(b)) return false;
+    return stableJson(a) !== stableJson(b);
+  });
+}
+function auditValue(k, v) {
+  if (isEmptyVal(v)) return '（空）';
+  if (k === 'phase') return (PHASE_MAP[v] && PHASE_MAP[v].label) || String(v);
+  if (k === 'dealPhase') return (DEAL_PHASE_MAP[v] && DEAL_PHASE_MAP[v].label) || String(v);
+  if (k === 'lostReason' || k === 'lost_reason') return LOST_REASONS[v] || String(v);
+  if (k === 'cancel_reason') return CANCEL_REASONS[v] || String(v);
+  if (k === 'planType') return (PLAN_TYPES[v] && PLAN_TYPES[v].label) || String(v);
+  if (k === 'kind') return v === 'lead' ? 'リード' : v === 'account' ? '取引先' : String(v);
+  if (k === 'auto_cancel_prev_phase') return (PHASE_MAP[v] && PHASE_MAP[v].label) || String(v);
+  if (k === 'customerId') { const r = state.records.find(x => x.id === v); return r ? r.name : String(v); }
+  if (typeof v === 'boolean') return v ? 'はい' : 'いいえ';
+  if (Array.isArray(v)) return `${v.length}件`;
+  if (typeof v === 'object') return '（詳細）';
+  const t = String(v).replace(/\s+/g, ' ').trim();
+  return t.length > 120 ? t.slice(0, 120) + '…' : t;
+}
+function describeChanges(before, after) {
+  return changedKeys(before, after).slice(0, 50).map(k => {
+    let from = auditValue(k, (before || {})[k]), to = auditValue(k, (after || {})[k]);
+    if (AUDIT_LIST_FIELDS.has(k) && from === to) { from = ''; to = '内容を変更'; }
+    return { k: String(k).slice(0, 40), label: auditLabel(k), from: String(from).slice(0, 130), to: String(to).slice(0, 130) };
+  });
+}
+// 変わった項目だけを書く。
+// 「変わった」は、保存する人が元にした版（base）と比べて判断する（その後に他の人が変えた項目を古い値で戻さない）。
+// 元にした版が分からない新規は全体を書く。
+async function saveAudited(coll, ref, id, clean, base) {
+  clean.updatedAt = isoNow();
+  const me = selfName(); if (me) clean.updatedBy = me;
+  clean._updatedServer = serverTimestamp();
+  const current = auditCache(coll, id);   // いまサーバーにある最新の状態（履歴の「前」の値に使う）
+  const ref0 = base || current;
+  // 項目名に記号（. など）があると「変わった項目だけ書く」が正しく働かないので、その時は全体を書く
+  const safeKeys = Object.keys(clean).concat(ref0 ? Object.keys(ref0) : []).every(k => /^[A-Za-z_][A-Za-z0-9_]*$/.test(k));
+  if (!ref0 || !safeKeys) {
+    await setDoc(ref, clean);
+    logHistory(coll, id, clean, ref0 ? 'update' : 'create', ref0 ? describeChanges(current || ref0, clean) : []);
+    return;
+  }
+  if (!current) {
+    // 元にした後で誰かが削除した: 中途半端な文書を作らず、丸ごと書き戻す（削除の取り消し）
+    await setDoc(ref, clean);
+    logHistory(coll, id, clean, 'update', [{ k: '*', label: '削除されていた顧客/商談を保存し直し', from: '', to: '' }]);
+    return;
+  }
+  const keys = [...new Set([...Object.keys(ref0), ...Object.keys(clean)])]
+    .filter(k => !['id', 'updatedAt', 'updatedBy', '_updatedServer'].includes(k))
+    .filter(k => !(isEmptyVal(ref0[k]) && isEmptyVal(clean[k])) && stableJson(ref0[k]) !== stableJson(clean[k]));
+  if (!keys.length) return;   // 何も変えていない
+  const payload = {};
+  keys.forEach(k => { payload[k] = (k in clean) ? clean[k] : deleteField(); });
+  payload.updatedAt = clean.updatedAt;
+  if (clean.updatedBy) payload.updatedBy = clean.updatedBy;
+  payload._updatedServer = clean._updatedServer;
+  await setDoc(ref, payload, { mergeFields: Object.keys(payload) });
+  // 履歴: 「前」はサーバーの最新値、「後」は今回書いた値。書いた項目だけ
+  const after = { ...current }; keys.forEach(k => { if (k in clean) after[k] = clean[k]; else delete after[k]; });
+  const onlyKeys = {}; keys.forEach(k => { onlyKeys[k] = true; });
+  const pick = o => { const x = {}; Object.keys(o || {}).forEach(k => { if (onlyKeys[k]) x[k] = o[k]; }); return x; };
+  logHistory(coll, id, { ...current, ...clean }, 'update', describeChanges(pick(current), pick(after)));
+}
+function historyActor() {
+  const email = state.authUser && state.loginMethod === 'google' ? normEmail(state.authUser.email) : '';
+  return email ? { by: String(selfName() || '').slice(0, 40), byEmail: email } : null;
+}
+function logHistory(coll, id, data, action, changes) {
+  try {
+    const actor = historyActor();
+    if (!actor || !state.db) return;
+    if (action === 'update' && !changes.length) return;
+    const targetType = coll === DEALS_COLLECTION ? 'deal' : 'record';
+    const name = String((data && (data.dealName || data.name)) || '').slice(0, 80);
+    const h = { targetType, targetId: String(id), targetName: name, action, changes: changes || [], by: actor.by, byEmail: actor.byEmail, at: isoNow(), atMs: Date.now() };
+    const hid = 'h_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
+    setDoc(doc(state.db, HISTORY_COLLECTION, hid), h).catch(e => console.warn('history', e));
+  } catch (e) { console.warn('history', e); }
+}
+function logBulkHistory(coll, text) {
+  logHistory(coll, '*', { name: '（まとめて）' }, 'bulk', [{ k: '*', label: 'まとめて変更', from: '', to: String(text).slice(0, 130) }]);
+}
+// 画面: 指定した取引先・商談の履歴を開いている間だけ購読
+function watchHistory(targetId) {
+  if (state.histFor === targetId && state.histUnsub) return;
+  stopHistoryWatch();
+  state.histFor = targetId; state.histList = null; state.histError = '';
+  try {
+    state.histUnsub = onSnapshot(query(collection(state.db, HISTORY_COLLECTION), where('targetId', '==', targetId)), snap => {
+      const list = []; snap.forEach(d => { const x = d.data(); if (x) list.push({ ...x, id: d.id }); });
+      list.sort((a, b) => (Number(b.atMs) || 0) - (Number(a.atMs) || 0));
+      state.histList = list; renderHistoryInto();
+    }, err => { console.warn('history watch', err); state.histError = '履歴を読み込めませんでした'; state.histList = []; renderHistoryInto(); });
+  } catch (e) { state.histError = '履歴を読み込めませんでした'; state.histList = []; }
+}
+function stopHistoryWatch() {
+  if (state.histUnsub) { try { state.histUnsub(); } catch {} }
+  state.histUnsub = null; state.histFor = null; state.histList = null;
+}
+function histTargetHTML(h) {
+  const label = (h.targetType === 'deal' ? '🤝 ' : '🏢 ') + (h.targetName || '');
+  const exists = h.targetType === 'deal' ? state.deals.some(d => d.id === h.targetId) : state.records.some(r => r.id === h.targetId);
+  return exists ? `<a href="#" class="hist-target" data-hgo="${esc(h.targetType)}|${esc(h.targetId)}">${esc(label)}</a>` : `<span class="hist-target">${esc(label)}${h.targetId === '*' ? '' : '（削除済み）'}</span>`;
+}
+function actorLabel(h) {
+  const m = (state.access && Array.isArray(state.access.members) ? state.access.members : []).find(x => normEmail(x.email) === normEmail(h.byEmail));
+  return (m && m.name) || h.by || h.byEmail || '不明';
+}
+function historyHTML(list, withTarget) {
+  if (state.histError) return `<div class="rel-empty">${esc(state.histError)}</div>`;
+  if (!list) return '<div class="rel-empty">読み込み中…</div>';
+  if (!list.length) return '<div class="rel-empty">まだ変更の記録はありません（v27以降の変更から残ります）</div>';
+  const ACT = { create: '作成', update: '変更', delete: '削除', bulk: 'まとめて変更' };
+  return `<div class="hist-list">${list.slice(0, 200).map(h => `<div class="hist-row">
+      <div class="hist-head"><strong>${esc(actorLabel(h))}</strong><span class="hist-act">${esc(ACT[h.action] || h.action || '')}</span>${withTarget ? histTargetHTML(h) : ''}<span class="hist-time">${esc(fmtDateTime(h.at))}</span></div>
+      ${(Array.isArray(h.changes) ? h.changes : []).map(c => `<div class="hist-chg"><span class="hist-k">${esc(c.label || c.k)}</span>${c.from ? `<span class="hist-from">${esc(c.from)}</span><span class="hist-arrow">→</span>` : ''}<span class="hist-to">${esc(c.to)}</span></div>`).join('')}
+    </div>`).join('')}${list.length > 200 ? `<div class="rel-empty">古い${list.length - 200}件は省略</div>` : ''}</div>`;
+}
+async function loadGlobalHistory() {
+  const box = document.getElementById('globalHistBox');
+  if (!box || !state.db) return;
+  box.innerHTML = '<div class="rel-empty">読み込み中…</div>';
+  try {
+    const snap = await getDocs(query(collection(state.db, HISTORY_COLLECTION), orderBy('atMs', 'desc'), limit(100)));
+    const list = []; snap.forEach(d => { const x = d.data(); if (x) list.push({ ...x, id: d.id }); });
+    list.sort((a, b) => (Number(b.atMs) || 0) - (Number(a.atMs) || 0));
+    const saved = state.histError; state.histError = '';
+    box.innerHTML = historyHTML(list.slice(0, 100), true);
+    state.histError = saved;
+    box.querySelectorAll('[data-hgo]').forEach(a => a.addEventListener('click', e => {
+      e.preventDefault();
+      const [t, id] = a.dataset.hgo.split('|');
+      if (t === 'deal') openDealPage(id); else openDetail(id);
+    }));
+  } catch (e) { box.innerHTML = '<div class="rel-empty">変更履歴を読み込めませんでした</div>'; console.warn('global history', e); }
+}
+document.getElementById('globalHistBtn').addEventListener('click', loadGlobalHistory);
+function renderHistoryInto() {
+  const el = document.getElementById('histBox');
+  if (el && el.dataset.for === state.histFor) el.innerHTML = historyHTML(state.histList);
 }
 
 function subscribeAll() {
@@ -3535,11 +3828,15 @@ function subscribeAll() {
   const q = query(collection(state.db, COLLECTION));
   state.unsubscribe = onSnapshot(q, snap => {
     const list = [];
+    const pristine = updatePristine(state.recPristine, snap);
     snap.forEach(d => {
       const data = d.data();
       if (!data || !data.name) return;
-      list.push({ ...data, id: d.id });
+      const item = { ...data, id: d.id };
+      item[BASE] = pristine.get(d.id) || null;
+      list.push(item);
     });
+    state.recPristine = pristine;
     state.records = list;
     state.online = true;
     updateSyncPill(true);
@@ -3880,6 +4177,7 @@ function updateMeLabels() {
   const a = document.getElementById('meName'); if (a) a.textContent = n;
   const b = document.getElementById('chAuthorSel');
   if (b && getMe() && state.members.includes(getMe())) b.value = getMe();
+  try { applyIdentityLock(); } catch {}
 }
 function ensureMe() {
   if (getMe()) return true;
@@ -3948,9 +4246,211 @@ async function postToChatter(type, text, opts) {
     createdAt: isoNow(),
     createdMs: Date.now()
   };
-  try { await saveChatterPost(post); return true; }
+  try { await saveChatterPost(post); return post.id; }
   catch (e) { console.error(e); toast('チャッター投稿に失敗: ' + (e.message || ''), true); return false; }
 }
+
+// ============== メンション・通知（🔔） ==============
+// 通知は crm_notifications に「宛先のGoogleメール」付きで保存。読めるのは宛先の本人だけ（ルールで制限）
+const NOTIF_COLLECTION = 'crm_notifications';
+function accessMembersList() { return state.access && Array.isArray(state.access.members) ? state.access.members.filter(m => m && m.email && m.name) : []; }
+function mentionableNames() {
+  return [...new Set([...accessMembersList().map(m => String(m.name)), ...(state.members || [])].filter(Boolean))];
+}
+// 文中の「@名前」「＠名前」（登録されている名前だけ。長い名前を優先して、1か所を1人だけに数える）
+function reEscape(t) { return String(t).replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); }
+function mentionRegex(names, escapeHtml) {
+  const list = [...new Set(names.filter(Boolean))].sort((a, b) => b.length - a.length);
+  if (!list.length) return null;
+  return new RegExp('[@＠](' + list.map(n => reEscape(escapeHtml ? esc(n) : n)).join('|') + ')', 'g');
+}
+function mentionedNames(text) {
+  const t = String(text || '');
+  if (!/[@＠]/.test(t)) return [];
+  const names = mentionableNames();
+  const re = mentionRegex(names, false);
+  if (!re) return [];
+  const found = [];
+  let m;
+  while ((m = re.exec(t))) { if (!found.includes(m[1])) found.push(m[1]); }
+  return found;
+}
+// 表示用: 「@名前」を色付きに（HTMLのタグの中は触らない）
+function highlightMentions(html) {
+  if (!/[@＠]/.test(html)) return html;
+  const re = mentionRegex(mentionableNames(), true);
+  if (!re) return html;
+  return html.split(/(<[^>]+>)/).map(part => part.startsWith('<') ? part : part.replace(re, m => `<span class="mention">${m}</span>`)).join('');
+}
+function emailsForName(name) {
+  return [...new Set(accessMembersList().filter(m => String(m.name) === String(name)).map(m => normEmail(m.email)))];
+}
+function notifyNames(names, info) {
+  try {
+    const actor = historyActor();
+    if (!actor || !state.db || !Array.isArray(names) || !names.length) return;
+    const sent = new Set();
+    [...new Set(names)].forEach(name => {
+      emailsForName(name).forEach(email => {
+        if (!email || email === actor.byEmail || sent.has(email)) return;
+        sent.add(email);
+        const n = {
+          toEmail: email, toName: String(name).slice(0, 40), type: String(info.type || 'mention'),
+          by: actor.by, byEmail: actor.byEmail,
+          text: String(info.text || '').replace(/\s+/g, ' ').trim().slice(0, 200),
+          postId: String(info.postId || ''), recordId: String(info.recordId || ''),
+          at: isoNow(), atMs: Date.now(), read: false
+        };
+        const id = 'n_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 8);
+        setDoc(doc(state.db, NOTIF_COLLECTION, id), n).catch(e => console.warn('notify', e));
+      });
+    });
+  } catch (e) { console.warn('notify', e); }
+}
+function subscribeNotifications() {
+  if (state.notifUnsub) { try { state.notifUnsub(); } catch {} state.notifUnsub = null; }
+  const email = state.authUser ? normEmail(state.authUser.email) : '';
+  if (!email || !state.db) return;
+  state.notifs = []; state.notifSeen = null;
+  document.getElementById('bellBtn').style.display = '';
+  try {
+    state.notifUnsub = onSnapshot(query(collection(state.db, NOTIF_COLLECTION), where('toEmail', '==', email)), snap => {
+      const list = []; snap.forEach(d => { const x = d.data(); if (x) list.push({ ...x, id: d.id }); });
+      list.sort((a, b) => (Number(b.atMs) || 0) - (Number(a.atMs) || 0));
+      const first = state.notifSeen === null;
+      const seen = state.notifSeen || new Set();
+      const fresh = first ? [] : list.filter(n => !n.read && !seen.has(n.id));
+      state.notifSeen = new Set(list.map(n => n.id));
+      state.notifs = list;
+      renderBell();
+      if (document.getElementById('notifPanel').style.display !== 'none') renderNotifPanel();
+      fresh.slice(0, 3).forEach(n => { toast('🔔 ' + notifText(n)); systemNotify(n); });
+      if (first) cleanupOldNotifs(list);
+    }, err => console.warn('notif watch', err));
+  } catch (e) { console.warn('notif watch', e); }
+}
+function notifText(n) {
+  const who = actorLabel(n) || '誰か';
+  const snip = n.text ? `「${n.text.length > 40 ? n.text.slice(0, 40) + '…' : n.text}」` : '';
+  if (n.type === 'like') return `${who}さんがあなたの投稿にいいねしました ${snip}`;
+  if (n.type === 'comment') return `${who}さんがあなたの投稿にコメントしました ${snip}`;
+  if (n.type === 'apo') return `${who}さんが取ったアポの営業者になりました ${snip}`;
+  return `${who}さんがあなたをメンションしました ${snip}`;
+}
+function systemNotify(n) {
+  try {
+    if (!('Notification' in window) || Notification.permission !== 'granted' || !document.hidden) return;
+    new Notification('YAMATO CRM', { body: notifText(n), tag: n.id });
+  } catch {}
+}
+function renderBell() {
+  const b = document.getElementById('bellBadge');
+  if (!b) return;
+  const unread = (state.notifs || []).filter(n => !n.read).length;
+  b.textContent = unread > 99 ? '99+' : String(unread);
+  b.style.display = unread ? '' : 'none';
+  const btn = document.getElementById('bellBtn');
+  if (btn) { btn.setAttribute('aria-label', unread ? `通知 ${unread}件（未読）` : '通知'); if (!state.notifUnsub) btn.style.display = 'none'; }
+}
+function renderNotifPanel() {
+  const el = document.getElementById('notifList');
+  const list = (state.notifs || []).slice(0, 100);
+  el.innerHTML = list.length ? list.map(n => `<button type="button" class="notif-row${n.read ? '' : ' unread'}" data-nid="${esc(n.id)}">
+      <span class="notif-ic">${n.type === 'like' ? '👍' : n.type === 'comment' ? '💬' : n.type === 'apo' ? '📞' : '＠'}</span>
+      <span class="notif-main"><span class="notif-text">${esc(notifText(n))}</span><span class="notif-time">${esc(chatterTimeLabel(n.at))}</span></span>
+    </button>`).join('') : '<div class="rel-empty" style="padding:16px;">通知はまだありません</div>';
+  el.querySelectorAll('[data-nid]').forEach(b => b.addEventListener('click', () => openNotif(b.dataset.nid)));
+}
+function closeNotifPanel() { const p = document.getElementById('notifPanel'); if (p) p.style.display = 'none'; }
+async function markNotifRead(ids) {
+  try {
+    const b = writeBatch(state.db);
+    ids.slice(0, 400).forEach(id => b.update(doc(state.db, NOTIF_COLLECTION, id), { read: true }));
+    await b.commit();
+  } catch (e) {
+    // 途中の1件が別の端末で消されているとまとめ書きが失敗するので、1件ずつ書き直す
+    for (const id of ids.slice(0, 100)) { try { await updateDoc(doc(state.db, NOTIF_COLLECTION, id), { read: true }); } catch {} }
+  }
+}
+function openNotif(id) {
+  const n = (state.notifs || []).find(x => x.id === id);
+  if (!n) return;
+  if (!n.read) { n.read = true; renderBell(); markNotifRead([id]); }
+  closeNotifPanel();
+  if (n.postId && state.chatter.some(p => p.id === n.postId)) {
+    state.chatterFilter = ''; state.chatterSearch = '';
+    const si = document.getElementById('chSearch'); if (si) si.value = '';
+    document.querySelectorAll('.ch-filter').forEach(x => x.classList.toggle('active', !x.dataset.f));
+    state.chatterLimit = Math.max(state.chatterLimit || 0, state.chatter.findIndex(p => p.id === n.postId) + 5);
+    navigate({ type: 'tab', name: 'chatter' });
+    setTimeout(() => {
+      const el = [...document.querySelectorAll('#chFeed .ch-post')].find(x => x.dataset.pid === n.postId);
+      if (el) {
+        el.scrollIntoView({ block: 'center', behavior: 'smooth' });
+        el.classList.remove('fresh'); void el.offsetWidth; el.classList.add('fresh');
+        const box = document.getElementById('cmt-' + n.postId); if (box && n.type !== 'like') box.style.display = '';
+      } else toast('この投稿は表示期間の外です。チャッターの検索で探せます');
+    }, 250);
+  } else if (n.recordId && state.records.some(r => r.id === n.recordId)) openDetail(n.recordId);
+  else toast('元の投稿・顧客は削除されています', true);
+}
+// 30日より前の既読・90日より前の未読の通知は片付ける（本人の分だけ・1回に50件まで）
+function cleanupOldNotifs(list) {
+  const now = Date.now();
+  const old = list.filter(n => (Number(n.atMs) || 0) < now - (n.read ? 30 : 90) * 86400000).slice(0, 50);
+  old.forEach(n => deleteDoc(doc(state.db, NOTIF_COLLECTION, n.id)).catch(() => {}));
+}
+document.getElementById('bellBtn').addEventListener('click', e => {
+  e.stopPropagation();
+  const p = document.getElementById('notifPanel');
+  if (p.style.display === 'none') { renderNotifPanel(); p.style.display = ''; } else closeNotifPanel();
+});
+document.getElementById('notifClose').addEventListener('click', closeNotifPanel);
+document.getElementById('notifAllRead').addEventListener('click', async () => {
+  const ids = (state.notifs || []).filter(n => !n.read).map(n => n.id);
+  if (!ids.length) { closeNotifPanel(); return; }
+  (state.notifs || []).forEach(n => { n.read = true; });
+  renderBell(); renderNotifPanel();
+  await markNotifRead(ids);
+});
+document.addEventListener('click', e => {
+  const p = document.getElementById('notifPanel');
+  if (p && p.style.display !== 'none' && !p.contains(e.target) && !e.target.closest('#bellBtn')) closeNotifPanel();
+});
+document.addEventListener('keydown', e => { if (e.key === 'Escape') closeNotifPanel(); });
+// ＠ボタン: 名前を選ぶと入力欄のカーソル位置に「@名前 」を入れる
+function openMentionPicker(anchor, input) {
+  const row = anchor.closest('.ch-comment-input') || anchor.closest('.ch-composer-foot') || anchor;
+  const openNow = row.nextElementSibling && row.nextElementSibling.classList.contains('mention-picker');
+  document.querySelectorAll('.mention-picker').forEach(x => x.remove());
+  if (openNow) return;   // もう一度押したら閉じる
+  if (!input) return;
+  const me = selfName();
+  // 通知が届く人（Googleでログインできるメンバー）だけを出す
+  const withAccount = [...new Set(accessMembersList().map(m => String(m.name)))];
+  const names = (withAccount.length ? withAccount : mentionableNames()).filter(n => n !== me);
+  const box = document.createElement('div');
+  box.className = 'mention-picker';
+  box.innerHTML = names.length ? names.map(n => `<button type="button" data-mname="${esc(n)}">@${esc(n)}</button>`).join('') : '<span style="font-size:12px; color:var(--text3);">呼べるメンバーがいません</span>';
+  // 入力欄の行の下に出す（ボタンの並びを崩さない）
+  (anchor.closest('.ch-comment-input') || anchor.closest('.ch-composer-foot') || anchor).insertAdjacentElement('afterend', box);
+  box.querySelectorAll('[data-mname]').forEach(b => b.addEventListener('click', ev => {
+    ev.stopPropagation();
+    const ins = '@' + b.dataset.mname + ' ';
+    const st = typeof input.selectionStart === 'number' ? input.selectionStart : input.value.length;
+    const en = typeof input.selectionEnd === 'number' ? input.selectionEnd : st;
+    const max = Number(input.getAttribute('maxlength')) || 100000;
+    const next = (input.value.slice(0, st) + ins + input.value.slice(en)).slice(0, max);
+    input.value = next;
+    box.remove();
+    try { input.focus(); const pos = Math.min(st + ins.length, next.length); input.setSelectionRange(pos, pos); } catch {}
+  }));
+  setTimeout(() => {
+    const off = ev => { if (!box.contains(ev.target) && ev.target !== anchor) { box.remove(); document.removeEventListener('click', off, true); } };
+    document.addEventListener('click', off, true);
+  }, 0);
+}
+document.getElementById('chAtBtn').addEventListener('click', e => openMentionPicker(e.currentTarget, document.getElementById('chText')));
 
 // ---- 描画 ----
 function chatterTimeLabel(iso) {
@@ -4006,7 +4506,7 @@ function renderChatter() {
     const freshCls = (isFresh && idx === 0) ? ' fresh' : '';
     const likes = Array.isArray(post.likes) ? post.likes : [];
     const comments = Array.isArray(post.comments) ? post.comments : [];
-    const liked = me && likes.includes(me);
+    const liked = !!selfName() && likes.includes(selfName());
     return `<div class="ch-post${freshCls}" data-pid="${esc(post.id)}">
       <div class="ch-post-head">
         <div class="ch-avatar">${esc(initial(post.author))}</div>
@@ -4017,19 +4517,21 @@ function renderChatter() {
         <span class="ch-type ${t.cls}">${esc(t.label)}</span>
         ${me && post.author === me ? `<button class="ch-del" data-del="${esc(post.id)}" title="削除">×</button>` : ''}
       </div>
-      <div class="ch-body">${linkifyText(post.text)}</div>
+      <div class="ch-body">${highlightMentions(linkifyText(post.text))}</div>
       ${post.recordId ? `<a class="ch-link" href="${routeHash({ type: 'account', id: post.recordId })}" data-open="${esc(post.recordId)}">🔗 ${esc((state.records.find(r => r.id === post.recordId) || {}).name || post.recordName || '顧客を開く')}</a>` : ''}
       <div class="ch-actions">
         <button class="ch-act ${liked ? 'liked' : ''}" data-like="${esc(post.id)}">👍 いいね${likes.length ? ' ' + likes.length : ''}</button>
         <button class="ch-act" data-toggle="${esc(post.id)}">💬 コメント${comments.length ? ' ' + comments.length : ''}</button>
       </div>
+      ${likes.length ? `<div class="ch-likers">👍 ${likes.map(n => esc(n)).join('、')}</div>` : ''}
       <div class="ch-comments" id="cmt-${esc(post.id)}" style="display:${comments.length ? '' : 'none'};">
         ${comments.map(c => `<div class="ch-comment">
           <div class="ch-avatar">${esc(initial(c.author))}</div>
-          <div class="ch-comment-body"><div class="ch-comment-meta">${esc(c.author || '匿名')} · ${esc(chatterTimeLabel(c.at))}</div>${linkifyText(c.text)}</div>
+          <div class="ch-comment-body"><div class="ch-comment-meta">${esc(c.author || '匿名')} · ${esc(chatterTimeLabel(c.at))}</div>${highlightMentions(linkifyText(c.text))}</div>
         </div>`).join('')}
         <div class="ch-comment-input">
-          <input type="text" placeholder="コメントを入力..." data-cinput="${esc(post.id)}" maxlength="1000" />
+          <input type="text" placeholder="コメントを入力...（＠で人を呼べます）" data-cinput="${esc(post.id)}" maxlength="1000" />
+          <button type="button" class="btn-action at-btn" data-at-for="${esc(post.id)}" title="人を呼ぶ（メンション）">＠</button>
           <button class="btn-action" data-csend="${esc(post.id)}">送信</button>
         </div>
       </div>
@@ -4048,11 +4550,21 @@ function bindChatterEvents() {
   document.querySelectorAll('[data-like]').forEach(el => el.addEventListener('click', async () => {
     if (!ensureMe()) return;
     const post = state.chatter.find(x => x.id === el.dataset.like); if (!post) return;
-    const likes = Array.isArray(post.likes) ? [...post.likes] : [];
-    const me = getMe();
-    const i = likes.indexOf(me);
-    if (i >= 0) likes.splice(i, 1); else likes.push(me);
-    try { await saveChatterPost({ ...post, likes }); } catch (e) { toast('失敗: ' + e.message, true); }
+    const me = selfName();
+    const had = (Array.isArray(post.likes) ? post.likes : []).includes(me);
+    if (el.disabled) return;
+    el.disabled = true;
+    try {
+      // 同時に他の人がいいねしても消えないように、足す/外すだけを書く
+      await updateDoc(doc(state.db, CHATTER_COLLECTION, post.id), { likes: had ? arrayRemove(me) : arrayUnion(me) });
+      // 付け直しのたびに通知が飛ばないように、同じ投稿へのいいね通知はこの画面で1回だけ
+      state.likeNotified = state.likeNotified || new Set();
+      if (!had && post.author && post.author !== me && !state.likeNotified.has(post.id)) {
+        state.likeNotified.add(post.id);
+        notifyNames([post.author], { type: 'like', postId: post.id, text: post.text });
+      }
+    } catch (e) { toast('失敗: ' + e.message, true); }
+    finally { el.disabled = false; }
   }));
 
   document.querySelectorAll('[data-toggle]').forEach(el => el.addEventListener('click', () => {
@@ -4065,19 +4577,28 @@ function bindChatterEvents() {
     const text = (input.value || '').trim();
     if (!text) return;
     const post = state.chatter.find(x => x.id === pid); if (!post) return;
-    const comments = Array.isArray(post.comments) ? [...post.comments] : [];
-    comments.push({ author: getMe(), text: text.slice(0, 1000), at: isoNow() });
+    const me = selfName();
+    const c = { author: me, text: text.slice(0, 1000), at: isoNow(), cid: Math.random().toString(36).slice(2, 10) };
     input.value = '';
-    try { await saveChatterPost({ ...post, comments }); } catch (e) { toast('失敗: ' + e.message, true); }
+    try {
+      // 同時に他の人がコメントしても消えないように、追加だけを書く
+      await updateDoc(doc(state.db, CHATTER_COLLECTION, post.id), { comments: arrayUnion(c) });
+      const mentioned = mentionedNames(c.text);
+      notifyNames(mentioned, { type: 'mention', postId: post.id, text: c.text });
+      if (post.author && post.author !== me && !mentioned.includes(post.author)) notifyNames([post.author], { type: 'comment', postId: post.id, text: c.text });
+    } catch (e) { input.value = text; toast('失敗: ' + e.message, true); }
   };
   document.querySelectorAll('[data-csend]').forEach(el => el.addEventListener('click', () => {
     const pid = el.dataset.csend;
     sendComment(pid, document.querySelector(`[data-cinput="${pid}"]`));
   }));
   document.querySelectorAll('[data-cinput]').forEach(el => el.addEventListener('keydown', e => {
-    if (e.key === 'Enter') sendComment(el.dataset.cinput, el);
+    if (e.key === 'Enter' && !e.isComposing && e.keyCode !== 229) sendComment(el.dataset.cinput, el);
   }));
 
+  document.querySelectorAll('[data-at-for]').forEach(el => el.addEventListener('click', () => {
+    openMentionPicker(el, document.querySelector(`[data-cinput="${el.dataset.atFor}"]`));
+  }));
   document.querySelectorAll('[data-del]').forEach(el => el.addEventListener('click', async () => {
     if (!confirm('この投稿を削除しますか?')) return;
     try { await deleteChatterPost(el.dataset.del); toast('✓ 削除しました'); }
@@ -4150,8 +4671,12 @@ document.getElementById('chPostBtn').addEventListener('click', async () => {
   if (!text) { toast('内容を入力してください', true); return; }
   const btn = document.getElementById('chPostBtn');
   btn.disabled = true;
-  const author = document.getElementById('chAuthorSel').value || getMe();
-  if (await postToChatter('manual', text, { author })) { ta.value = ''; toast('✓ 投稿しました'); }
+  const author = state.lockedName || document.getElementById('chAuthorSel').value || getMe();
+  const pid = await postToChatter('manual', text, { author });
+  if (pid) {
+    ta.value = ''; toast('✓ 投稿しました');
+    notifyNames(mentionedNames(text), { type: 'mention', postId: pid, text });
+  }
   btn.disabled = false;
 });
 document.querySelectorAll('.ch-filter').forEach(b => b.addEventListener('click', () => {
@@ -4300,6 +4825,28 @@ function memberOptions(selected) {
   const list = [...new Set([...(me ? [me] : []), ...state.members])];
   return list.map(m => `<option value="${esc(m)}"${m === selected ? ' selected' : ''}>${esc(m)}</option>`).join('');
 }
+// Googleでログインしている時は「自分」が決まっているので、自分の名前を選ぶ欄は出さない（名前を表示するだけ）。
+// 営業者・商談者のように他の人を選ぶ欄はそのまま。
+const SELF_FIELDS = ['chAuthorSel', 'c-caller', 'a-owner'];
+function selfName() { return state.lockedName || getMe(); }
+function applyIdentityLock() {
+  const locked = !!state.lockedName;
+  SELF_FIELDS.forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    let fixed = document.getElementById(id + '-fixed');
+    if (!fixed) {
+      fixed = document.createElement('span');
+      fixed.id = id + '-fixed';
+      fixed.className = 'me-fixed' + (id === 'chAuthorSel' ? ' inline' : '');
+      el.insertAdjacentElement('afterend', fixed);
+    }
+    if (locked) el.value = state.lockedName;
+    el.style.display = locked ? 'none' : '';
+    fixed.style.display = locked ? '' : 'none';
+    fixed.textContent = locked ? '👤 ' + state.lockedName : '';
+  });
+}
 function refreshMemberSelects() {
   const me = getMe();
   [['a-owner', me], ['a-sales', me], ['d-apo-owner', ''], ['d-sales', me], ['chAuthorSel', me], ['c-caller', me]].forEach(([id, def]) => {
@@ -4309,6 +4856,7 @@ function refreshMemberSelects() {
     el.innerHTML = (id === 'd-apo-owner' ? '<option value="">—</option>' : '') + memberOptions(cur || def);
     if (cur && state.members.includes(cur)) el.value = cur;
   });
+  applyIdentityLock();
   ['a-product', 'd-product'].forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
@@ -4393,16 +4941,16 @@ const DEALS_COLLECTION = 'crm_deals';
 async function saveDeal(d) {
   const clean = {};
   Object.keys(d).forEach(k => { if (d[k] !== undefined) clean[k] = d[k]; });
-  clean.updatedAt = isoNow();
-  clean._updatedServer = serverTimestamp();
-  await setDoc(doc(state.db, DEALS_COLLECTION, d.id), clean);
+  await saveAudited(DEALS_COLLECTION, doc(state.db, DEALS_COLLECTION, d.id), d.id, clean, d[BASE]);
 }
 function subscribeDeals() {
   if (state.dealsUnsub) { try { state.dealsUnsub(); } catch {} }
   const q = query(collection(state.db, DEALS_COLLECTION));
   state.dealsUnsub = onSnapshot(q, snap => {
     const list = [];
-    snap.forEach(d => { const data = d.data(); if (data && data.dealName) list.push({ ...data, id: d.id }); });
+    const pristine = updatePristine(state.dealPristine, snap);
+    snap.forEach(d => { const data = d.data(); if (data && data.dealName) { const item = { ...data, id: d.id }; item[BASE] = pristine.get(d.id) || null; list.push(item); } });
+    state.dealPristine = pristine;
     list.sort((a, b) => {
       const c = String(b.updatedAt || '').localeCompare(String(a.updatedAt || ''));
       return c !== 0 ? c : String(b.id).localeCompare(String(a.id));
@@ -4478,6 +5026,8 @@ const leadNewModal = document.getElementById('leadNewModal');
 const LN_FIELDS = ['ln-name','ln-industry','ln-rep','ln-tel','ln-mobile','ln-url','ln-url2','ln-url3','ln-pref','ln-map','ln-memo'];
 function openLeadNewModal(id) {
   state.editingLeadId = id || null;
+  // 画面を開いた時点の版（保存時に「自分が変えた項目」だけを書くための基準）
+  state.leadNewBase = id ? (((state.records.find(r => r.id === id)) || {})[BASE] || null) : null;
   LN_FIELDS.forEach(f => document.getElementById(f).value = '');
   document.getElementById('ln-status').value = '新規';
   document.getElementById('lnDupWarning').classList.remove('show');
@@ -4547,6 +5097,7 @@ document.getElementById('leadNewSave').addEventListener('click', async () => {
       activity: activity.slice(0, 50),
       updatedAt: isoNow()
     };
+    if (existing && state.leadNewBase) rec[BASE] = state.leadNewBase;
     await saveRecord(rec);
     leadNewModal.classList.remove('open');
     toast(existing ? '✓ リードを更新しました' : '✓ リードを登録しました');
@@ -5003,6 +5554,7 @@ initPicker('a-target', {
 });
 function openApoModal(recordId, prefillDate) {
   if (!ensureMe()) return;
+  state.apoBase = null;
   setPickerValue('a-target', recordId || '');
   refreshMemberSelects();
   ['a-name','a-rep','a-place','a-zoom','a-memo','a-industry','a-tel','a-url'].forEach(id => document.getElementById(id).value = '');
@@ -5032,6 +5584,7 @@ function updateApoRedoWarning() {
 }
 function applyApoTarget(id) {
   const r = state.records.find(x => x.id === id);
+  state.apoBase = r ? { id: r.id, base: r[BASE] || null } : null;
   updateApoRedoWarning();
   if (!r) return;
   document.getElementById('a-name').value = r.name || '';
@@ -5094,7 +5647,7 @@ document.getElementById('apoConfirmBtn').addEventListener('click', async () => {
   const tel = document.getElementById('a-tel').value.trim();
   const place = document.getElementById('a-place').value.trim();
   const memo = document.getElementById('a-memo').value.trim();
-  const owner = document.getElementById('a-owner').value;
+  const owner = state.lockedName || document.getElementById('a-owner').value;
 
   const endTime = document.getElementById('a-end').value;
   const tool = document.getElementById('a-tool').value;
@@ -5154,6 +5707,7 @@ document.getElementById('apoConfirmBtn').addEventListener('click', async () => {
       activity: activity.slice(0, 50),
       updatedAt: isoNow()
     };
+    if (existing && state.apoBase && state.apoBase.id === existing.id && state.apoBase.base) rec[BASE] = state.apoBase.base;
     await saveRecord(rec);
 
     const body =
@@ -5174,6 +5728,8 @@ document.getElementById('apoConfirmBtn').addEventListener('click', async () => {
 【メモ】
 ${memo}`;
     const ok = await postToChatter('apo', body, { recordId: rec.id, recordName: name, author: owner });
+    if (sales && sales !== owner) notifyNames([sales], { type: 'apo', recordId: rec.id, postId: ok || '', text: `${name}（${fmtDateTime(dt)}〜${endTime}）` });
+    notifyNames(mentionedNames(memo).filter(n => n !== sales || sales === owner), { type: 'mention', recordId: rec.id, postId: ok || '', text: memo });
     await autoLogApoCall(rec, owner, memo);
     apoModal.classList.remove('open');
     toast(ok ? '✓ アポ報告をチャッターに流しました' : '⚠ 保存しましたがチャッター投稿に失敗', !ok);
@@ -5231,6 +5787,7 @@ function openDealModal(dealId, customerId) {
   if (!ensureMe()) return;
   refreshMemberSelects();
   state.editingDealId = dealId || null;
+  state.dealEditBase = dealId ? (((state.deals.find(x => x.id === dealId)) || {})[BASE] || null) : null;
   document.getElementById('shodanTitle').textContent = dealId ? '🤝 商談を編集' : '🤝 商談報告';
   document.getElementById('shodanDeleteBtn').style.display = dealId ? '' : 'none';
   ['d-name','d-init','d-monthly','d-memo','d-first','d-close'].forEach(id => document.getElementById(id).value = '');
@@ -5394,6 +5951,7 @@ document.getElementById('shodanConfirmBtn').addEventListener('click', async () =
       salesOwner: sales,
       updatedAt: isoNow()
     };
+    if (prev && state.dealEditBase) deal[BASE] = state.dealEditBase;
     await saveDeal(deal);
 
     // 付け替え: 元の取引先からこの商談の受注を外す（1件目だった場合は追加受注を繰り上げる）
@@ -5775,7 +6333,7 @@ async function submitCall(thenApo) {
   const r = state.records.find(x => x.id === state.callTargetId);
   if (!r) { toast('対象が見つかりません', true); return; }
   const result = document.querySelector('input[name="cResult"]:checked').value;
-  const caller = document.getElementById('c-caller').value;
+  const caller = state.lockedName || document.getElementById('c-caller').value;
   const nextDate = document.getElementById('c-next').value;
   const nextTime = document.getElementById('c-time').value;
   const memo = document.getElementById('c-memo').value.trim();
@@ -5820,7 +6378,7 @@ async function submitCall(thenApo) {
         document.getElementById('a-time').value = nextTime;
         document.getElementById('a-time').dispatchEvent(new Event('change'));
       }
-      document.getElementById('a-owner').value = caller;
+      document.getElementById('a-owner').value = caller; applyIdentityLock();
       if (memo) document.getElementById('a-memo').value = memo;
     } else {
       toast(`✓ 架電を記録しました（${CALL_RESULTS[result].label}）`);
@@ -6411,6 +6969,7 @@ function applyRoute() {
   if (!app || !app.classList.contains('active')) return;
   const r = parseHash();
   currentRoute = r;
+  if (state.histFor && (r.type === 'tab' || r.id !== state.histFor)) stopHistoryWatch();
   if (r.type === 'tab') showTab(r.name);
   else if (r.type === 'deal') showDealPage(r.id);
   else showRecordPage(r.id);
@@ -6665,8 +7224,13 @@ function renderDealPage() {
     <div class="detail-section">
       <div class="detail-section-title">// 履歴</div>
       ${row('作成', `<span class="mono" style="font-size:12px; color:var(--text3);">${esc(fmtDateTime(d.createdAt))}</span>`)}
-      ${row('最終更新', `<span class="mono" style="font-size:12px; color:var(--text3);">${esc(fmtDateTime(d.updatedAt))}</span>`)}
+      ${row('最終更新', `<span class="mono" style="font-size:12px; color:var(--text3);">${esc(fmtDateTime(d.updatedAt))}${d.updatedBy ? ' ／ ' + esc(d.updatedBy) : ''}</span>`)}
+    </div>
+    <div class="detail-section">
+      <div class="detail-section-title">// 変更履歴（いつ・誰が・何を変えたか）</div>
+      <div id="histBox" data-for="${esc(d.id)}">${state.histFor === d.id ? historyHTML(state.histList) : '<div class="rel-empty">読み込み中…</div>'}</div>
     </div>`;
+  watchHistory(d.id);
   const others = c ? state.deals.filter(x => x.customerId === c.id && x.id !== d.id) : [];
   document.getElementById('dealSide').innerHTML =
     (c ? relPanel('🏢 取引先', 1, '', `<div class="rel-row" data-goacct="${esc(c.id)}">${phaseBadge(c.phase)}<div class="rel-main"><strong>${esc(c.name)}</strong><div class="rel-sub">${esc(c.tel || c.mobile || '')}${c.url ? ' ／ ' + esc(c.url) : ''}</div></div></div>`) : '') +
@@ -7230,7 +7794,22 @@ document.getElementById('calToday').addEventListener('click', () => {
   state.calYear = n.getFullYear(); state.calMonth = n.getMonth();
   state.calWeekStart = ymd(startOfWeek(n));
   renderCalendar();
+  scrollToTodayCell();
 });
+// スマホ: 「今日」を押したら今日の欄まで下げる（上の固定ヘッダーに隠れないように少し余白を取る）
+function scrollToTodayCell() {
+  try {
+    if (!(window.matchMedia && window.matchMedia('(max-width: 900px)').matches)) return;
+    const el = document.querySelector('#view-calendar .cal-cell.today, #view-calendar .cal-wcol.today');
+    if (!el || !el.offsetParent) return;
+    const header = document.querySelector('.header');
+    const hr = header ? header.getBoundingClientRect() : null;
+    const off = (hr && hr.bottom > 0 ? hr.height : 0) + 12;
+    const top = el.getBoundingClientRect().top + window.scrollY - off;
+    window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' });
+    el.classList.remove('flash-today'); void el.offsetWidth; el.classList.add('flash-today');
+  } catch {}
+}
 document.getElementById('calWeekBtn').addEventListener('click', () => {
   state.calMode = 'week';
   if (!state.calWeekStart) state.calWeekStart = ymd(startOfWeek(new Date()));
@@ -7475,6 +8054,7 @@ function optionsWithCurrent(list, current, blankLabel) {
 }
 function openLeadModal(id, prefill) {
   state.editingId = id;
+  state.editBase = id ? (((state.records.find(r => r.id === id)) || {})[BASE] || null) : null;
   const modal = document.getElementById('leadModal');
   document.getElementById('leadModalTitle').textContent = id ? '編集' : '+ 新規リード';
   document.getElementById('leadDeleteBtn').style.display = id ? 'inline-block' : 'none';
@@ -7753,9 +8333,11 @@ document.getElementById('leadSaveBtn').addEventListener('click', async () => {
 
   showLoading(true);
   try {
+    if (existing && state.editBase) merged[BASE] = state.editBase;
+    const wasEdit = !!state.editingId;
     await saveRecord(merged);
     closeLeadModal();
-    toast(`✓ ${state.editingId ? '更新' : '追加'}しました`);
+    toast(`✓ ${wasEdit ? '更新' : '追加'}しました`);
   } catch (e) { alert('保存失敗: ' + (e.message || '')); }
   finally { showLoading(false); }
 });
@@ -8357,10 +8939,32 @@ service cloud.firestore {
         && request.resource.data.at is string && request.resource.data.at.size() <= 40;
       allow read, delete: if isAdmin();
     }
-    // それ以外の全データ: メンバーだけ（メンバー一覧の書き込みと申請はここでは扱わない）
+    // 変更履歴: メンバーが読める。書けるのは「自分のメールで、新しく足す」だけ（書き換え・削除はできない）
+    match /crm_history/{hid} {
+      allow read: if isMember();
+      allow create: if isMember()
+        && request.resource.data.keys().hasOnly(['targetType', 'targetId', 'targetName', 'action', 'changes', 'by', 'byEmail', 'at', 'atMs'])
+        && request.resource.data.byEmail == myEmail()
+        && request.resource.data.changes is list && request.resource.data.changes.size() <= 60
+        && request.resource.data.targetId is string && request.resource.data.targetId.size() <= 100;
+      allow update, delete: if false;
+    }
+    // 通知: 宛先の本人だけが読める・既読にできる・消せる。送るのはメンバー（自分のメールで）
+    match /crm_notifications/{nid} {
+      allow read, delete: if isMember() && resource.data.toEmail == myEmail();
+      allow create: if isMember()
+        && request.resource.data.keys().hasOnly(['toEmail', 'toName', 'type', 'by', 'byEmail', 'text', 'postId', 'recordId', 'at', 'atMs', 'read'])
+        && request.resource.data.byEmail == myEmail()
+        && request.resource.data.toEmail is string && request.resource.data.toEmail.size() <= 200
+        && request.resource.data.text is string && request.resource.data.text.size() <= 300
+        && request.resource.data.read == false;
+      allow update: if isMember() && resource.data.toEmail == myEmail()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+    }
+    // それ以外の全データ: メンバーだけ（メンバー一覧・申請・履歴・通知はここでは扱わない）
     match /{coll}/{docId} {
-      allow read: if isMember() && coll != 'crm_requests';
-      allow write: if isMember() && coll != 'crm_requests'
+      allow read: if isMember() && !(coll in ['crm_requests', 'crm_history', 'crm_notifications']);
+      allow write: if isMember() && !(coll in ['crm_requests', 'crm_history', 'crm_notifications'])
         && !(coll == 'crm_meta' && docId == 'access');
     }
   }
@@ -8620,6 +9224,7 @@ async function restoreFromAutoBackup(b) {
       }
       lines.push(`${key}: ${arr.length}件`);
     }
+    logBulkHistory(COLLECTION, `自動バックアップ「${fmtDateTime(b.at)}」の時点に全体を戻した（${lines.join(' / ')}）`);
     alert('この時点に戻しました\n' + lines.join('\n'));
   } catch (e) { alert('戻せませんでした: ' + e.message); }
   finally { showLoading(false); }
@@ -8673,6 +9278,7 @@ document.getElementById('restoreFile').addEventListener('change', async e => {
       }
       lines.push(`${key}: 追加 ${toAdd.length} / スキップ ${arr.length - toAdd.length}`);
     }
+    logBulkHistory(COLLECTION, `バックアップファイルから復元（${lines.join(' / ') || '追加なし'}）`);
     alert('復元完了\n' + (lines.join('\n') || '追加可能なデータなし'));
   } catch (err) { alert('復元失敗: ' + err.message); }
   finally { showLoading(false); e.target.value = ''; }
