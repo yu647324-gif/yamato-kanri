@@ -896,6 +896,34 @@ a.ext, a.tel-link { color: var(--accent); }
 
 @keyframes flashToday { 0% { box-shadow: 0 0 0 3px var(--accent); } 100% { box-shadow: 0 0 0 0 transparent; } }
 .flash-today { animation: flashToday 1.4s ease-out; }
+
+/* 受注後の進み具合 */
+.stage-box .detail-section-title { display: flex; flex-wrap: wrap; gap: 6px; align-items: baseline; }
+.stage-now { color: var(--accent); font-weight: 700; letter-spacing: 0; }
+.stage-list { list-style: none; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 6px; margin: 8px 0 10px; padding: 0; }
+.stage { display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center; padding: 8px 4px; border-radius: 6px; border: 1px solid var(--border); background: var(--surface2); min-width: 0; }
+.stage-dot { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 14px; background: var(--surface3); color: var(--text2); }
+.stage-lb { font-size: 12px; font-weight: 700; color: var(--text2); line-height: 1.3; overflow-wrap: anywhere; }
+.stage-dt { font-size: 10px; color: var(--text3); font-family: 'JetBrains Mono', monospace; min-height: 12px; }
+.stage.done .stage-dot { background: var(--green); color: #fff; }
+.stage.done .stage-lb { color: var(--text); }
+.stage.current { border: 2px solid var(--accent); background: var(--accent-dim); }
+.stage.current .stage-dot { background: var(--accent); color: var(--accent-on); }
+.stage.current .stage-lb { color: var(--accent); }
+.stage.todo { opacity: 0.6; }
+.stage.skip .stage-lb { text-decoration: line-through; }
+.stage-note { font-size: 12px; color: var(--text2); line-height: 1.7; margin: 4px 0 8px; }
+.stage-badge { display: inline-block; font-size: 10px; padding: 1px 7px; border-radius: 100px; background: var(--accent-dim); color: var(--accent); margin-left: 6px; white-space: nowrap; vertical-align: middle; }
+label.chk, .form-group label.chk { display: flex; gap: 8px; align-items: center; font-size: 14px; min-height: 40px; font-family: inherit; letter-spacing: 0; text-transform: none; color: var(--text); }
+@media (max-width: 640px) {
+  .stage-list { grid-template-columns: 1fr; gap: 4px; }
+  .stage { flex-direction: row; justify-content: flex-start; text-align: left; padding: 6px 10px; gap: 10px; }
+  .stage-dt { margin-left: auto; }
+}
+
+.stage.warn { border: 1px solid var(--red); }
+.stage.warn .stage-dot { background: var(--red); color: #fff; }
+.stage.warn .stage-dt { color: var(--red); font-weight: 700; }
 </style>
 </head>
 <body>
@@ -958,7 +986,7 @@ a.ext, a.tel-link { color: var(--accent); }
 <!-- ==================== APP ==================== -->
 <div class="app" id="app">
   <header class="header">
-    <div class="header-brand"><img id="brandLogo" alt="" hidden />YAMATO<span class="sub">CRM v27</span></div>
+    <div class="header-brand"><img id="brandLogo" alt="" hidden />YAMATO<span class="sub">CRM v28</span></div>
     <div class="nav-tabs" id="navTabs">
       <button class="nav-tab active" data-tab="dashboard"><span class="nav-ic">📊</span> <span class="nav-lb"><span class="lb-full">ダッシュボード</span><span class="lb-short">ホーム</span></span></button>
       <button class="nav-tab" data-tab="chatter"><span class="nav-ic">💬</span> <span class="nav-lb">チャッター</span> <span class="badge" id="chatterBadge" style="display:none;">0</span></button>
@@ -1497,6 +1525,7 @@ a.ext, a.tel-link { color: var(--accent); }
           <div class="panel-meta">
             <select id="activeFilter" style="background:var(--bg); border:1px solid var(--border); color:var(--text); padding:6px 10px; font-size:12px; border-radius:2px; font-family:'JetBrains Mono', monospace;">
               <option value="active">進行中・継続中</option>
+              <option value="prod">制作中（契約スタート前）</option>
               <option value="m3near">3ヶ月目近い</option>
               <option value="cancelled">解約のみ</option>
               <option value="all">全て</option>
@@ -2096,6 +2125,20 @@ a.ext, a.tel-link { color: var(--accent); }
 </div>
 
 <!-- ==================== 架電チェック MODAL ==================== -->
+<div class="modal-overlay" id="flowModal">
+  <div class="modal" style="max-width:520px;">
+    <div class="modal-head">
+      <div class="modal-title" id="flowTitle"></div>
+      <button class="modal-close" id="flowClose" type="button">×</button>
+    </div>
+    <div class="modal-body" id="flowBody"></div>
+    <div class="modal-foot">
+      <button class="btn-action" id="flowCancel" type="button">やめる</button>
+      <button class="btn-action primary" id="flowOk" type="button">決定</button>
+    </div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="callModal">
   <div class="modal">
     <div class="modal-head">
@@ -2530,7 +2573,7 @@ import {
 // ・この版の番号。新しい index.html を上げる時は必ず1つ上げる（画面左上の「CRM vXX」と同じ数字）
 // ・誰かが新しい版を開くと、古い版の画面は「読むだけ」になる（古い計算で上書きして壊すのを防ぐ）
 // ・新しい版を最初に開いた時、何かを書き込む前に全データを自動バックアップする（毎日1回も自動）
-const APP_VERSION = 27;
+const APP_VERSION = 28;
 let writeLocked = false;
 function guardWrite() {
   if (writeLocked) throw new Error('この画面は古い版です。ページを再読み込みしてから操作してください（データは保護されています）');
@@ -2585,6 +2628,56 @@ const PHASES = [
 ];
 const PHASE_MAP = Object.fromEntries(PHASES.map(p => [p.key, p]));
 const PHASE_ORDER = PHASES.map(p => p.key);
+
+// ============== 受注後の進み具合（制作の進行） ==============
+// 入金のフェーズ（初期費用入金済・1ヶ月目入金済…）とは別に、受注後の仕事の進み具合を持つ。
+// 受注 → 初期費用入金 → 制作ヒアリング → 制作 → 納品 → 契約スタート
+// ・受注／初期費用入金は入金の記録から自動で決まる。ヒアリング以降はボタンで進める
+// ・月額の入金期限は「契約スタート」の日が起点（それまでは月額の期限を出さない）
+const PROD_STAGES = [
+  { key: 'order',      label: '受注',           icon: '📝' },
+  { key: 'init_paid',  label: '初期費用入金',   icon: '💴' },
+  { key: 'hearing',    label: '制作ヒアリング', icon: '🗣' },
+  { key: 'production', label: '制作',           icon: '🛠' },
+  { key: 'delivered',  label: '納品',           icon: '📦' },
+  { key: 'started',    label: '契約スタート',   icon: '🚀' }
+];
+const PROD_STAGE_KEYS = PROD_STAGES.map(x => x.key);
+const PROD_MANUAL = ['hearing', 'production', 'delivered', 'started'];
+// 1〜3ヶ月目の月額の期限（毎月の請求日の指定があればその日）。編集画面と契約スタートで同じ計算を使う
+function monthlyDues(start, monthlyDay) {
+  const day = Number(monthlyDay) || 0;
+  if (day >= 1 && day <= 28) {
+    const sd = new Date(start);
+    return [1, 2, 3].map(i => { const d = new Date(sd.getFullYear(), sd.getMonth() + i, day); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; });
+  }
+  return [1, 2, 3].map(i => addMonths(start, i));
+}
+function prodLabel(k) { const x = PROD_STAGES.find(s => s.key === k); return x ? x.label : ''; }
+function initRequired(rec) { const plan = PLAN_TYPES[rec.planType] || PLAN_TYPES.none; return !!plan.hasInit && Number(rec.init_amount) > 0; }
+function initDone(rec) { return !initRequired(rec) || !!rec.init_paid_date; }
+// 今の段階（契約中の取引先だけ。それ以外は ''）
+function prodStageOf(rec) {
+  if (!rec || !PHASE_MAP[rec.phase] || PHASE_MAP[rec.phase].group !== 'active') return '';
+  if (PROD_MANUAL.includes(rec.prodStage)) return rec.prodStage;
+  if (!rec.prodStage && legacyStarted(rec)) return 'started';
+  return initDone(rec) ? 'init_paid' : 'order';
+}
+// この機能（v28）より前からの契約（段階の記録が無い）で、もう始まっているとみなすもの:
+// 月額の入金がある・継続中・月額の期限がもう来ている・初期費用だけで入金済み・初期費用の無い月額契約
+function legacyStarted(rec) {
+  const monthly = Number(rec.monthly_amount) > 0;
+  if (rec.phase === 'continuing' || [1, 2, 3].some(m => rec[`m${m}_paid_date`])) return true;
+  if (monthly && !initRequired(rec)) return true;
+  if (monthly && rec.m1_due && rec.m1_due <= todayStr()) return true;
+  if (!monthly && initRequired(rec) && rec.init_paid_date) return true;
+  return false;
+}
+// 契約スタート待ち（段階を記録している契約で、まだスタートしていない）。この間は月額の期限を出さない
+function waitingStart(rec) {
+  return !!rec && typeof rec.prodStage === 'string' && PROD_STAGE_KEYS.includes(rec.prodStage) && rec.prodStage !== 'started'
+    && !!PHASE_MAP[rec.phase] && PHASE_MAP[rec.phase].group === 'active';
+}
 
 // プランタイプ
 const PLAN_TYPES = {
@@ -3167,11 +3260,13 @@ function paymentsOf(rec) {
     [1, 2, 3].forEach(m => {
       const dueField = `m${m}_due`;
       const paidField = `m${m}_paid_date`;
-      const due = rec[dueField] || addMonths(start, m);
+      const waiting = waitingStart(rec) && !rec[paidField];
+      const due = waiting ? '' : (rec[dueField] || addMonths(start, m));
       list.push({
         kind: `${m}ヶ月目`,
         amount: Number(rec.monthly_amount) || 0,
         due,
+        waitStart: waiting,
         paid: rec[paidField] || '',
         isPaid: !!rec[paidField],
         key: `m${m}`,
@@ -3652,6 +3747,7 @@ const AUDIT_LABELS = {
   closeDate: '受注日・失注日', lostReason: '失注理由', apoOwner: 'アポ取得者', salesOwner: '営業者', firstMeetingDate: '初回商談日',
   meet_place: '商談場所', zoom_send: '会議URLの送り方', mapUrl: '地図URL', cancel_date: '解約日', cancel_detail: '解約の詳細',
   mail_sent: 'メール送付', mail_sent_at: 'メール送付日時', lost_reason: '失注理由', lost_date: '失注日', lost_detail: '失注の詳細',
+  prodStage: '受注後の進み具合', prodStageDates: '進み具合の日付', cancel_prev_phase: '解約前のフェーズ', cancel_ao: 'まとめて解約した追加受注',
   auto_cancel_done: '自動解約', auto_cancel_prev_phase: '自動解約前のフェーズ', replacedBy: '置き換え先', end: '終了', monthly_day: '毎月の請求日'
 };
 function auditLabel(k) {
@@ -3691,6 +3787,9 @@ function auditValue(k, v) {
   if (k === 'cancel_reason') return CANCEL_REASONS[v] || String(v);
   if (k === 'planType') return (PLAN_TYPES[v] && PLAN_TYPES[v].label) || String(v);
   if (k === 'kind') return v === 'lead' ? 'リード' : v === 'account' ? '取引先' : String(v);
+  if (k === 'prodStage') return prodLabel(v) || String(v);
+  if (k === 'cancel_prev_phase') return (PHASE_MAP[v] && PHASE_MAP[v].label) || String(v);
+  if (k === 'prodStageDates' && v && typeof v === 'object') return Object.keys(v).filter(x => v[x]).map(x => `${prodLabel(x) || x} ${v[x]}`).join('、') || '（空）';
   if (k === 'auto_cancel_prev_phase') return (PHASE_MAP[v] && PHASE_MAP[v].label) || String(v);
   if (k === 'customerId') { const r = state.records.find(x => x.id === v); return r ? r.name : String(v); }
   if (typeof v === 'boolean') return v ? 'はい' : 'いいえ';
@@ -5131,7 +5230,12 @@ function autoCancelTargets(today) {
   return state.records.filter(r => {
     if (r.auto_cancel_done) return false;
     if (!PHASE_MAP[r.phase] || PHASE_MAP[r.phase].group !== 'active') return false;
-    const od = String(r.orderDate || '').slice(0, 10);
+    // 初期費用が無い契約で、まだ契約スタート前（制作中など）は、払うものが無いので自動キャンセルしない
+    if (waitingStart(r) && !initRequired(r)) return false;
+    let od = String(r.orderDate || '').slice(0, 10);
+    // 初期費用の無い契約は、最初の支払いが契約スタートの後なので、スタート日から数える
+    const st = r.prodStageDates && typeof r.prodStageDates === 'object' ? String(r.prodStageDates.started || '') : '';
+    if (!initRequired(r) && r.prodStage === 'started' && /^\d{4}-\d{2}-\d{2}$/.test(st) && st > od) od = st;
     if (!/^\d{4}-\d{2}-\d{2}$/.test(od)) return false;
     if (addMonths(od, AUTO_CANCEL_MONTHS) > t) return false;
     return !hasAnyPayment(r);
@@ -5166,19 +5270,23 @@ async function runAutoCancel() {
   let done = 0;
   try {
     for (const r of targets) {
-      const od = String(r.orderDate).slice(0, 10);
+      let od = String(r.orderDate).slice(0, 10);
+      const st = r.prodStageDates && typeof r.prodStageDates === 'object' ? String(r.prodStageDates.started || '') : '';
+      const fromStart = !initRequired(r) && r.prodStage === 'started' && /^\d{4}-\d{2}-\d{2}$/.test(st) && st > od;
+      if (fromStart) od = st;
+      const baseLabel = fromStart ? '契約スタート日' : '受注日';
       const act = Array.isArray(r.activity) ? [...r.activity] : [];
-      act.unshift({ at: isoNow(), type: 'system', text: `⛔ 自動キャンセル: 受注(${fmtDate(od)})から${AUTO_CANCEL_MONTHS}ヶ月入金なし` });
+      act.unshift({ at: isoNow(), type: 'system', text: `⛔ 自動キャンセル: ${baseLabel}(${fmtDate(od)})から${AUTO_CANCEL_MONTHS}ヶ月入金なし` });
       await saveRecord({
         ...r, phase: 'cancelled', cancel_date: todayStr(), cancel_reason: 'nopay',
-        cancel_detail: `受注日 ${od} から${AUTO_CANCEL_MONTHS}ヶ月間入金が1回もなかったため自動キャンセル`,
-        auto_cancel_done: true, auto_cancelled_at: isoNow(), auto_cancel_prev_phase: r.phase,
+        cancel_detail: `${baseLabel} ${od} から${AUTO_CANCEL_MONTHS}ヶ月間入金が1回もなかったため自動キャンセル`,
+        auto_cancel_done: true, auto_cancelled_at: isoNow(), auto_cancel_prev_phase: r.phase, cancel_prev_phase: r.phase, cancel_ao: [],
         activity: act.slice(0, 50), updatedAt: isoNow()
       });
       // 決まったIDで投稿するので、2台同時に動いても投稿は1件にしかならない
       await saveChatterPost({
         id: 'autocancel_' + r.id, type: 'cancel', author: 'システム',
-        text: `⛔ 自動キャンセル\n\n【屋号】${r.name}\n【電話番号】${r.tel || r.mobile || '—'}\n【受注日】${fmtDate(od)}\n受注から${AUTO_CANCEL_MONTHS}ヶ月間、入金が1回もなかったため自動でキャンセル扱いにしました。\n入金済みの場合は取引先の編集からフェーズと入金日を戻してください（以後、自動キャンセルはされません）。`,
+        text: `⛔ 自動キャンセル\n\n【屋号】${r.name}\n【電話番号】${r.tel || r.mobile || '—'}\n【${baseLabel}】${fmtDate(od)}\n${baseLabel === '受注日' ? '受注' : '契約スタート'}から${AUTO_CANCEL_MONTHS}ヶ月間、入金が1回もなかったため自動でキャンセル扱いにしました。\n間違いの場合は取引先ページの「↩ 解約を取り消す」で戻せます（以後、自動キャンセルはされません）。`,
         recordId: r.id, recordName: r.name, likes: [], comments: [],
         createdAt: isoNow(), createdMs: Date.now()
       });
@@ -6015,6 +6123,9 @@ document.getElementById('shodanConfirmBtn').addEventListener('click', async () =
         }
         const name = (addOrdersOf(upd).slice().sort((a, b) => String(a.orderDate || '').localeCompare(String(b.orderDate || '')))[0] || {}).dealName || '';
         promoteAddOrder(upd);
+        // 繰り上がった受注の進み具合: その受注に入金があれば始まっている、無ければ「受注」から
+        if (primaryHasPayment(upd)) { upd.prodStage = 'started'; upd.prodStageDates = { started: upd.contract_start || upd.orderDate || todayStr() }; }
+        else { upd.prodStage = 'order'; upd.prodStageDates = { order: upd.orderDate || todayStr() }; }
         act.unshift({ at: isoNow(), type: 'system', text: `↪ 1件目の受注「${dealName}」を外し、追加受注「${name}」を1件目に繰り上げ (${sales})` });
         return true;
       };
@@ -6060,6 +6171,8 @@ document.getElementById('shodanConfirmBtn').addEventListener('click', async () =
           if (!upd.m3_due) upd.m3_due = addMonths(upd.contract_start, 3);
         }
         if (replacedPrimary) { upd.orderDate = closeDate || startDay; upd.phase = 'order'; }
+        // 新しい受注（まだ入金が1件も無い）・契約変更（入金が無い時だけ起きる）は、受注後の進み具合を「受注」から記録し直す
+        if (replacedPrimary || (!upd.prodStage && !hasAnyPayment(customer))) { upd.prodStage = 'order'; upd.prodStageDates = { order: upd.orderDate || startDay }; }
         act.unshift({ at: isoNow(), type: 'system', text: `🎉 受注 (${sales}) 初期¥${fmt(init)} / 月費¥${fmt(monthly)}` });
       } else if (isLost && (otherWon.length || (PHASE_MAP[customer.phase] && PHASE_MAP[customer.phase].group === 'active' && !prevCounted))) {
         // 既存のお客さん（他に受注あり）への追加提案が失注 → 取引先は失注にしない
@@ -6098,6 +6211,7 @@ document.getElementById('shodanConfirmBtn').addEventListener('click', async () =
           // 入金予定（金額・期限）も消す。残すと商談中なのに「未入金」が出続ける
           ['init_due', 'm1_due', 'm2_due', 'm3_due', 'contract_start'].forEach(k => { upd[k] = ''; });
           upd.init_amount = 0; upd.monthly_amount = 0; upd.planType = 'none';
+          delete upd.prodStage; delete upd.prodStageDates;   // 受注後の進み具合も消す（受注し直したら最初から）
           act.unshift({ at: isoNow(), type: 'system', text: `↩ 受注を取り消し → 商談中に戻しました (${sales})` });
         } else if (prevWin && !existingAdd && hasAnyPayment(customer)) {
           toast('⚠ 入金済みのため、取引先のフェーズはそのままにしています。必要なら取引先の「編集」で直してください', true);
@@ -7409,7 +7523,7 @@ function renderAllTable() {
     const total = totalReceived(r);
     return `<tr data-id="${esc(r.id)}">
       <td>${phaseBadge(r.phase)}</td>
-      <td><strong>${esc(r.name)}</strong></td>
+      <td><strong>${esc(r.name)}</strong>${(st => st && st !== 'started' ? `<span class="stage-badge">${esc(prodLabel(st))}</span>` : '')(prodStageOf(r))}</td>
       <td class="mono">${r.tel ? `<a class="tel-link" href="tel:${esc(r.tel)}">${esc(r.tel)}</a>` : '—'}<br><span style="color:var(--text3); font-size:11px;">${esc(r.email || '')}</span>${r.url ? `<div style="font-size:11px; max-width:220px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">${extLink(r.url)}</div>` : ''}</td>
       <td style="font-size:11px;">${esc(planLabel)}</td>
       <td class="right mono">¥${fmt(total)}</td>
@@ -7481,6 +7595,7 @@ function renderPayments() {
     const status = paymentStatusOf(p, today);
     const statusLabel = p.isPaid ? `<span class="phase init_paid">入金済 ${fmtDate(p.paid)}</span>`
       : status === 'overdue' ? `<span class="phase init_unpaid">⚠ 期限切れ</span>`
+      : p.waitStart ? `<span class="phase prospect">契約スタート待ち</span>`
       : `<span class="phase m1_unpaid">未入金</span>`;
     const overdueStyle = status === 'overdue' ? 'color: var(--red); font-weight: 700;' : '';
     const actionBtn = p.isPaid
@@ -7562,6 +7677,7 @@ function renderActive() {
   // Filter
   let list = [...state.records];
   if (state.activeFilter === 'active') list = list.filter(r => isActivePhase(r.phase));
+  else if (state.activeFilter === 'prod') list = list.filter(r => { const st = prodStageOf(r); return st && st !== 'started'; });
   else if (state.activeFilter === 'm3near') list = list.filter(r => r.phase === 'm3_paid' && !r.m3_confirmed);
   else if (state.activeFilter === 'cancelled') list = list.filter(r => r.phase === 'cancelled');
 
@@ -7586,9 +7702,10 @@ function renderActive() {
       const color = s === 'paid' ? 'var(--green)' : s === 'overdue' ? 'var(--red)' : 'var(--text3)';
       return `<span style="color:${color}; font-family:'JetBrains Mono', monospace; font-size:11px;" title="${esc(p.kind)} ${fmtDate(p.due)}">${dot}</span>`;
     }).join(' ');
+    const st = prodStageOf(r);
     return `<tr data-id="${esc(r.id)}">
       <td>${phaseBadge(r.phase)}</td>
-      <td><strong>${esc(r.name)}</strong></td>
+      <td><strong>${esc(r.name)}</strong>${st && st !== 'started' ? `<span class="stage-badge">${esc(prodLabel(st))}</span>` : ''}</td>
       <td style="font-size:11px;">${esc(plan.label)}</td>
       <td>${progressHTML}</td>
       <td class="mono">${fmtDate(r.contract_start)}</td>
@@ -8182,6 +8299,7 @@ document.getElementById('leadModalClose').addEventListener('click', closeLeadMod
 document.getElementById('leadCancelBtn').addEventListener('click', closeLeadModal);
 
 document.getElementById('leadSaveBtn').addEventListener('click', async () => {
+  state.uncancelNotice = null;
   const name = document.getElementById('f-name').value.trim();
   if (!name) { alert('屋号/会社名は必須です'); return; }
   const phase = document.getElementById('f-phase').value;
@@ -8196,21 +8314,7 @@ document.getElementById('leadSaveBtn').addEventListener('click', async () => {
 
   // 月費の各月期限を自動計算
   let m1_due = '', m2_due = '', m3_due = '';
-  if (contractStart && PLAN_TYPES[planType].hasMonthly) {
-    if (monthlyDay >= 1 && monthlyDay <= 28) {
-      // 毎月の指定日
-      const sd = new Date(contractStart);
-      for (let i = 1; i <= 3; i++) {
-        const d = new Date(sd.getFullYear(), sd.getMonth() + i, monthlyDay);
-        const ds = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
-        if (i === 1) m1_due = ds; else if (i === 2) m2_due = ds; else if (i === 3) m3_due = ds;
-      }
-    } else {
-      m1_due = addMonths(contractStart, 1);
-      m2_due = addMonths(contractStart, 2);
-      m3_due = addMonths(contractStart, 3);
-    }
-  }
+  if (contractStart && PLAN_TYPES[planType].hasMonthly) [m1_due, m2_due, m3_due] = monthlyDues(contractStart, monthlyDay);
 
   const rec = {
     name: name.slice(0, 200),
@@ -8299,6 +8403,27 @@ document.getElementById('leadSaveBtn').addEventListener('click', async () => {
 
   // フォームに無い項目（アポ報告・架電・URL2/3・携帯・担当者など）を消さないよう、既存データの上に重ねる
   const merged = existing ? { ...existing, ...rec } : rec;
+  // 解約の取り消し用の記録: 解約以外に変えたら消す。編集画面で解約にした時は、直前のフェーズを残す（取り消せるように）
+  if (merged.phase !== 'cancelled') {
+    delete merged.cancel_prev_phase; delete merged.cancel_ao;
+    // 解約から戻したら、解約日・理由も消す（動いている取引先に解約情報を残さない）
+    if (existing && existing.phase === 'cancelled') {
+      merged.cancel_date = ''; merged.cancel_reason = ''; merged.cancel_detail = '';
+      // 一緒に解約した追加受注も戻す（「↩ 解約を取り消す」ボタンと同じ）
+      const ids = Array.isArray(existing.cancel_ao) ? existing.cancel_ao : [];
+      if (ids.length) merged.addOrders = addOrdersOf(merged).map(o => ids.includes(o.dealId) ? (({ cancelled_date, ...x }) => x)(o) : o);
+      state.uncancelNotice = { id: existing.id, name: merged.name, phase: merged.phase };
+    }
+  }
+  else if (existing && existing.phase !== 'cancelled') { merged.cancel_prev_phase = existing.phase; merged.cancel_ao = []; }
+  // 編集画面で受注（契約中）にした時は、受注後の進み具合も付ける
+  const nowActive = PHASE_MAP[merged.phase] && PHASE_MAP[merged.phase].group === 'active';
+  const wasActive = existing && PHASE_MAP[existing.phase] && PHASE_MAP[existing.phase].group === 'active';
+  if (nowActive && !wasActive && !merged.prodStage) {
+    const cs = String(merged.contract_start || '');
+    if (!primaryHasPayment(merged) && (!cs || cs >= todayStr())) { merged.prodStage = 'order'; merged.prodStageDates = { order: merged.orderDate || todayStr() }; }
+    else { merged.prodStage = 'started'; merged.prodStageDates = { started: cs || todayStr() }; }
+  }
 
   const formEnd = document.getElementById('f-meeting-end').value;
   const endEditedByUser = existing ? formEnd !== (existing.meetingEnd || '') : !!formEnd;
@@ -8336,6 +8461,11 @@ document.getElementById('leadSaveBtn').addEventListener('click', async () => {
     if (existing && state.editBase) merged[BASE] = state.editBase;
     const wasEdit = !!state.editingId;
     await saveRecord(merged);
+    if (state.uncancelNotice && state.uncancelNotice.id === merged.id) {
+      const u = state.uncancelNotice;
+      postToChatter('manual', `↩ 解約を取り消しました\n【屋号】${u.name}\n【戻したフェーズ】${(PHASE_MAP[u.phase] || {}).label || u.phase}`, { recordId: u.id, recordName: u.name });
+    }
+    state.uncancelNotice = null;
     closeLeadModal();
     toast(`✓ ${wasEdit ? '更新' : '追加'}しました`);
   } catch (e) { alert('保存失敗: ' + (e.message || '')); }
@@ -8372,7 +8502,7 @@ function buildDetailBody(id) {
       const s = paymentStatusOf(p, today);
       const statusLabel = p.isPaid ? `✓ ${fmtDate(p.paid)}`
         : s === 'overdue' ? `⚠ 期限切れ`
-        : s === 'unpaid' && p.due ? `${fmtDate(p.due)}` : '未設定';
+        : s === 'unpaid' && p.due ? `${fmtDate(p.due)}` : p.waitStart ? '契約スタート待ち' : '未設定';
       return `<div class="payment-cell ${s}">
         <div class="lbl">${esc(p.kind)}</div>
         <div class="amt">¥${fmt(p.amount)}</div>
@@ -8396,7 +8526,7 @@ function buildDetailBody(id) {
   // 追加受注（月費あり）の解約・解約取消
   const aoMonthly = addOrdersOf(rec).filter(o => Number(o.monthly_amount) > 0);
   const aoHTML = aoMonthly.length ? `<div class="quick-actions" style="margin-top:6px;">${aoMonthly.map(o => o.cancelled_date
-      ? `<button class="qa unpay" data-act="ao-uncancel" data-key="${esc(o.dealId)}">↩ ${esc(addOrderLabel(o))} の解約を取消（${esc(fmtDate(o.cancelled_date))}解約）</button>`
+      ? `<button class="qa unpay" data-act="ao-uncancel" data-key="${esc(o.dealId)}">↩ ${esc(addOrderLabel(o))} の解約を取消（${esc(fmtDate(o.cancelled_date))}解約）</button><button type="button" class="qa" data-stage="ao-date" data-to="${esc(o.dealId)}">✏ ${esc(addOrderLabel(o))} の解約日を直す</button>`
       : `<button class="qa unpay" data-act="ao-cancel" data-key="${esc(o.dealId)}">⏹ ${esc(addOrderLabel(o))}（月¥${fmt(o.monthly_amount)}）を解約</button>`).join('')}</div>` : '';
 
   // v13以前に2件目の受注で上書きされた取引先 → 分けて直すボタン
@@ -8441,6 +8571,7 @@ function buildDetailBody(id) {
   const { score, level } = healthScore(rec);
 
   body.innerHTML = `
+    ${prodStepperHTML(rec)}
     <div class="detail-section">
       <div class="detail-section-title">// 基本情報</div>
       <div class="detail-row"><div class="label">フェーズ</div><div class="value">${phaseBadge(rec.phase)} <span class="health ${level}" style="margin-left:8px;"><span class="health-bar"><span class="fill" style="width:${score}%"></span></span>健康度 ${score}</span></div></div>
@@ -8525,8 +8656,10 @@ function buildDetailBody(id) {
       <div class="detail-row"><div class="label">最終更新</div><div class="value mono" style="font-size:12px; color:var(--text3);">${fmtDateTime(rec.updatedAt)}</div></div>
     </div>
   `;
+  // 受注後の進み具合・中途解約
+  body.querySelectorAll('[data-stage]').forEach(btn => btn.addEventListener('click', () => stageAction(btn.dataset.stage, btn.dataset.to)));
   // クイックアクションbind
-  body.querySelectorAll('.qa').forEach(btn => {
+  body.querySelectorAll('.qa[data-act]').forEach(btn => {
     btn.addEventListener('click', () => detailQuickAction(btn.dataset.act, btn.dataset.key));
   });
   // アクティビティ追加
@@ -8548,7 +8681,269 @@ function buildDetailBody(id) {
   });
 }
 
+// ============== 受注後の進み具合（画面）・中途解約 ==============
+function prodStepperHTML(rec) {
+  const cur = prodStageOf(rec);
+  if (rec.phase === 'cancelled') {
+    const p0 = rec.cancel_prev_phase || (rec.auto_cancel_done ? rec.auto_cancel_prev_phase : '');
+    const prev = p0 && PHASE_MAP[p0] && p0 !== 'cancelled' ? p0 : '';
+    const auto = rec.cancel_reason === 'nopay' && rec.auto_cancel_done;
+    return `<div class="detail-section stage-box">
+      <div class="detail-section-title">// 解約</div>
+      <div class="stage-note">⏹ ${rec.cancel_date ? esc(fmtDate(rec.cancel_date)) + ' に' : ''}${auto ? '入金が無かったため自動キャンセルされました' : `解約しました（${esc(CANCEL_REASONS[rec.cancel_reason] || rec.cancel_reason || '理由なし')}）`}</div>
+      <div class="quick-actions">
+        <button type="button" class="qa" data-stage="editcancel">✏ 解約の内容（日付・理由・詳細）を直す</button>
+        ${prev ? `<button type="button" class="qa unpay" data-stage="uncancel">↩ 解約を取り消す（${esc(PHASE_MAP[prev].label)}に戻す）</button>` : ''}
+      </div>
+    </div>`;
+  }
+  if (!cur) return '';
+  const idx = PROD_STAGE_KEYS.indexOf(cur);
+  const dates = rec.prodStageDates && typeof rec.prodStageDates === 'object' ? rec.prodStageDates : {};
+  const dateOf = k => k === 'order' ? (dates.order || rec.orderDate || '') : k === 'init_paid' ? (rec.init_paid_date || dates.init_paid || '') : k === 'started' ? (dates.started || '') : (dates[k] || '');
+  const legacy = !rec.prodStage;
+  const steps = PROD_STAGES.map((st, i) => {
+    let cls = i < idx ? 'done' : i === idx ? 'current' : 'todo';
+    const skip = st.key === 'init_paid' && !initRequired(rec);
+    const unpaidInit = st.key === 'init_paid' && initRequired(rec) && !rec.init_paid_date;
+    if (unpaidInit && cls === 'done') cls = 'warn';
+    const d = dateOf(st.key);
+    return `<li class="stage ${cls}${skip ? ' skip' : ''}"><span class="stage-dot">${cls === 'done' ? '✓' : cls === 'warn' ? '!' : esc(st.icon)}</span><span class="stage-lb">${esc(st.label)}</span><span class="stage-dt">${skip ? '（なし）' : cls === 'warn' ? '未入金' : d && i <= idx ? esc(fmtDate(d)) : ''}</span></li>`;
+  }).join('');
+  const next = PROD_STAGES[idx + 1];
+  let btns = '';
+  if (next) btns += `<button type="button" class="qa paid" data-stage="go" data-to="${esc(next.key === 'init_paid' ? 'hearing' : next.key)}">▶ ${esc(next.key === 'init_paid' ? '（入金待ちのまま）制作ヒアリングへ' : next.label + 'へ進める')}</button>`;
+  if (!legacy && PROD_MANUAL.includes(cur)) btns += `<button type="button" class="qa unpay" data-stage="back">◀ 1つ戻す</button><button type="button" class="qa" data-stage="dates">✏ 日付を直す</button>`;
+  btns += `<button type="button" class="qa cancel" data-stage="midcancel">⏹ 中途解約</button>`;
+  const hint = cur === 'order' && initRequired(rec) ? '<div class="stage-note">初期費用の入金を記録すると「初期費用入金」に自動で進みます。</div>'
+    : cur === 'started' && legacy ? '<div class="stage-note">この機能より前からの契約なので「契約スタート済み」として表示しています。</div>'
+    : waitingStart(rec) && Number(rec.monthly_amount) > 0 ? '<div class="stage-note">月額の入金期限は「契約スタート」を押した日から作ります。</div>' : '';
+  return `<div class="detail-section stage-box">
+    <div class="detail-section-title">// 受注後の進み具合　<span class="stage-now">いま：${esc(prodLabel(cur))}</span></div>
+    <ol class="stage-list">${steps}</ol>
+    ${hint}
+    <div class="quick-actions">${btns}</div>
+  </div>`;
+}
+let flowOnOk = null;
+function openFlow(title, html, okLabel, onOk) {
+  document.getElementById('flowTitle').textContent = title;
+  document.getElementById('flowBody').innerHTML = html;
+  const ok = document.getElementById('flowOk');
+  ok.textContent = okLabel || '決定'; ok.disabled = false;
+  flowOnOk = onOk;
+  { const t = document.querySelector('.toast.show'); if (t) t.classList.remove('show'); }
+  document.getElementById('flowModal').classList.add('open');
+}
+function closeFlow() { document.getElementById('flowModal').classList.remove('open'); flowOnOk = null; }
+document.getElementById('flowClose').addEventListener('click', closeFlow);
+document.getElementById('flowCancel').addEventListener('click', closeFlow);
+document.getElementById('flowOk').addEventListener('click', async () => {
+  const ok = document.getElementById('flowOk');
+  if (!flowOnOk || ok.disabled) return;
+  ok.disabled = true;
+  try { const done = await flowOnOk(); if (done !== false) closeFlow(); }
+  catch (e) { alert('失敗: ' + (e.message || '')); }
+  finally { ok.disabled = false; }
+});
+let stageBusy = false;
+async function saveStage(rec, upd, text) {
+  if (stageBusy) { toast('保存中です。少し待ってください', true); return false; }
+  stageBusy = true;
+  showLoading(true);
+  try {
+    upd.activity = [{ at: isoNow(), type: 'system', text: `${text}（${selfName() || ''}）` }, ...(Array.isArray(rec.activity) ? rec.activity : [])].slice(0, 50);
+    await saveRecord(upd);
+    toast('✓ ' + text);
+    return true;
+  } catch (e) {
+    alert('保存できませんでした: ' + (e.message || '') + '\n電波を確認して、もう一度押してください');
+    return false;
+  } finally { showLoading(false); stageBusy = false; }
+}
+async function stageAction(kind, to) {
+  const rec = state.records.find(r => r.id === state.detailId);
+  if (!rec) return;
+  const cur = prodStageOf(rec);
+  const dates = { ...(rec.prodStageDates && typeof rec.prodStageDates === 'object' ? rec.prodStageDates : {}) };
+  if (kind === 'go') {
+    if (!PROD_MANUAL.includes(to) || PROD_STAGE_KEYS.indexOf(to) <= PROD_STAGE_KEYS.indexOf(cur)) return;
+    if (to === 'started') { openStartFlow(rec); return; }
+    const warn = to === 'hearing' && !initDone(rec) ? `<p class="stage-note" style="color:var(--red);">⚠ 初期費用（¥${fmt(rec.init_amount)}）はまだ入金されていません。このまま進めることもできます。</p>` : '';
+    openFlow(`▶ ${prodLabel(to)}に進める`, `${warn}<div class="form-group"><label for="flow-stage-date">${esc(prodLabel(to))}の日付</label><input type="date" id="flow-stage-date" value="${esc(todayStr())}"></div>`, `${prodLabel(to)}にする`, async () => {
+      const d = document.getElementById('flow-stage-date').value;
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) { alert('日付を入れてください'); return false; }
+      if (d > todayStr() && !confirm(`${fmtDate(d)} は未来の日付です。このまま記録しますか？`)) return false;
+      if (rec.orderDate && d < String(rec.orderDate).slice(0, 10) && !confirm(`${fmtDate(d)} は受注日（${fmtDate(rec.orderDate)}）より前です。このまま記録しますか？`)) return false;
+      const cur2 = state.records.find(r => r.id === rec.id) || rec;
+      if (prodStageOf(cur2) !== cur) { alert('他の人が先に進み具合を変えました。画面を確認してください'); return true; }
+      const ds = { ...(cur2.prodStageDates && typeof cur2.prodStageDates === 'object' ? cur2.prodStageDates : {}), [to]: d };
+      return await saveStage(cur2, { ...cur2, prodStage: to, prodStageDates: ds }, `▶ ${prodLabel(to)}に進めました（${fmtDate(d)}）`);
+    });
+    return;
+  }
+  if (kind === 'back') {
+    if (!PROD_MANUAL.includes(rec.prodStage)) return;
+    const i = PROD_MANUAL.indexOf(rec.prodStage);
+    const prev = i > 0 ? PROD_MANUAL[i - 1] : 'order';
+    const msg = rec.prodStage === 'started'
+      ? `「契約スタート」を取り消して「${prodLabel(prev)}」に戻しますか？\n※ 作り直した月額の入金期限はそのまま残ります`
+      : `「${prodLabel(rec.prodStage)}」を取り消して「${prev === 'order' ? '入金の状態' : prodLabel(prev)}」に戻しますか？`;
+    if (!confirm(msg)) return;
+    delete dates[rec.prodStage];
+    await saveStage(rec, { ...rec, prodStage: prev, prodStageDates: dates }, `◀ ${prodLabel(rec.prodStage)}を取り消しました`);
+    return;
+  }
+  if (kind === 'midcancel') { openMidCancelFlow(rec); return; }
+  if (kind === 'editcancel') { openEditCancelFlow(rec); return; }
+  if (kind === 'dates') { openStageDatesFlow(rec); return; }
+  if (kind === 'ao-date') { openAoCancelDateFlow(rec, to); return; }
+  if (kind === 'uncancel') {
+    const prev = rec.cancel_prev_phase || (rec.auto_cancel_done ? rec.auto_cancel_prev_phase : '');
+    if (rec.phase !== 'cancelled' || !PHASE_MAP[prev] || prev === 'cancelled') return;
+    if (!confirm(`解約を取り消して「${PHASE_MAP[prev].label}」に戻しますか？`)) return;
+    const ids = Array.isArray(rec.cancel_ao) ? rec.cancel_ao : [];
+    const upd = { ...rec, phase: prev, addOrders: addOrdersOf(rec).map(o => ids.includes(o.dealId) ? (({ cancelled_date, ...x }) => x)(o) : o) };
+    ['cancel_date', 'cancel_reason', 'cancel_detail', 'cancel_prev_phase', 'cancel_ao'].forEach(k => { delete upd[k]; });
+    if (await saveStage(rec, upd, '↩ 解約を取り消しました')) postToChatter('manual', `↩ 解約を取り消しました\n【屋号】${rec.name}\n【戻したフェーズ】${PHASE_MAP[prev].label}`, { recordId: rec.id, recordName: rec.name });
+  }
+}
+function openStartFlow(rec) {
+  const monthly = Number(rec.monthly_amount) > 0;
+  const html = `<div class="form-group"><label for="flow-start-date">契約スタート日</label><input type="date" id="flow-start-date" value="${esc(todayStr())}"></div>
+    <div id="flow-start-preview" class="stage-note" style="margin-top:10px;"></div>`;
+  openFlow('🚀 契約スタート', html, '契約スタートにする', async () => {
+    const d = document.getElementById('flow-start-date').value;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) { alert('日付を入れてください'); return false; }
+    const cur = state.records.find(r => r.id === rec.id) || rec;
+    if (prodStageOf(cur) === 'started') { alert('すでに契約スタートになっています'); return true; }
+    if (cur.orderDate && d < String(cur.orderDate).slice(0, 10) && !confirm(`契約スタート日（${fmtDate(d)}）が受注日（${fmtDate(cur.orderDate)}）より前です。このまま進めますか？`)) return false;
+    const dates = { ...(cur.prodStageDates && typeof cur.prodStageDates === 'object' ? cur.prodStageDates : {}), started: d };
+    const upd = { ...cur, prodStage: 'started', prodStageDates: dates };
+    if (monthly) {
+      upd.contract_start = d;
+      const dues = monthlyDues(d, cur.monthly_day);
+      [1, 2, 3].forEach(m => { if (!cur[`m${m}_paid_date`]) upd[`m${m}_due`] = dues[m - 1]; });
+    }
+    return await saveStage(cur, upd, `🚀 契約スタート（${fmtDate(d)}）`);
+  });
+  const prev = () => {
+    const d = document.getElementById('flow-start-date').value;
+    const el = document.getElementById('flow-start-preview');
+    if (!el) return;
+    if (!monthly) { el.textContent = 'この契約に月額はありません。'; return; }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) { el.textContent = ''; return; }
+    const dues = monthlyDues(d, rec.monthly_day);
+    el.innerHTML = '月額の入金期限をこの日から作ります（入金済みの月は変えません）：<br>' + [1, 2, 3].map(m => `${m}ヶ月目 ${rec[`m${m}_paid_date`] ? '入金済み' : esc(fmtDate(dues[m - 1]))}`).join(' ／ ');
+  };
+  document.getElementById('flow-start-date').addEventListener('input', prev);
+  document.getElementById('flow-start-date').addEventListener('change', prev);
+  prev();
+}
+const DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+// 解約の内容を直す（中途解約・編集画面での解約・自動キャンセル、どれでも）
+function openEditCancelFlow(rec) {
+  const reasons = Object.entries(CANCEL_REASONS).map(([k, v]) => `<option value="${esc(k)}"${rec.cancel_reason === k ? ' selected' : ''}>${esc(v)}</option>`).join('');
+  const html = `<div class="form-group"><label for="flow-cancel-date">解約日</label><input type="date" id="flow-cancel-date" value="${esc(rec.cancel_date || '')}"></div>
+    <div class="form-group" style="margin-top:10px;"><label for="flow-cancel-reason">理由</label><select id="flow-cancel-reason"><option value="">選択してください</option>${reasons}</select></div>
+    <div class="form-group" style="margin-top:10px;"><label for="flow-cancel-detail">詳細（任意）</label><textarea id="flow-cancel-detail" rows="3" maxlength="2000"></textarea></div>`;
+  openFlow('✏ 解約の内容を直す', html, '直す', async () => {
+    const d = document.getElementById('flow-cancel-date').value;
+    const reason = document.getElementById('flow-cancel-reason').value;
+    if (!DATE_RE.test(d)) { alert('解約日を入れてください'); return false; }
+    if (!reason) { alert('理由を選んでください'); return false; }
+    const cur = state.records.find(r => r.id === rec.id) || rec;
+    if (cur.phase !== 'cancelled') { alert('この取引先はもう解約ではありません'); return true; }
+    if (d > todayStr() && !confirm(`解約日（${fmtDate(d)}）は未来の日付です。このまま直しますか？`)) return false;
+    if (cur.orderDate && d < String(cur.orderDate).slice(0, 10) && !confirm(`解約日（${fmtDate(d)}）が受注日（${fmtDate(cur.orderDate)}）より前です。このまま直しますか？`)) return false;
+    const detail = document.getElementById('flow-cancel-detail').value.trim().slice(0, 2000);
+    if (cur.cancel_date === d && cur.cancel_reason === reason && (cur.cancel_detail || '') === detail) return true;
+    // まとめて解約した追加受注の解約日も合わせる
+    const ids = Array.isArray(cur.cancel_ao) ? cur.cancel_ao : [];
+    const upd = { ...cur, cancel_date: d, cancel_reason: reason, cancel_detail: detail,
+      addOrders: addOrdersOf(cur).map(o => ids.includes(o.dealId) && o.cancelled_date === cur.cancel_date ? { ...o, cancelled_date: d } : o) };
+    return await saveStage(cur, upd, `✏ 解約の内容を直しました（${fmtDate(d)}・${CANCEL_REASONS[reason] || reason}）`);
+  });
+  document.getElementById('flow-cancel-detail').value = rec.cancel_detail || '';
+}
+// 進み具合の日付を直す（ヒアリング・制作・納品・契約スタート）。契約スタート日を変えたら月額の期限も作り直す
+function openStageDatesFlow(rec) {
+  const cur0 = prodStageOf(rec);
+  const reached = PROD_MANUAL.slice(0, PROD_MANUAL.indexOf(cur0) + 1);
+  const dates = rec.prodStageDates && typeof rec.prodStageDates === 'object' ? rec.prodStageDates : {};
+  const html = reached.map(k => `<div class="form-group" style="margin-top:8px;"><label for="flow-sd-${k}">${esc(prodLabel(k))}</label><input type="date" id="flow-sd-${k}" value="${esc(dates[k] || '')}"></div>`).join('')
+    + (reached.includes('started') && Number(rec.monthly_amount) > 0 ? '<p class="stage-note" style="margin-top:10px;">※ 契約スタート日を変えると、まだ入金されていない月額の期限もその日から作り直します。</p>' : '');
+  openFlow('✏ 進み具合の日付を直す', html, '直す', async () => {
+    const cur = state.records.find(r => r.id === rec.id) || rec;
+    if (prodStageOf(cur) !== cur0) { alert('他の人が先に進み具合を変えました。画面を確認してください'); return true; }
+    const nd = { ...(cur.prodStageDates && typeof cur.prodStageDates === 'object' ? cur.prodStageDates : {}) };
+    let lastD = '';
+    for (const k of reached) {
+      const v = document.getElementById(`flow-sd-${k}`).value;
+      if (v && !DATE_RE.test(v)) { alert(`${prodLabel(k)}の日付が正しくありません`); return false; }
+      if (k === 'started' && !v) { alert('契約スタート日は空にできません'); return false; }
+      if (v && v > todayStr() && !confirm(`${prodLabel(k)}の日付（${fmtDate(v)}）は未来の日付です。このまま直しますか？`)) return false;
+      if (v && lastD && v < lastD && !confirm(`${prodLabel(k)}の日付（${fmtDate(v)}）が前の段階より前になっています。このまま直しますか？`)) return false;
+      if (v && cur.orderDate && v < String(cur.orderDate).slice(0, 10) && !confirm(`${prodLabel(k)}の日付（${fmtDate(v)}）が受注日（${fmtDate(cur.orderDate)}）より前です。このまま直しますか？`)) return false;
+      if (v) { nd[k] = v; lastD = v; } else delete nd[k];
+    }
+    const upd = { ...cur, prodStageDates: nd };
+    const oldStart = (cur.prodStageDates || {}).started || '';
+    if (reached.includes('started') && nd.started !== oldStart && Number(cur.monthly_amount) > 0) {
+      upd.contract_start = nd.started;
+      const dues = monthlyDues(nd.started, cur.monthly_day);
+      [1, 2, 3].forEach(m => { if (!cur[`m${m}_paid_date`]) upd[`m${m}_due`] = dues[m - 1]; });
+    }
+    if (stableJson(nd) === stableJson(cur.prodStageDates || {})) return true;
+    return await saveStage(cur, upd, '✏ 進み具合の日付を直しました');
+  });
+}
+// 追加受注の解約日を直す
+function openAoCancelDateFlow(rec, dealId) {
+  const o = addOrdersOf(rec).find(x => x.dealId === dealId);
+  if (!o || !o.cancelled_date) return;
+  openFlow(`✏ ${addOrderLabel(o)} の解約日を直す`, `<div class="form-group"><label for="flow-ao-date">解約日</label><input type="date" id="flow-ao-date" value="${esc(o.cancelled_date)}"></div>`, '直す', async () => {
+    const d = document.getElementById('flow-ao-date').value;
+    if (!DATE_RE.test(d)) { alert('解約日を入れてください'); return false; }
+    const cur = state.records.find(r => r.id === rec.id) || rec;
+    const co = addOrdersOf(cur).find(x => x.dealId === dealId);
+    if (!co || !co.cancelled_date) { alert('この追加受注はもう解約ではありません'); return true; }
+    if (co.cancelled_date === d) return true;
+    const upd = { ...cur, addOrders: addOrdersOf(cur).map(x => x.dealId === dealId ? { ...x, cancelled_date: d } : x) };
+    return await saveStage(cur, upd, `✏ 追加受注「${o.dealName || ''}」の解約日を${fmtDate(d)}に直しました`);
+  });
+}
+function openMidCancelFlow(rec) {
+  const aos = addOrdersOf(rec).filter(o => Number(o.monthly_amount) > 0 && !o.cancelled_date);
+  const reasons = Object.entries(CANCEL_REASONS).filter(([k]) => k !== 'nopay').map(([k, v]) => `<option value="${esc(k)}">${esc(v)}</option>`).join('');
+  const html = `<p class="stage-note" style="margin-bottom:12px;">「${esc(rec.name)}」を途中で解約します。入金済みの記録は残り、この契約のこれから先の入金予定は消えます（あとで取り消せます）。${aos.length ? '<br>※ 追加受注は、まとめて解約しても今までの決まりどおり最低3ヶ月分の請求が残ります。' : ''}</p>
+    <div class="form-group"><label for="flow-cancel-date">解約日</label><input type="date" id="flow-cancel-date" value="${esc(todayStr())}"></div>
+    <div class="form-group" style="margin-top:10px;"><label for="flow-cancel-reason">理由</label><select id="flow-cancel-reason"><option value="">選択してください</option>${reasons}</select></div>
+    <div class="form-group" style="margin-top:10px;"><label for="flow-cancel-detail">詳細（任意）</label><textarea id="flow-cancel-detail" rows="3" maxlength="2000"></textarea></div>
+    ${aos.length ? `<div class="form-group" style="margin-top:10px;"><label>追加受注もまとめて解約する</label>${aos.map(o => `<label class="chk"><input type="checkbox" data-ao="${esc(o.dealId)}" checked> ${esc(addOrderLabel(o))}（月¥${fmt(o.monthly_amount)}）</label>`).join('')}</div>` : ''}`;
+  openFlow('⏹ 中途解約', html, '中途解約する', async () => {
+    const d = document.getElementById('flow-cancel-date').value;
+    const reason = document.getElementById('flow-cancel-reason').value;
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) { alert('解約日を入れてください'); return false; }
+    if (!reason) { alert('理由を選んでください'); return false; }
+    const cur = state.records.find(r => r.id === rec.id) || rec;
+    if (cur.phase === 'cancelled') { alert('すでに解約されています'); return true; }
+    if (cur.orderDate && d < String(cur.orderDate).slice(0, 10) && !confirm(`解約日（${fmtDate(d)}）が受注日（${fmtDate(cur.orderDate)}）より前です。このまま解約しますか？`)) return false;
+    const ids = [...document.querySelectorAll('#flowBody [data-ao]')].filter(c => c.checked).map(c => c.dataset.ao);
+    const upd = {
+      ...cur, cancel_prev_phase: cur.phase, phase: 'cancelled', cancel_date: d, cancel_reason: reason,
+      cancel_detail: document.getElementById('flow-cancel-detail').value.trim().slice(0, 2000), cancel_ao: ids,
+      addOrders: addOrdersOf(cur).map(o => ids.includes(o.dealId) && !o.cancelled_date ? { ...o, cancelled_date: d } : o)
+    };
+    const done = await saveStage(cur, upd, `⏹ 中途解約（${fmtDate(d)}・${CANCEL_REASONS[reason] || reason}）`);
+    if (done) postToChatter('manual', `⏹ 中途解約\n【屋号】${cur.name}\n【解約日】${fmtDate(d)}\n【理由】${CANCEL_REASONS[reason] || reason}${upd.cancel_detail ? '\n【詳細】' + upd.cancel_detail : ''}`, { recordId: cur.id, recordName: cur.name });
+    return done;
+  });
+}
+
+const DETAIL_ACTS = ['pay', 'unpay', 'confirm-m3', 'cancel', 'unlink-kaishu', 'ao-cancel', 'ao-uncancel', 'split-orders'];
 async function detailQuickAction(act, key) {
+  if (!DETAIL_ACTS.includes(act)) return;   // 知らない操作では何も書かない
   if ((act === 'pay' || act === 'unpay') && paymentBusy) return;
   const rec = state.records.find(r => r.id === state.detailId);
   if (!rec) return;
