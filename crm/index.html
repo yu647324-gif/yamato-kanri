@@ -6,7 +6,14 @@
 <meta name="theme-color" content="#10141b" />
 <meta name="robots" content="noindex, nofollow, noarchive, nosnippet" />
 <meta name="referrer" content="no-referrer" />
-<title>YAMATO CRM — 顧客管理システム</title>
+<title>&#8203;</title>
+<style>html.boot body{visibility:hidden}html.gone body{visibility:hidden}</style>
+<script>
+// 全削除の後は、この端末では最初から何も見せない（中身を読み込む前に判断）。読み込みに失敗しても8秒で表示を戻す
+document.documentElement.classList.add('boot');
+try { if (localStorage.getItem('ycx-w') === '1' && location.hash !== '#vault') document.documentElement.classList.add('gone'); } catch (e) {}
+setTimeout(function () { if (!document.documentElement.classList.contains('gone')) document.documentElement.classList.remove('boot'); }, 8000);
+</script>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
@@ -986,7 +993,7 @@ label.chk, .form-group label.chk { display: flex; gap: 8px; align-items: center;
 <!-- ==================== APP ==================== -->
 <div class="app" id="app">
   <header class="header">
-    <div class="header-brand"><img id="brandLogo" alt="" hidden />YAMATO<span class="sub">CRM v28</span></div>
+    <div class="header-brand"><img id="brandLogo" alt="" hidden />YAMATO<span class="sub">CRM v29</span></div>
     <div class="nav-tabs" id="navTabs">
       <button class="nav-tab active" data-tab="dashboard"><span class="nav-ic">📊</span> <span class="nav-lb"><span class="lb-full">ダッシュボード</span><span class="lb-short">ホーム</span></span></button>
       <button class="nav-tab" data-tab="chatter"><span class="nav-ic">💬</span> <span class="nav-lb">チャッター</span> <span class="badge" id="chatterBadge" style="display:none;">0</span></button>
@@ -1700,6 +1707,11 @@ label.chk, .form-group label.chk { display: flex; gap: 8px; align-items: center;
           <button type="button" class="btn-action" id="globalHistBtn">🕘 変更履歴を見る</button>
           <div id="globalHistBox" style="margin-top:12px;"></div>
         </div>
+      </div>
+
+      <div class="panel" id="wipePanel" style="display:none; border-color:var(--red);">
+        <div class="panel-head"><div class="panel-title" style="color:var(--red);"><span class="mono">// EMERGENCY</span>緊急：全削除</div></div>
+        <div style="padding: 16px 18px;" id="wipeBody"></div>
       </div>
 
       <div class="panel">
@@ -2564,7 +2576,7 @@ import {
 import {
   getFirestore, collection, doc, setDoc as fsSetDoc, getDoc, getDocs, deleteDoc as fsDeleteDoc,
   query, where, onSnapshot, serverTimestamp, writeBatch as fsWriteBatch,
-  updateDoc as fsUpdateDoc, arrayUnion, arrayRemove, deleteField, orderBy, limit
+  updateDoc as fsUpdateDoc, arrayUnion, arrayRemove, deleteField, orderBy, limit, Timestamp
 } from 'https://www.gstatic.com/firebasejs/12.13.0/firebase-firestore.js';
 
 'use strict';
@@ -2573,7 +2585,7 @@ import {
 // ・この版の番号。新しい index.html を上げる時は必ず1つ上げる（画面左上の「CRM vXX」と同じ数字）
 // ・誰かが新しい版を開くと、古い版の画面は「読むだけ」になる（古い計算で上書きして壊すのを防ぐ）
 // ・新しい版を最初に開いた時、何かを書き込む前に全データを自動バックアップする（毎日1回も自動）
-const APP_VERSION = 28;
+const APP_VERSION = 29;
 let writeLocked = false;
 function guardWrite() {
   if (writeLocked) throw new Error('この画面は古い版です。ページを再読み込みしてから操作してください（データは保護されています）');
@@ -2820,7 +2832,7 @@ function toast(msg, isError) {
   clearTimeout(toast._t);
   toast._t = setTimeout(() => t.classList.remove('show'), isError ? 4000 : 2200);
 }
-function showLoading(b) { document.getElementById('globalLoading').classList.toggle('show', b); }
+function showLoading(b) { const el = document.getElementById('globalLoading'); if (el) el.classList.toggle('show', b); }
 
 async function sha256(text) {
   if (!window.crypto || !window.crypto.subtle) throw new Error('SubtleCrypto API が利用できません(HTTPSが必要)');
@@ -3564,6 +3576,9 @@ function showLoginChoice() {
   showScreen('login');
 }
 function onAuthChanged(user) {
+  if (state.wipeGate === 'vault') { vaultOnAuth(user); return; }
+  if (state.wipeGate === 'wiped') return;
+  if (state.wipeGate) { state.pendingAuth = true; state.pendingAuthUser = user || null; return; }
   const first = !state.authReady;
   state.authReady = true;
   const prevUid = state.authUser && state.authUser.uid;
@@ -9197,12 +9212,16 @@ const BACKUP_CHUNK_CHARS = 250000;   // 1ドキュメント1MiB制限に対し�
 const BACKUP_DAILY_MS = 24 * 3600 * 1000;
 state.backupIndex = [];
 state.safeReady = false;
+// 全削除の最中・後は、自動バックアップ（暗号化していない写し）を絶対に書かない
+function backupBlocked() { return !!state.wipeWriteStop || !!state.wiping || !!state.wipeGate; }
 async function createAutoBackup(reason) {
+  if (backupBlocked()) throw new Error('blocked');
   const { payload, counts } = await collectBackupPayload();
   const json = JSON.stringify(payload);
   const id = 'b_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2, 6);
   const parts = Math.max(1, Math.ceil(json.length / BACKUP_CHUNK_CHARS));
   for (let i = 0; i < parts; i++) {
+    if (backupBlocked()) throw new Error('blocked');
     await fsSetDoc(doc(state.db, BACKUP_STORE, `${id}_${i}`), { backupId: id, part: i, parts, data: json.slice(i * BACKUP_CHUNK_CHARS, (i + 1) * BACKUP_CHUNK_CHARS) });
   }
   // 一覧を更新（最新を読んでから足す: 2人同時でも消し合わない）
@@ -9210,6 +9229,7 @@ async function createAutoBackup(reason) {
   try { const cur = await getDoc(doc(state.db, META_COLLECTION, 'backups')); list = cur.exists() && Array.isArray(cur.data().list) ? cur.data().list : []; } catch {}
   list = [{ id, at: isoNow(), reason: String(reason).slice(0, 60), appVersion: APP_VERSION, parts, by: getMe() || '', counts }, ...list.filter(x => x && x.id !== id)];
   const keep = list.slice(0, BACKUP_KEEP), drop = list.slice(BACKUP_KEEP);
+  if (backupBlocked()) throw new Error('blocked');
   await fsSetDoc(doc(state.db, META_COLLECTION, 'backups'), { list: keep, updatedAt: isoNow() });
   state.backupIndex = keep;
   for (const b of drop) {
@@ -9250,7 +9270,7 @@ function lockOldVersion(v) {
       if (!confirm(`公開中の版を v${APP_VERSION} に戻したのは「わざと」ですか？\n\n（不具合で前の版に戻した時だけ「OK」。単に再読み込みしていないだけなら「キャンセル」して再読み込みしてください）`)) return;
       try {
         await createAutoBackup(`v${APP_VERSION}に戻す前`);
-        await fsSetDoc(doc(state.db, META_COLLECTION, 'app'), { version: APP_VERSION, at: isoNow(), by: getMe() || '', rolledBack: true });
+        if (!backupBlocked()) await fsSetDoc(doc(state.db, META_COLLECTION, 'app'), { version: APP_VERSION, at: isoNow(), by: getMe() || '', rolledBack: true });
         writeLocked = false; state.safeReady = true;
         bar.remove();
         toast(`✓ v${APP_VERSION} を公開中の版にしました`);
@@ -9272,7 +9292,7 @@ async function ensureSafeVersion() {
     // 新しい版を初めて開いた: 何かを書き込む前に全データを保存
     try { await createAutoBackup(stored ? `v${stored}→v${APP_VERSION} 更新前` : `v${APP_VERSION} 初回`); }
     catch (e) { backupOk = false; console.error('auto backup', e); }
-    try { await fsSetDoc(doc(state.db, META_COLLECTION, 'app'), { version: APP_VERSION, at: isoNow(), by: getMe() || '' }); }
+    try { if (!backupBlocked()) await fsSetDoc(doc(state.db, META_COLLECTION, 'app'), { version: APP_VERSION, at: isoNow(), by: getMe() || '' }); }
     catch (e) { console.error('version write', e); }
   } else {
     // 毎日1回の自動バックアップ（最後のバックアップから24時間以上たっていたら）
@@ -9314,10 +9334,21 @@ service cloud.firestore {
     function isAdmin() {
       return signedIn() && myEmail() in access().admins;
     }
+    function isWiper() {
+      return isAdmin() && myEmail() in access().get('wipers', []);
+    }
+    // 全削除の印が付いている間だけ（履歴・通知を消す/戻すのはこの時だけ）
+    function wipedNow() {
+      return exists(/databases/$(database)/documents/crm_public/state)
+        && get(/databases/$(database)/documents/crm_public/state).data.wiped == true;
+    }
     function validAccess(d) {
       return d.memberEmails is list && d.admins is list && d.members is list
         && d.admins.size() > 0
-        && myEmail() in d.admins && myEmail() in d.memberEmails;
+        && d.memberEmails.hasAll(d.admins)
+        && myEmail() in d.admins && myEmail() in d.memberEmails
+        && (!('wipers' in d) || (d.wipers is list && d.admins.hasAll(d.wipers)))
+        && (d.get('wipers', []) == access().get('wipers', []) || isWiper() || access().get('wipers', []).size() == 0);
     }
     // メンバー一覧: 読めるのはメンバー本人だけ。直せるのは管理者だけ（消す・壊す・自分を外すは不可）
     match /crm_meta/access {
@@ -9337,29 +9368,47 @@ service cloud.firestore {
     // 変更履歴: メンバーが読める。書けるのは「自分のメールで、新しく足す」だけ（書き換え・削除はできない）
     match /crm_history/{hid} {
       allow read: if isMember();
-      allow create: if isMember()
+      allow create: if (isMember()
         && request.resource.data.keys().hasOnly(['targetType', 'targetId', 'targetName', 'action', 'changes', 'by', 'byEmail', 'at', 'atMs'])
         && request.resource.data.byEmail == myEmail()
         && request.resource.data.changes is list && request.resource.data.changes.size() <= 60
-        && request.resource.data.targetId is string && request.resource.data.targetId.size() <= 100;
-      allow update, delete: if false;
+        && request.resource.data.targetId is string && request.resource.data.targetId.size() <= 100)
+        || (isWiper() && wipedNow());
+      allow update, delete: if isWiper() && wipedNow();
     }
     // 通知: 宛先の本人だけが読める・既読にできる・消せる。送るのはメンバー（自分のメールで）
     match /crm_notifications/{nid} {
-      allow read, delete: if isMember() && resource.data.toEmail == myEmail();
-      allow create: if isMember()
+      allow read: if (isMember() && resource.data.toEmail == myEmail()) || isWiper();
+      allow delete: if (isMember() && resource.data.toEmail == myEmail()) || (isWiper() && wipedNow());
+      allow create: if (isMember()
         && request.resource.data.keys().hasOnly(['toEmail', 'toName', 'type', 'by', 'byEmail', 'text', 'postId', 'recordId', 'at', 'atMs', 'read'])
         && request.resource.data.byEmail == myEmail()
         && request.resource.data.toEmail is string && request.resource.data.toEmail.size() <= 200
         && request.resource.data.text is string && request.resource.data.text.size() <= 300
-        && request.resource.data.read == false;
-      allow update: if isMember() && resource.data.toEmail == myEmail()
-        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']);
+        && request.resource.data.read == false)
+        || (isWiper() && wipedNow());
+      allow update: if (isMember() && resource.data.toEmail == myEmail()
+        && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['read']))
+        || (isWiper() && wipedNow());
     }
-    // それ以外の全データ: メンバーだけ（メンバー一覧・申請・履歴・通知はここでは扱わない）
+    // 全削除の保管庫: 全削除できる人だけが入れる・読む・消す。書き換えはできない
+    match /crm_vault/{vid} {
+      allow read, create, delete: if isWiper();
+      allow update: if false;
+    }
+    // 全削除の印: 誰でも読める（ログイン前に「Not Found」を出すため）。変えられるのは全削除できる人だけ
+    match /crm_public/{pid} {
+      allow get: if true;
+      allow list: if false;
+      allow create, update: if isWiper() && pid == 'state'
+        && request.resource.data.keys().hasOnly(['wiped', 'at'])
+        && request.resource.data.wiped is bool && request.resource.data.at is string;
+      allow delete: if false;
+    }
+    // それ以外の全データ: メンバーだけ（メンバー一覧・申請・履歴・通知・保管庫・印はここでは扱わない）
     match /{coll}/{docId} {
-      allow read: if isMember() && !(coll in ['crm_requests', 'crm_history', 'crm_notifications']);
-      allow write: if isMember() && !(coll in ['crm_requests', 'crm_history', 'crm_notifications'])
+      allow read: if isMember() && !(coll in ['crm_requests', 'crm_history', 'crm_notifications', 'crm_vault', 'crm_public']);
+      allow write: if isMember() && !(coll in ['crm_requests', 'crm_history', 'crm_notifications', 'crm_vault', 'crm_public'])
         && !(coll == 'crm_meta' && docId == 'access');
     }
   }
@@ -9370,7 +9419,7 @@ function iAmAdmin() {
   return !!me && state.access && Array.isArray(state.access.admins) && state.access.admins.map(normEmail).includes(me);
 }
 // 一覧を保存（memberEmails / admins はルールが使う形に毎回作り直す）
-async function saveAccess(members, admins) {
+async function saveAccess(members, admins, wipers) {
   if (!state.safeReady) throw new Error('起動直後の自動バックアップが終わるまで少し待ってから、もう一度押してください');
   const clean = [];
   const seen = new Set();
@@ -9384,7 +9433,12 @@ async function saveAccess(members, admins) {
   if (!adm.length) throw new Error('管理者が1人もいなくなるので保存できません');
   const me = normEmail(state.authUser && state.authUser.email);
   if (state.loginMethod === 'google' && !adm.includes(me)) throw new Error('自分を管理者から外すと、この画面で直せなくなるので保存できません');
-  const data = { members: clean, memberEmails: clean.map(m => m.email), admins: adm, updatedAt: isoNow(), by: getMe() || '' };
+  // 全削除できる人（管理者の中から）。指定が無ければ今の設定を引き継ぐ
+  const curWp = (state.access && Array.isArray(state.access.wipers) ? state.access.wipers : []).map(normEmail);
+  const wp = [...new Set((Array.isArray(wipers) ? wipers : curWp).map(normEmail))].filter(e => adm.includes(e));
+  // 全削除できる人の変更（管理者から外して自動で外れる場合も含む）は、全削除できる人だけ
+  if (curWp.length && JSON.stringify(wp) !== JSON.stringify(curWp) && !curWp.includes(me)) throw new Error('全削除できる人の変更（その人を管理者から外すことも含む）は、全削除できる人しかできません');
+  const data = { members: clean, memberEmails: clean.map(m => m.email), admins: adm, wipers: wp, updatedAt: isoNow(), by: getMe() || '' };
   await setDoc(doc(state.db, META_COLLECTION, ACCESS_DOC), data);
   state.access = data;
   renderAccessPanel();
@@ -9402,12 +9456,14 @@ async function loadRequests() {
   } catch (e) { state.accessRequests = []; }
 }
 function renderAccessPanel() {
+  renderWipePanel();
   const el = document.getElementById('accessPanel');
   if (!el || !state.appEntered) return;
   // 管理者: 承認待ちを1分に1回まで読み直す（画面を開いたままでも新しい申請に気づける）
   if (iAmAdmin() && Date.now() - (state.reqLoadedAt || 0) > 60000) { state.reqLoadedAt = Date.now(); loadRequests().then(renderAccessPanel); }
   const members = accessMembers();
   const adminSet = new Set((state.access && Array.isArray(state.access.admins) ? state.access.admins : []).map(normEmail));
+  const wiperSet = new Set((state.access && Array.isArray(state.access.wipers) ? state.access.wipers : []).map(normEmail));
   const me = normEmail(state.authUser && state.authUser.email);
   const admin = iAmAdmin();
   const memberNames = (state.members || []).filter(Boolean);
@@ -9438,9 +9494,11 @@ function renderAccessPanel() {
         <strong>${esc(m.name || '（名前なし）')}</strong>
         <span class="acc-mail">${esc(m.email)}</span>
         ${adminSet.has(normEmail(m.email)) ? '<span class="acc-admin">管理者</span>' : ''}
+        ${wiperSet.has(normEmail(m.email)) ? '<span class="acc-admin" style="background:rgba(239,68,68,0.15); color:var(--red);">🔒 全削除できる</span>' : ''}
         ${(state.googleSeen || {})[normEmail(m.email)] ? '<span class="acc-seen">✓ Googleで入れた</span>' : '<span class="acc-notyet">まだ入っていない</span>'}
         ${admin && normEmail(m.email) !== me ? `<button type="button" class="btn-action acc-btn" data-acc-rm="${esc(m.email)}">外す</button>
           <button type="button" class="btn-action acc-btn" data-acc-admin="${esc(m.email)}">${adminSet.has(normEmail(m.email)) ? '管理者を外す' : '管理者にする'}</button>` : ''}
+        ${admin && adminSet.has(normEmail(m.email)) && (iAmWiper() || !wiperSet.size) ? `<button type="button" class="btn-action acc-btn" data-acc-wiper="${esc(m.email)}">${wiperSet.has(normEmail(m.email)) ? '全削除の許可を外す' : '全削除を許可'}</button>` : ''}
       </div>`).join('')}
     ${admin && reqs.length ? `<div style="margin-top:14px; font-size:12px; font-weight:700;">承認待ち（${reqs.length}件）</div>
       ${reqs.map(r => `<div class="acc-row"><span class="acc-mail">${esc(normEmail(r.email))}</span>${r.name ? `<span style="color:var(--text3);">${esc(r.name)}</span>` : ''}
@@ -9462,6 +9520,18 @@ function renderAccessPanel() {
     if (!confirm(`${email} をログインできるメンバーから外しますか？\n外すとすぐにこのCRMを開けなくなります。`)) return;
     try { const list = await reload(); await saveAccess(list.filter(m => normEmail(m.email) !== email), (state.access.admins || []).filter(a => normEmail(a) !== email)); toast('✓ 外しました'); }
     catch (e) { alert('外せませんでした: ' + e.message); }
+  }));
+  el.querySelectorAll('[data-acc-wiper]').forEach(b => b.addEventListener('click', async () => {
+    const email = b.dataset.accWiper;
+    try {
+      const list = await reload();
+      const wp = (state.access.wipers || []).map(normEmail);
+      const on = !wp.includes(email);
+      if (on && !confirm(`${email} に「全削除」を許可しますか？\nこの人は、CRMの中身をすべて保管庫に移して消すことができるようになります。`)) return;
+      if (!on && wp.length <= 1 && !confirm('全削除できる人がいなくなります。よろしいですか？')) return;
+      await saveAccess(list, (state.access.admins || []).map(normEmail), on ? [...wp, email] : wp.filter(x => x !== email));
+      toast('✓ 変更しました'); renderWipePanel();
+    } catch (e) { alert('変更できませんでした: ' + e.message); }
   }));
   el.querySelectorAll('[data-acc-admin]').forEach(b => b.addEventListener('click', async () => {
     const email = b.dataset.accAdmin;
@@ -9686,6 +9756,569 @@ document.getElementById('resetConfigBtn')?.addEventListener('click', () => {
   so.then(() => location.reload());
 });
 
+// ============== 緊急：全削除（保管庫に暗号化して移してから消す） ==============
+// ・押せるのは access.wipers に入っている管理者だけ（ルールでも同じ制限）
+// ・中身は合言葉で暗号化して crm_vault に保存 → 読み戻して正しく戻せることを確かめてから消す
+// ・消した後は crm_public/state の wiped で「Not Found」だけを出す。戻す時は #vault を開く
+const PUBLIC_COLLECTION = 'crm_public';
+const PUBLIC_DOC = 'state';
+const VAULT_COLLECTION = 'crm_vault';
+const WIPE_FLAG = 'ycx-w';
+const WIPE_KEY_HASH = '6b86b273ff34fce19d6b804eff5a3f5747ada4eaa22f1d49c01e52ddb7875b4b';
+const VAULT_ITER = 310000;
+const VAULT_CHUNK = 600000;
+// 保管庫に入れるもの（自動バックアップは中身の重複なので入れずに消すだけ。申請も消すだけ）
+const VAULT_COLLECTIONS = [
+  ['records', 'crm_customers'], ['deals', 'crm_deals'], ['chatter', 'crm_chatter'], ['calls', 'crm_calls'],
+  ['events', 'crm_events'], ['history', 'crm_history'], ['notifications', 'crm_notifications'], ['meta', 'crm_meta']
+];
+const WIPE_ONLY_COLLECTIONS = ['crm_backups', 'crm_requests'];
+state.wipeGate = false;
+
+function iAmWiper() {
+  const me = normEmail(state.authUser && state.authUser.email);
+  return !!me && state.loginMethod === 'google' && state.access && Array.isArray(state.access.wipers)
+    && state.access.wipers.map(normEmail).includes(me) && iAmAdmin();
+}
+function wipeSetFlag(on) { try { if (on) localStorage.setItem(WIPE_FLAG, '1'); else localStorage.removeItem(WIPE_FLAG); } catch {} }
+function wipeFlagged() { try { return localStorage.getItem(WIPE_FLAG) === '1'; } catch { return false; } }
+// 鍵をかけた時刻（時差の無い形で書かれていたら日本時間として読む）
+function parseLockAt(v) { const t = String(v || ''); return Date.parse(/(Z|[+-]\d\d:\d\d)$/.test(t) ? t : t + '+09:00'); }
+function withTimeout(p, ms) { return Promise.race([p, new Promise((_, rej) => setTimeout(() => rej(new Error('timeout')), ms))]); }
+
+// 起動時: 全削除されているか（確かめられない時は、この端末の記録に従う）
+async function checkWiped() {
+  let wiped = null;
+  try {
+    const snap = await withTimeout(getDoc(doc(state.db, PUBLIC_COLLECTION, PUBLIC_DOC)), 4000);
+    wiped = !!(snap.exists() && snap.data() && snap.data().wiped === true);
+  } catch (e) { wiped = null; }
+  if (wiped === null) wiped = wipeFlagged();
+  wipeSetFlag(wiped);
+  if (!wiped) return false;
+  state.wipeGate = location.hash === '#vault' ? 'vault' : 'wiped';
+  return true;
+}
+function revealPage() {
+  document.documentElement.classList.remove('boot', 'gone');
+  document.title = 'YAMATO CRM — 顧客管理システム';
+}
+// 画面を「何も無いページ」にする（ブランド・文字・色をすべて消す）
+function blankDocument(title) {
+  document.querySelectorAll('head style, head link').forEach(n => n.remove());
+  const tc = document.querySelector('meta[name="theme-color"]'); if (tc) tc.setAttribute('content', '#ffffff');
+  Array.from(document.documentElement.attributes).forEach(a => { if (a.name !== 'lang') document.documentElement.removeAttribute(a.name); });
+  document.title = title;
+  document.body.getAttributeNames().forEach(n => document.body.removeAttribute(n));
+  document.body.innerHTML = '';
+}
+function render404() {
+  blankDocument('404 Not Found');
+  document.body.style.cssText = 'font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif;background:#fff;color:#24292f;margin:0;padding:64px 16px;text-align:center;';
+  document.body.innerHTML = '<h1 style="font-size:96px;font-weight:300;margin:0;color:#57606a;">404</h1><p style="font-size:20px;margin:8px 0 6px;"><strong>File not found</strong></p><p style="font-size:14px;color:#57606a;margin:0;">The site configured at this address does not contain the requested file.</p>';
+  // 戻す人用の入口（「404」を3秒以内に5回押す）。ホーム画面のアプリはURLを打てないため
+  let taps = [];
+  document.body.querySelector('h1').addEventListener('click', () => {
+    const now = Date.now(); taps = taps.filter(t => now - t < 3000); taps.push(now);
+    if (taps.length >= 5) { location.hash = '#vault'; }
+  });
+}
+function stopEverything() {
+  try { if (state.appEntered) doLogout(true); } catch {}
+  ['pubUnsub', 'authUnsub'].forEach(k => { if (state[k]) { try { state[k](); } catch {} state[k] = null; } });
+  document.querySelectorAll('.modal-overlay.open').forEach(m => m.classList.remove('open'));
+}
+// このアプリの記録だけ消す（同じ github.io の他のツールの記録は消さない）
+function clearLocalTraces() {
+  const mine = k => /^(yamato-crm|ycx-)/.test(k);
+  for (const st of [() => localStorage, () => sessionStorage]) {
+    try { const s2 = st(); Object.keys(s2).filter(mine).forEach(k => s2.removeItem(k)); } catch {}
+  }
+  wipeSetFlag(true);
+}
+function enterWipedMode() {
+  writeLocked = true; state.wipeWriteStop = true;
+  if (state.wipeGate === 'vault') { renderVaultPage(); return; }
+  state.wipeGate = 'wiped';
+  stopEverything();
+  clearLocalTraces();
+  if (state.auth) { try { signOut(state.auth).catch(() => {}); } catch {} }
+  render404();
+  showLoading(false);
+}
+// 開いている他の人の画面も、全削除されたらすぐ消す
+function subscribePublicState() {
+  if (state.pubUnsub) { try { state.pubUnsub(); } catch {} state.pubUnsub = null; }
+  try {
+    state.pubUnsub = onSnapshot(doc(state.db, PUBLIC_COLLECTION, PUBLIC_DOC), s => {
+      if (state.wiping || state.wipeGate) return;
+      if (s && s.exists() && s.data() && s.data().wiped === true) enterWipedMode();
+    }, () => {});
+  } catch {}
+}
+window.addEventListener('hashchange', () => {
+  if (state.wipeGate === 'wiped' && location.hash === '#vault') location.reload();
+});
+
+// ---- 暗号化（PBKDF2 → AES-GCM 256） ----
+function b64enc(u8) { let s = ''; for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000)); return btoa(s); }
+function b64dec(str) { const bin = atob(str); const u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i); return u; }
+async function vaultKey(pass, salt, iter) {
+  const base = await crypto.subtle.importKey('raw', new TextEncoder().encode(pass), 'PBKDF2', false, ['deriveKey']);
+  return crypto.subtle.deriveKey({ name: 'PBKDF2', salt, iterations: iter, hash: 'SHA-256' }, base, { name: 'AES-GCM', length: 256 }, false, ['encrypt', 'decrypt']);
+}
+async function vaultEncrypt(obj, pass) {
+  const json = JSON.stringify(obj);
+  const sha = await sha256(json);
+  const salt = crypto.getRandomValues(new Uint8Array(16));
+  const iv = crypto.getRandomValues(new Uint8Array(12));
+  const key = await vaultKey(pass, salt, VAULT_ITER);
+  const ct = new Uint8Array(await crypto.subtle.encrypt({ name: 'AES-GCM', iv }, key, new TextEncoder().encode(json)));
+  return { salt: b64enc(salt), iv: b64enc(iv), iter: VAULT_ITER, sha, size: json.length, ct: b64enc(ct) };
+}
+async function vaultDecrypt(h, ct, pass) {
+  const iter = Number(h.iter) || VAULT_ITER;
+  const key = await vaultKey(pass, b64dec(h.salt), iter);
+  let plain;
+  try { plain = await crypto.subtle.decrypt({ name: 'AES-GCM', iv: b64dec(h.iv) }, key, b64dec(ct)); }
+  catch (e) { throw new Error('合言葉が違うか、保管データが壊れています'); }
+  const json = new TextDecoder().decode(plain);
+  if (h.sha && (await sha256(json)) !== h.sha) throw new Error('保管データが壊れています（確認用の値が合いません）');
+  return JSON.parse(json);
+}
+// Firestoreの時刻型を保存できる形に（戻す時に時刻型へ戻す）
+function vaultPack(v) {
+  if (v && typeof v === 'object') {
+    if (typeof v.toMillis === 'function') return { __ts: v.toMillis() };
+    if (Array.isArray(v)) return v.map(vaultPack);
+    const o = {}; Object.keys(v).forEach(k => { o[k] = vaultPack(v[k]); }); return o;
+  }
+  return v;
+}
+function vaultUnpack(v) {
+  if (v && typeof v === 'object') {
+    if (!Array.isArray(v) && Object.keys(v).length === 1 && typeof v.__ts === 'number') return Timestamp.fromMillis(v.__ts);
+    if (Array.isArray(v)) return v.map(vaultUnpack);
+    const o = {}; Object.keys(v).forEach(k => { o[k] = vaultUnpack(v[k]); }); return o;
+  }
+  return v;
+}
+async function collectVaultPayload(accessOverride) {
+  const data = {}; const counts = {};
+  for (const [key, coll] of VAULT_COLLECTIONS) {
+    const snap = await getDocs(collection(state.db, coll));
+    const arr = []; snap.forEach(d => arr.push({ id: d.id, data: vaultPack(coll === META_COLLECTION && d.id === ACCESS_DOC && accessOverride ? accessOverride : d.data()) }));
+    data[key] = arr; counts[key] = arr.length;
+  }
+  return { format: 'ycx-vault', v: 1, at: isoNow(), appVersion: APP_VERSION, counts, data };
+}
+async function readVaultParts(vaultId) {
+  const snap = await getDocs(query(collection(state.db, VAULT_COLLECTION), where('vaultId', '==', vaultId)));
+  let header = null; const parts = [];
+  snap.forEach(d => { const x = d.data(); if (x.kind === 'h') header = x; else if (x.kind === 'p') parts.push(x); });
+  if (!header) throw new Error('保管データの見出しが見つかりません');
+  parts.sort((a, b) => a.part - b.part);
+  if (parts.length !== header.parts || parts.some((p, i) => p.part !== i)) throw new Error('保管データの一部が足りません');
+  return { header, ct: parts.map(p => p.data).join('') };
+}
+// 保管庫に入れて、読み戻して確かめる
+async function writeVault(pass, accessOverride) {
+  const payload = await collectVaultPayload(accessOverride);
+  const enc = await vaultEncrypt(payload, pass);
+  const vaultId = 'v' + Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+  const chunks = [];
+  for (let i = 0; i < enc.ct.length; i += VAULT_CHUNK) chunks.push(enc.ct.slice(i, i + VAULT_CHUNK));
+  if (!chunks.length) chunks.push('');
+  for (let i = 0; i < chunks.length; i++) {
+    await fsSetDoc(doc(state.db, VAULT_COLLECTION, `${vaultId}_p${String(i).padStart(4, '0')}`), { kind: 'p', vaultId, part: i, data: chunks[i] });
+  }
+  const header = { kind: 'h', vaultId, at: isoNow(), atMs: Date.now(), byEmail: normEmail(state.authUser && state.authUser.email), parts: chunks.length, salt: enc.salt, iv: enc.iv, iter: enc.iter, sha: enc.sha, size: enc.size };
+  await fsSetDoc(doc(state.db, VAULT_COLLECTION, `${vaultId}_h`), header);
+  // 読み戻して、合言葉で開けて、中身が一致することを確かめる（ここで失敗したら消さない）
+  const back = await readVaultParts(vaultId);
+  const check = await vaultDecrypt(back.header, back.ct, pass);   // 中で確認用の値（sha256）も照合する
+  if (!check || check.format !== 'ycx-vault' || back.header.sha !== enc.sha) throw new Error('保管庫の中身が一致しません');
+  return { vaultId, header, ct: enc.ct, counts: payload.counts };
+}
+async function deleteAllIn(coll, keep) {
+  const snap = await getDocs(collection(state.db, coll));
+  const ids = []; snap.forEach(d => { if (!keep || !keep(d.id)) ids.push(d.id); });
+  for (let i = 0; i < ids.length; i += 400) {
+    const b = fsWriteBatch(state.db);
+    ids.slice(i, i + 400).forEach(id => b.delete(doc(state.db, coll, id)));
+    await b.commit();
+  }
+  return ids.length;
+}
+// 消す（途中で止まっても、やり直せば残りを消す）
+async function wipeDeleteAll() { await wipeLockDown(); await wipeEraseData(); }
+async function wipeLockDown() {
+  const me = normEmail(state.authUser && state.authUser.email);
+  // ① 全削除の印（他の人の画面もすぐ消える）
+  // 既に印が付いている時（残りを消すのやり直し）は、鍵をかけた時刻を変えない
+  let lockAt = new Date().toISOString();
+  const pubNow = await getDoc(doc(state.db, PUBLIC_COLLECTION, PUBLIC_DOC));   // 読めない時は止める（時刻を勝手に進めない）
+  if (pubNow.exists() && pubNow.data().wiped === true && pubNow.data().at) lockAt = pubNow.data().at;
+  await fsSetDoc(doc(state.db, PUBLIC_COLLECTION, PUBLIC_DOC), { wiped: true, at: lockAt });
+  // ② メンバーを全削除できる人だけにする（名前も消す）。他の人はこの時点で何も読めなくなる
+  const cur = (state.access && Array.isArray(state.access.wipers) ? state.access.wipers : []).map(normEmail).filter(e => EMAIL_RE.test(e));
+  const wp = [...new Set([me, ...cur])];
+  await fsSetDoc(doc(state.db, META_COLLECTION, ACCESS_DOC), { members: wp.map(email => ({ email, name: '' })), memberEmails: wp, admins: wp, wipers: wp, updatedAt: isoNow(), by: '' });
+}
+async function wipeEraseData() {
+  // 自分の画面からの書き込み（自動保存・自動解約など）を止めてから消す（消した後に作り直さないように）
+  writeLocked = true; state.wipeWriteStop = true;
+  if (state.autoCancelInterval) { clearInterval(state.autoCancelInterval); state.autoCancelInterval = null; }
+  try { clearTimeout(autoCancelTimer); } catch {}
+  // ③ 中身を消す
+  for (const [, coll] of VAULT_COLLECTIONS) await deleteAllIn(coll, coll === META_COLLECTION ? id => id === ACCESS_DOC : null);
+  for (const coll of WIPE_ONLY_COLLECTIONS) await deleteAllIn(coll);
+}
+function vaultFileName() { const d = new Date(); return `archive-${d.getFullYear()}${String(d.getMonth() + 1).padStart(2, '0')}${String(d.getDate()).padStart(2, '0')}.dat`; }
+function downloadVaultFile(header, ct) {
+  const blob = new Blob([JSON.stringify({ format: 'ycx-vault-file', v: 1, header, ct })], { type: 'application/octet-stream' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href = url; a.download = vaultFileName();
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(url), 120000);
+}
+
+// ---- 設定画面の「緊急：全削除」 ----
+state.wipeTries = 0; state.wipeLockUntil = 0;
+function renderWipePanel() {
+  const panel = document.getElementById('wipePanel');
+  if (!panel) return;
+  const show = !!(state.appEntered && iAmWiper());
+  panel.style.display = show ? '' : 'none';
+  const body = document.getElementById('wipeBody');
+  if (!show) { if (body) { body.innerHTML = ''; delete body.dataset.built; } state.wipeReady = null; return; }
+  if (body.dataset.built === '1') return;
+  body.dataset.built = '1';
+  const vaultUrl = location.origin + location.pathname + '#vault';
+  body.innerHTML = `
+    <p style="font-size:12px; color:var(--text2); line-height:1.8; margin-bottom:12px;">
+      CRMの中身（取引先・商談・チャター・予定・履歴・メンバーの名前など）を<strong>合言葉で暗号化して保管庫に移してから、すべて消します</strong>。<br>
+      消した後は、このURLを誰が開いても「Not Found」としか表示されません。<br>
+      戻す時は <span class="mono" style="word-break:break-all;">${esc(vaultUrl)}</span> を開き、この画面で決めた合言葉を入れます。<strong>合言葉を忘れると戻せません。</strong>
+    </p>
+    <div class="form-group"><label>有効化キー（半角英数字7文字）</label>
+      <input type="password" id="wipeKey" autocomplete="off" autocapitalize="off" spellcheck="false" maxlength="7" placeholder="●●●●●●●" /></div>
+    <div class="form-group"><label>確認のため「全削除」と入力</label>
+      <input type="text" id="wipeConfirm" autocomplete="off" placeholder="全削除" /></div>
+    <div class="form-group"><label>戻す時の合言葉（8文字以上）</label>
+      <input type="password" id="wipePass1" autocomplete="new-password" /></div>
+    <div class="form-group"><label>合言葉（もう一度）</label>
+      <input type="password" id="wipePass2" autocomplete="new-password" /></div>
+    <button type="button" class="btn-action" id="wipeVaultBtn" style="border-color:var(--red); color:var(--red);">① 保管庫に移す（まだ消しません）</button>
+    <div id="wipeStatus" style="font-size:12px; margin-top:10px; line-height:1.8;"></div>
+    <div id="wipeStep2" style="display:none; margin-top:10px;">
+      <button type="button" class="btn-action" id="wipeDlBtn">⬇ 保管ファイルも端末に保存（①の時点の内容）</button>
+      <button type="button" class="btn-action" id="wipeGoBtn" style="background:var(--red); border-color:var(--red); color:#fff; margin-left:6px;">② 全削除を実行</button>
+    </div>`;
+  document.getElementById('wipeVaultBtn').addEventListener('click', wipeStepVault);
+  document.getElementById('wipeDlBtn').addEventListener('click', () => { if (state.wipeReady) downloadVaultFile(state.wipeReady.header, state.wipeReady.ct); });
+  document.getElementById('wipeGoBtn').addEventListener('click', wipeStepDelete);
+}
+async function wipeStepVault() {
+  const st = document.getElementById('wipeStatus');
+  const btn = document.getElementById('wipeVaultBtn');
+  const setSt = (t, err) => { st.textContent = t; st.style.color = err ? 'var(--red)' : 'var(--text2)'; };
+  if (state.wiping || state.wipeReady) return;
+  if (Date.now() < state.wipeLockUntil) { setSt('✕ 入力の間違いが続いたため、しばらく操作できません', true); return; }
+  if (!iAmWiper()) { setSt('✕ 全削除の権限がありません', true); return; }
+  if (!state.safeReady) { setSt('✕ 起動直後の自動バックアップが終わるまで少し待ってから、もう一度押してください', true); return; }
+  const key = document.getElementById('wipeKey').value;
+  state.wiping = true;
+  let keyOk = false;
+  try { keyOk = !!key && (await sha256(key)) === WIPE_KEY_HASH; } finally { state.wiping = false; }
+  if (!keyOk) {
+    state.wipeTries++;
+    if (state.wipeTries >= 5) { state.wipeTries = 0; state.wipeLockUntil = Date.now() + 10 * 60 * 1000; }
+    setSt('✕ 有効化キーが違います', true); return;
+  }
+  if (document.getElementById('wipeConfirm').value.trim() !== '全削除') { setSt('✕ 確認の欄に「全削除」と入力してください', true); return; }
+  const p1 = document.getElementById('wipePass1').value, p2 = document.getElementById('wipePass2').value;
+  if (p1.length < 8) { setSt('✕ 合言葉は8文字以上にしてください', true); return; }
+  if (p1 !== p2) { setSt('✕ 合言葉が2回で違います', true); return; }
+  state.wipeTries = 0;
+  state.wiping = true; btn.disabled = true;
+  setSt('保管庫に移しています…（暗号化して保存し、戻せることを確かめます）');
+  try {
+    // ルールが新しくなっているか（古いと途中で消せなくなる）。新しいルールでは全削除できる人は履歴を消せる
+    // 新しいルールでは crm_public は 'state' 以外書けない。書けてしまったら古いルール
+    let old = false;
+    try { await fsSetDoc(doc(state.db, PUBLIC_COLLECTION, '__probe'), { wiped: false, at: '' }); old = true; }
+    catch (e) { if (!/permission/i.test(String(e && (e.code || e.message)))) throw e; }
+    if (old) { try { await fsDeleteDoc(doc(state.db, PUBLIC_COLLECTION, '__probe')); } catch {} const err = new Error('Firebaseのルールが古いままです（設定のルールを貼り直してから、もう一度押してください）'); err.code = 'rules'; throw err; }
+    const r = await writeVault(p1);
+    state.wipeReady = { ...r, pass: p1 };   // ②で最新の内容をもう一度保管するために、この画面の中だけで持つ（保存しない）
+    const total = Object.values(r.counts).reduce((a, b) => a + b, 0);
+    setSt(`✓ 保管庫に移しました（${total}件・戻せることを確認済み）。まだ何も消していません。②を押すと、その時点の最新の内容をもう一度保管してから消します。\n戻す時のURL: ${location.origin + location.pathname}#vault（Safariのブックマークに入れておくと安心です）`);
+    st.style.whiteSpace = 'pre-wrap';
+    document.getElementById('wipeStep2').style.display = '';
+    ['wipeKey', 'wipeConfirm', 'wipePass1', 'wipePass2'].forEach(id => { const el = document.getElementById(id); el.value = ''; el.disabled = true; });
+  } catch (e) {
+    console.error(e);
+    const perm = /permission/i.test(String((e && (e.code || e.message)) || ''));
+    setSt('✕ 保管庫に移せませんでした（何も消していません）: ' + (perm ? 'Firebaseのルールが古いままです（設定のルールを貼り直してください）' : (e.message || e)), true);
+    btn.disabled = false;
+  } finally { state.wiping = false; }
+}
+async function wipeStepDelete() {
+  const st = document.getElementById('wipeStatus');
+  const go = document.getElementById('wipeGoBtn');
+  if (!state.wipeReady || state.wiping) return;
+  if (!iAmWiper()) { st.textContent = '✕ 全削除の権限がありません'; return; }
+  if (navigator.onLine === false) { st.textContent = '✕ 電波が無いので実行できません'; return; }
+  if (!confirm('本当に全削除しますか？\n\nCRMの中身はすべて消え、URLを開いても「Not Found」になります。\n戻すには #vault のページで合言葉が必要です。')) return;
+  state.wiping = true; go.disabled = true;
+  st.style.color = 'var(--red)';
+  let prevAccess = state.access ? JSON.parse(JSON.stringify(state.access)) : null;
+  let stage = 'start';
+  try {
+    // 鍵をかける前のメンバー一覧（名前入り）を取っておく。保管庫にはこちらを入れる
+    try { const a = await getDoc(doc(state.db, META_COLLECTION, ACCESS_DOC)); if (a.exists()) prevAccess = a.data(); } catch {}
+    st.textContent = '鍵をかけています…（他の人は開けなくなります）';
+    await wipeLockDown(); stage = 'locked';
+    // 鍵をかけた後の最新の内容を、もう一度保管庫に入れて確かめる（①の後に増えた分も失わない）
+    st.textContent = '最新の内容を保管庫に入れています…';
+    await writeVault(state.wipeReady.pass, prevAccess); stage = 'vaulted';
+    st.textContent = '消しています…';
+    await wipeEraseData(); stage = 'done';
+  } catch (e) {
+    console.error(e);
+    if (stage !== 'vaulted') {
+      // まだ何も消していない → 鍵を外して元に戻す
+      let back = true;
+      try {
+        for (let t = 0; ; t++) {
+          try {
+            if (prevAccess) await fsSetDoc(doc(state.db, META_COLLECTION, ACCESS_DOC), prevAccess);
+            await fsSetDoc(doc(state.db, PUBLIC_COLLECTION, PUBLIC_DOC), { wiped: false, at: new Date().toISOString() });
+            break;
+          } catch (e3) { if (t >= 2) throw e3; await new Promise(r => setTimeout(r, 1500)); }
+        }
+      } catch (e2) { back = false; console.error(e2); }
+      state.wiping = false; go.disabled = false;
+      st.textContent = '✕ 全削除できませんでした（何も消していません）: ' + (e.message || e) + (back ? '' : '\n元に戻すのにも失敗しました。' + location.origin + location.pathname + '#vault を開き「鍵だけ外す」を押してください（データはそのまま残っています）');
+      return;
+    }
+    alert('途中で止まりました: ' + (e.message || e) + '\n\n残りは ' + location.origin + location.pathname + '#vault を開き「残りを消す」で消せます。');
+  }
+  state.wipeReady = null;
+  state.wiping = false;
+  state.wipeGate = 'wiped';
+  stopEverything();
+  clearLocalTraces();
+  if (state.auth) { try { await signOut(state.auth); } catch {} }
+  render404();
+}
+
+// ---- #vault: 戻すページ（ブランド無しの最小画面） ----
+function renderVaultPage() {
+  stopEverything();
+  blankDocument('​');
+  document.body.style.cssText = 'font-family:-apple-system,BlinkMacSystemFont,sans-serif;background:#f5f5f5;color:#222;margin:0;padding:24px 16px;';
+  document.body.innerHTML = `<div style="max-width:520px;margin:0 auto;background:#fff;border:1px solid #ddd;border-radius:10px;padding:20px;">
+    <div id="vxMain" style="font-size:14px;line-height:1.8;">確認しています…</div>
+    <div id="vxMsg" style="font-size:13px;margin-top:10px;white-space:pre-wrap;"></div></div>`;
+  showLoading(false);
+  if (state.auth && state.authReady) vaultOnAuth(state.authUser);
+  // 認証の状態を受け取る（onAuthChanged → vaultOnAuth）
+  if (state.auth && !state.authUnsub) state.authUnsub = onAuthStateChanged(state.auth, u => onAuthChanged(u));
+}
+function vxMsg(t, err) { const m = document.getElementById('vxMsg'); if (m) { m.textContent = t || ''; m.style.color = err ? '#c00' : '#333'; } }
+const VX_BTN = 'display:block;width:100%;padding:12px;margin-top:10px;font-size:15px;border-radius:8px;border:1px solid #999;background:#fff;color:#222;';
+const VX_IN = 'display:block;width:100%;box-sizing:border-box;padding:10px;margin-top:6px;font-size:16px;border:1px solid #bbb;border-radius:6px;';
+async function vaultOnAuth(user) {
+  state.authReady = true;
+  state.authUser = user || null;
+  const main = document.getElementById('vxMain');
+  if (!main) return;
+  if (!user) {
+    main.innerHTML = `<button type="button" id="vxLogin" style="${VX_BTN}">Googleでログイン</button>`;
+    document.getElementById('vxLogin').addEventListener('click', vaultLogin);
+    return;
+  }
+  state.loginMethod = 'google';
+  try { await loadAccessFresh(); } catch (e) { state.access = null; }
+  if (!iAmWiper()) {
+    main.innerHTML = `<p>このアカウントでは開けません。</p><button type="button" id="vxOut" style="${VX_BTN}">ログアウト</button>`;
+    document.getElementById('vxOut').addEventListener('click', () => signOut(state.auth).catch(() => {}));
+    return;
+  }
+  let list = [];
+  try {
+    const snap = await getDocs(query(collection(state.db, VAULT_COLLECTION), where('kind', '==', 'h')));
+    snap.forEach(d => list.push(d.data()));
+  } catch (e) { vxMsg('✕ 保管庫を読めませんでした: ' + (e.message || e), true); }
+  list.sort((a, b) => (b.atMs || 0) - (a.atMs || 0));
+  main.innerHTML = `
+    <div style="font-weight:700;">保管庫から戻す</div>
+    <label style="display:block;margin-top:10px;">保管データ</label>
+    <select id="vxSel" style="${VX_IN}">${list.map(h => `<option value="${esc(h.vaultId)}">${esc(new Date(h.atMs || 0).toLocaleString('ja-JP'))}（${esc(h.byEmail || '')}）</option>`).join('') || '<option value="">（保管庫にありません）</option>'}
+      <option value="__file">端末に保存したファイルから</option></select>
+    <input type="file" id="vxFile" style="${VX_IN}display:none;" />
+    <label style="display:block;margin-top:10px;">合言葉</label>
+    <input type="password" id="vxPass" autocomplete="off" style="${VX_IN}" />
+    <button type="button" id="vxRestore" style="${VX_BTN}font-weight:700;">戻す</button>
+    <button type="button" id="vxUnlock" style="${VX_BTN}">鍵だけ外す（データはそのまま・全削除が消す前に止まった時）</button>
+    <button type="button" id="vxRewipe" style="${VX_BTN}color:#c00;border-color:#c00;">残りを消す（全削除が途中で止まった時）</button>
+    <button type="button" id="vxDrop" style="${VX_BTN}color:#c00;border-color:#c00;">選んだ保管データを消す（もう要らない時）</button>
+    <button type="button" id="vxOut" style="${VX_BTN}">ログアウト</button>`;
+  const sel = document.getElementById('vxSel');
+  sel.addEventListener('change', () => { document.getElementById('vxFile').style.display = sel.value === '__file' ? 'block' : 'none'; });
+  if (!list.length) { sel.value = '__file'; document.getElementById('vxFile').style.display = 'block'; }
+  document.getElementById('vxOut').addEventListener('click', () => signOut(state.auth).catch(() => {}));
+  document.getElementById('vxRestore').addEventListener('click', vaultRestoreClick);
+  document.getElementById('vxDrop').addEventListener('click', async () => {
+    const id = sel.value;
+    if (!id || id === '__file') { vxMsg('✕ 保管データを選んでください', true); return; }
+    if (!confirm('この保管データを消しますか？\n消すと、この保管データからは二度と戻せません。')) return;
+    try {
+      const snap = await getDocs(query(collection(state.db, VAULT_COLLECTION), where('vaultId', '==', id)));
+      const ids = []; snap.forEach(d => ids.push(d.id));
+      for (const x of ids) await fsDeleteDoc(doc(state.db, VAULT_COLLECTION, x));
+      await vaultOnAuth(state.authUser); vxMsg('✓ 消しました');
+    } catch (e) { vxMsg('✕ 消せませんでした: ' + (e.message || e), true); }
+  });
+  document.getElementById('vxUnlock').addEventListener('click', async () => {
+    const pass = document.getElementById('vxPass').value;
+    if (!pass) { vxMsg('✕ 合言葉を入れてください（メンバー一覧を戻すのに使います）', true); return; }
+    const b = document.getElementById('vxUnlock'); b.disabled = true;
+    vxMsg('鍵を外しています…');
+    try {
+      const { header, ct } = await vaultSource();
+      const payload = await vaultDecrypt(header, ct, pass);
+      const acc = (payload && payload.data && Array.isArray(payload.data.meta) ? payload.data.meta : []).find(x => x && x.id === ACCESS_DOC);
+      if (!acc) throw new Error('この保管データにメンバー一覧がありません');
+      let started = false;
+      try { const pub = await getDoc(doc(state.db, PUBLIC_COLLECTION, PUBLIC_DOC)); const lockAt = pub.exists() ? parseLockAt(pub.data().at) : NaN; started = !Number.isNaN(lockAt) && list.some(h => (h.atMs || 0) >= lockAt); } catch {}
+      if (started && !confirm('鍵をかけた後の保管データがあります。消すのが途中まで進んでいる可能性があり、鍵を外すと欠けた状態の中身がメンバーに見えます。\n普通は「戻す」を使ってください。それでも鍵だけ外しますか？')) { vxMsg(''); return; }
+      if (!confirm('メンバー一覧を戻して鍵を外しますか？（データは今あるまま。何も上書きしません）')) { vxMsg(''); return; }
+      await restoreAccessDoc(acc.data);
+      await fsSetDoc(doc(state.db, PUBLIC_COLLECTION, PUBLIC_DOC), { wiped: false, at: new Date().toISOString() });
+      wipeSetFlag(false);
+      vxMsg('✓ 鍵を外しました。開き直します…');
+      setTimeout(() => { location.replace(location.pathname + '#/dashboard'); location.reload(); }, 800);
+    } catch (e) { vxMsg('✕ ' + (e.message || e), true); }
+    finally { b.disabled = false; }
+  });
+  // 鍵をかけた後に作られ、合言葉で開けることを確かめた保管データがあるか
+  async function verifiedAfterLock(pass) {
+    const pub = await getDoc(doc(state.db, PUBLIC_COLLECTION, PUBLIC_DOC));
+    const lockAt = pub.exists() ? parseLockAt(pub.data().at) : NaN;
+    if (Number.isNaN(lockAt)) return false;
+    for (const h of list.filter(h => (h.atMs || 0) >= lockAt)) {
+      try { const { header, ct } = await readVaultParts(h.vaultId); await vaultDecrypt(header, ct, pass); return true; } catch {}
+    }
+    return false;
+  }
+  document.getElementById('vxRewipe').addEventListener('click', async () => {
+    const pass = document.getElementById('vxPass').value;
+    if (!pass) { vxMsg('✕ 合言葉を入れてください（最新の保管データが開けるか確かめてから消します）', true); return; }
+    const b = document.getElementById('vxRewipe'); b.disabled = true;
+    vxMsg('確かめています…');
+    let okVault = false;
+    try { okVault = await verifiedAfterLock(pass); } catch { okVault = false; }
+    if (!okVault) { b.disabled = false; vxMsg('✕ 鍵をかけた後の保管データが無いか、合言葉で開けません。今消すと最新の内容が失われるので止めました。\n合言葉を確かめるか、「鍵だけ外す」で元に戻してから設定画面でもう一度全削除してください', true); return; }
+    if (!confirm('残っているデータを消しますか？')) { b.disabled = false; vxMsg(''); return; }
+    vxMsg('消しています…');
+    try { await wipeDeleteAll(); vxMsg('✓ 残りを消しました'); }
+    catch (e) { vxMsg('✕ 消せませんでした: ' + (e.message || e), true); }
+    finally { b.disabled = false; }
+  });
+}
+async function vaultLogin() {
+  vxMsg('');
+  const provider = new GoogleAuthProvider();
+  provider.setCustomParameters({ prompt: 'select_account' });
+  try {
+    if (isStandaloneApp()) { await signInWithRedirect(state.auth, provider); return; }
+    await signInWithPopup(state.auth, provider);
+  } catch (e) {
+    const code = (e && e.code) || '';
+    if (code === 'auth/popup-blocked' || code === 'auth/operation-not-supported-in-this-environment') {
+      try { await signInWithRedirect(state.auth, provider); return; } catch (e2) { vxMsg('✕ ログインできませんでした', true); }
+    } else if (code !== 'auth/popup-closed-by-user' && code !== 'auth/cancelled-popup-request') vxMsg('✕ ログインできませんでした', true);
+  }
+}
+async function vaultRestoreClick() {
+  if (state.vaultBusy) return;
+  const sel = document.getElementById('vxSel').value;
+  const pass = document.getElementById('vxPass').value;
+  if (!pass) { vxMsg('✕ 合言葉を入れてください', true); return; }
+  const btn = document.getElementById('vxRestore');
+  state.vaultBusy = true; btn.disabled = true;
+  vxMsg('開いています…');
+  try {
+    const { header, ct } = await vaultSource();
+    const payload = await vaultDecrypt(header, ct, pass);
+    if (!payload || payload.format !== 'ycx-vault' || !payload.data) throw new Error('保管データの形が違います');
+    const total = Object.values(payload.counts || {}).reduce((a, b) => a + b, 0);
+    if (!confirm(`${new Date(payload.at).toLocaleString('ja-JP')} の保管データ（${total}件）を戻しますか？`)) { vxMsg(''); return; }
+    vxMsg('戻しています…');
+    await vaultRestore(payload);
+    vxMsg('✓ 戻しました。開き直します…');
+    wipeSetFlag(false);
+    setTimeout(() => { location.replace(location.pathname + '#/dashboard'); location.reload(); }, 800);
+  } catch (e) {
+    console.error(e);
+    vxMsg('✕ ' + (e.message || e), true);
+  } finally { state.vaultBusy = false; btn.disabled = false; }
+}
+// 選んだ保管データ（またはファイル）を読む
+async function vaultSource() {
+  const sel = document.getElementById('vxSel').value;
+  if (sel === '__file') {
+    const f = document.getElementById('vxFile').files[0];
+    if (!f) throw new Error('ファイルを選んでください');
+    let obj; try { obj = JSON.parse(await f.text()); } catch { throw new Error('保管ファイルではありません'); }
+    if (!obj || obj.format !== 'ycx-vault-file' || !obj.header || typeof obj.ct !== 'string') throw new Error('保管ファイルではありません');
+    return { header: obj.header, ct: obj.ct };
+  }
+  if (!sel) throw new Error('保管データを選んでください');
+  return readVaultParts(sel);
+}
+// メンバー一覧を戻す（戻す人が締め出されないように、自分は必ず残す）
+async function restoreAccessDoc(packed) {
+  const me = normEmail(state.authUser && state.authUser.email);
+  const a = vaultUnpack(packed);
+  const members = Array.isArray(a.members) ? a.members.filter(m => m && EMAIL_RE.test(normEmail(m.email))) : [];
+  if (!members.some(m => normEmail(m.email) === me)) members.push({ email: me, name: '' });
+  const memberEmails = members.map(m => normEmail(m.email));
+  const admins = [...new Set([...(Array.isArray(a.admins) ? a.admins.map(normEmail) : []), me])].filter(e => memberEmails.includes(e));
+  const wipers = [...new Set([...(Array.isArray(a.wipers) ? a.wipers.map(normEmail) : []), me])].filter(e => admins.includes(e));
+  await fsSetDoc(doc(state.db, META_COLLECTION, ACCESS_DOC), { ...a, members, memberEmails, admins, wipers, updatedAt: isoNow() });
+}
+async function vaultRestore(payload) {
+  const me = normEmail(state.authUser && state.authUser.email);
+  let accessDoc = null;
+  for (const [key, coll] of VAULT_COLLECTIONS) {
+    const arr = Array.isArray(payload.data[key]) ? payload.data[key] : [];
+    const docs = arr.filter(x => x && typeof x.id === 'string' && x.id && x.data && typeof x.data === 'object');
+    const rest = [];
+    docs.forEach(x => {
+      if (coll === META_COLLECTION && x.id === ACCESS_DOC) accessDoc = x.data;
+      // 自動バックアップ本体は保管していないので、一覧は空で戻す（開けない項目を出さない）
+      else if (coll === META_COLLECTION && x.id === 'backups') rest.push({ id: x.id, data: { ...x.data, list: [] } });
+      else rest.push(x);
+    });
+    // 1回の書き込みは400件まで・中身およそ4MBまで（Firestoreの上限 500件/10MBより小さく）
+    let b = null, n = 0, bytes = 0;
+    for (const x of rest) {
+      const sz = JSON.stringify(x.data).length * 2;
+      if (b && (n >= 400 || bytes + sz > 4000000)) { await b.commit(); b = null; }
+      if (!b) { b = fsWriteBatch(state.db); n = 0; bytes = 0; }
+      b.set(doc(state.db, coll, x.id), vaultUnpack(x.data)); n++; bytes += sz;
+    }
+    if (b) await b.commit();
+  }
+  // メンバー一覧は最後に戻す
+  if (accessDoc) await restoreAccessDoc(accessDoc);
+  await fsSetDoc(doc(state.db, PUBLIC_COLLECTION, PUBLIC_DOC), { wiped: false, at: new Date().toISOString() });
+}
+
 // ============== INIT ==============
 async function initApp() {
   state.isInitialLoad = true;
@@ -9697,6 +10330,7 @@ async function initApp() {
   subscribeEvents();
   subscribeMeta();
   subscribeAccess();
+  subscribePublicState();
   ensureSafeVersion();
   startChatterAutoRefresh();
   if (state.autoCancelInterval) clearInterval(state.autoCancelInterval);
@@ -9724,15 +10358,24 @@ async function startup() {
   const cfg = effectiveConfig();
   showLoading(true);
   try {
+    state.wipeGate = true;   // 全削除されていないか確かめるまで、ログインの処理を待たせる
     await initFirebase(cfg);
+    if (await checkWiped()) { enterWipedMode(); return; }
+    state.wipeGate = false;
+    revealPage();
+    subscribePublicState();   // ログイン前から見張る（電波が遅くて最初の確認が間に合わなかった時も、届いた時点で消す）
+    if (state.pendingAuth) { state.pendingAuth = false; onAuthChanged(state.pendingAuthUser); }
     updateConnectionPill(true);
     if (!state.auth || state.authReady) { if (!state.appEntered && !state.authUser) showLoginChoice(); }
     else setTimeout(() => { if (!state.authReady && !state.appEntered) showLoginChoice(); }, 4000);
   } catch (e) {
     console.error(e);
+    if (state.wipeGate === 'wiped' || state.wipeGate === 'vault') return;
+    state.wipeGate = false;
+    revealPage();
     showLoginChoice();
     googleError.textContent = '✕ 接続できませんでした。電波を確認して、ページを開き直してください';
-  } finally { showLoading(false); }
+  } finally { if (state.wipeGate !== 'wiped' && state.wipeGate !== 'vault') showLoading(false); }
 }
 startup();
 </script>
